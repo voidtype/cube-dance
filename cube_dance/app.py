@@ -94,7 +94,11 @@ class CubeWindow(mglw.WindowConfig):
         )
         self.fly = FlyCamera(fovy_deg=fovy)
         self.fly.set_from_orbit(self.orbit)
-        self.mode = "orbit"
+        self.mode = "fly"  # WASD by default
+        try:
+            self.wnd.mouse_exclusivity = True  # capture mouse for fly-look
+        except Exception:
+            pass
 
         w, h = self.wnd.buffer_size
         self._set_aspect(w, h)

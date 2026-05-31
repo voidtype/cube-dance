@@ -225,11 +225,12 @@ class CubeScene:
             _set(self.metal_prog, "u_color", (0.40, 0.42, 0.45))  # dull aluminium
             self.truss_vao.render(mgl.TRIANGLES, vertices=self._truss_n)
 
-        # --- Additive emissive elements: depth-test on, depth-write off ---
+        # --- Additive emissive LEDs: depth test OFF so the glow is view-independent ---
+        # (consistent brightness from any angle, transparent through each other and the
+        # open truss). The truss/scenery above already wrote depth for the opaque look.
+        ctx.disable(mgl.DEPTH_TEST)
         ctx.enable(mgl.BLEND)
         ctx.blend_func = (mgl.ONE, mgl.ONE)
-        if self._has_depth_mask:
-            ctx.depth_mask = False
         ctx.enable(mgl.PROGRAM_POINT_SIZE)
 
         self.led_prog["u_view"].write(view_bytes)
@@ -243,6 +244,3 @@ class CubeScene:
         if self.marker_vao is not None:
             _set(self.led_prog, "u_radius", float(self.marker_radius_m))
             self.marker_vao.render(mgl.POINTS, vertices=self._marker_n)
-
-        if self._has_depth_mask:
-            ctx.depth_mask = True

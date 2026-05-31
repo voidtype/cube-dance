@@ -85,15 +85,8 @@ uv run cube-dance --no-floor --no-speakers --no-bushes      # hide scenery
 There are **two navigation modes** — press **`Tab`** to switch. The active mode and its
 controls are always shown in the on-screen help (toggle with **`H`**).
 
-**Orbit mode** (like a 3D editor / Blender) — default:
-
-| Input                           | Action |
-| ------------------------------- | ------ |
-| Left-drag                       | orbit around the cube |
-| Shift-drag / right- or mid-drag | pan    |
-| Scroll                          | zoom   |
-
-**Fly mode** (like an FPS) — press `Tab` to enter (the mouse is captured):
+**Fly mode** (like an FPS) — **default** (the mouse is captured for look; press `Tab` for
+orbit):
 
 | Input            | Action            |
 | ---------------- | ----------------- |
@@ -103,6 +96,14 @@ controls are always shown in the on-screen help (toggle with **`H`**).
 | `Ctrl` / `Q`     | down              |
 | `Shift` (hold)   | move faster       |
 | Scroll           | adjust move speed |
+
+**Orbit mode** (like a 3D editor / Blender) — press `Tab` to enter:
+
+| Input                           | Action |
+| ------------------------------- | ------ |
+| Left-drag                       | orbit around the cube |
+| Shift-drag / right- or mid-drag | pan    |
+| Scroll                          | zoom   |
 
 **Always available:** `R` reset view · `V` record clip · `H` toggle help · `Esc` quit.
 With audio: `K` play/pause · `J` restart. With no audio: `P` pause/resume the placeholder
