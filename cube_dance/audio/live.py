@@ -35,10 +35,12 @@ class LiveAudioInput:
 
     is_live = True
 
-    def __init__(self, sr: int = 44100, device=None, gain: float = 1.0,
+    def __init__(self, sr: int | None = None, device=None, gain: float = 1.0,
                  buffer_seconds: float = 4.0, request_channels: int = 2) -> None:
-        self.sr = int(sr)
         self.device = device
+        if sr is None:  # match the device's native rate (e.g. 48 kHz) -> no silent mismatch
+            sr = self._query_default_sr(device)
+        self.sr = int(sr)
         self.gain = float(gain)
         self.channels = 2  # always present stereo (mono is duplicated)
         self._req = int(request_channels)
@@ -50,6 +52,17 @@ class LiveAudioInput:
         self.duration = float(buffer_seconds)  # rolling window length (no real length)
         self.active = False
         self.error: str | None = None
+
+    @staticmethod
+    def _query_default_sr(device) -> int:
+        try:
+            import sounddevice as sd
+
+            info = sd.query_devices(device, "input") if device is not None else sd.query_devices(kind="input")
+            sr = int(info.get("default_samplerate") or 0)
+            return sr if sr > 0 else 44100
+        except Exception:  # noqa: BLE001
+            return 44100
 
     # --- Lifecycle -----------------------------------------------------------
     def start(self) -> None:
