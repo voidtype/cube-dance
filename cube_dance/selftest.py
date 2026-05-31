@@ -43,6 +43,7 @@ def run_selftest(
     frames: int = 120,
     cfg: CubeConfig | None = None,
     audio_file=None,
+    visual_choice: str = "auto",
     verbose: bool = True,
 ) -> int:
     cfg = cfg or CubeConfig()
@@ -53,17 +54,17 @@ def run_selftest(
     t0 = _time.perf_counter()
     if audio_file is not None:
         from .audio import AudioSource
-        from .visuals import Features, VuMeter
+        from .visuals import CubeAwareVisual, Features, VuMeter
 
         source = AudioSource(audio_file, mute=True)  # no device in headless self-test
         source.start()
-        vu = VuMeter(model)
+        visual = VuMeter(model) if visual_choice == "vu" else CubeAwareVisual(model)
         for _ in range(frames):
             source.update(dt)
-            lvl = source.level()
-            levels.append(lvl)
-            vu.update(model, source.position, Features(level=lvl))
-        mode = "audio VU"
+            feats = Features(level=source.level(), **source.bands())
+            levels.append(feats.level)
+            visual.update(model, source.position, feats)
+        mode = "audio " + ("vu" if visual_choice == "vu" else "spectrum")
     else:
         pattern = PlaceholderPattern()
         for i in range(frames):

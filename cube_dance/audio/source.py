@@ -47,6 +47,10 @@ class AudioSource:
     def level(self) -> float:
         return self.audio.level_at(self.position)
 
+    def bands(self) -> dict[str, float]:
+        """bass/mid/treble (mono) + bass_l/bass_r at the current position."""
+        return self.audio.bands_at(self.position)
+
     # --- Lifecycle / transport ----------------------------------------------
     def start(self) -> None:
         """Begin playback. Returns immediately; the device opens in the background."""

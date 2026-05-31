@@ -21,7 +21,7 @@ from .recording import SessionRecorder
 from .render.camera import FlyCamera, OrbitCamera
 from .render.hud import HudOverlay
 from .render.scene import CubeScene
-from .visuals import Features, PlaceholderVisual, VuMeter
+from .visuals import CubeAwareVisual, Features, PlaceholderVisual, VuMeter
 
 
 def _fmt_time(seconds: float) -> str:
@@ -58,6 +58,7 @@ class CubeWindow(mglw.WindowConfig):
     audio_file = None  # set by the CLI (an AudioFile) to drive a VU meter
     mute: bool = False
     loop: bool = False
+    visual_choice: str = "auto"
     record_auto: bool = False
     record_fps: int = 30
     record_dir: str = "recordings"
@@ -75,12 +76,16 @@ class CubeWindow(mglw.WindowConfig):
         # Audio source + visual selection: VU meter when audio is loaded, else
         # the Phase 0 placeholder pattern.
         self.audio: AudioSource | None = None
+        choice = type(self).visual_choice
         if type(self).audio_file is not None:
             self.audio = AudioSource(type(self).audio_file, mute=type(self).mute, loop=type(self).loop)
-            self.visual = VuMeter(self.model)
+            if choice == "vu":
+                self.visual, self.visual_name = VuMeter(self.model), "vu"
+            else:  # auto / spectrum
+                self.visual, self.visual_name = CubeAwareVisual(self.model), "spectrum"
             self.audio.start()
         else:
-            self.visual = PlaceholderVisual()
+            self.visual, self.visual_name = PlaceholderVisual(), "placeholder"
 
         self.recorder = SessionRecorder(
             self.audio, loop=type(self).loop, fps=type(self).record_fps, outdir=type(self).record_dir
@@ -115,8 +120,7 @@ class CubeWindow(mglw.WindowConfig):
         self._hud_accum = 0.0
 
         self._refresh_hud()
-        src = "demo/audio VU meter" if self.audio is not None else "placeholder pattern"
-        print(f"Cube Dance — Phase 1 ({src})")
+        print(f"Cube Dance — visual: {self.visual_name}")
         print("\n".join(_control_lines(self.mode, self.paused, self._audio_line())))
         print(f"Cube model: {self.model.n} LED pixels "
               f"({int(self.model.edge_mask.sum())} edge, {int(self.model.corner_mask.sum())} corner)")
@@ -139,7 +143,7 @@ class CubeWindow(mglw.WindowConfig):
         state = "PLAYING" if self.audio.playing else "PAUSED"
         return (
             f"K play/pause  J restart   "
-            f"{_fmt_time(self.audio.position)} / {_fmt_time(self.audio.duration)}  [{state}]"
+            f"{_fmt_time(self.audio.position)} / {_fmt_time(self.audio.duration)}  [{state}]  · {self.visual_name}"
         )
 
     def _rec_line(self) -> str | None:
@@ -198,7 +202,7 @@ class CubeWindow(mglw.WindowConfig):
         if self.audio is not None:
             self.audio.update(frame_time)
             t = self.audio.position
-            features = Features(level=self.audio.level())
+            features = Features(level=self.audio.level(), **self.audio.bands())
         else:
             if not self.paused:
                 self._pattern_time += frame_time
@@ -331,6 +335,7 @@ def run(
     audio_file=None,
     mute: bool = False,
     loop: bool = False,
+    visual_choice: str = "auto",
     record_auto: bool = False,
     record_fps: int = 30,
     record_dir: str = "recordings",
@@ -340,6 +345,7 @@ def run(
     CubeWindow.audio_file = audio_file
     CubeWindow.mute = mute
     CubeWindow.loop = loop
+    CubeWindow.visual_choice = visual_choice
     CubeWindow.record_auto = record_auto
     CubeWindow.record_fps = record_fps
     CubeWindow.record_dir = record_dir

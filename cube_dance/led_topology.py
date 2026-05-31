@@ -135,6 +135,14 @@ class CubeModel:
             for c in build_corners()
         }
 
+        # Spatial region groupings (by position sign) for cube-aware visuals.
+        x, y, z = self.positions[:, 0], self.positions[:, 1], self.positions[:, 2]
+        self.region_indices: dict[str, np.ndarray] = {
+            "left": np.where(x < 0)[0], "right": np.where(x >= 0)[0],
+            "bottom": np.where(y < 0)[0], "top": np.where(y >= 0)[0],
+            "back": np.where(z < 0)[0], "front": np.where(z >= 0)[0],
+        }
+
     @property
     def n(self) -> int:
         return self.positions.shape[0]

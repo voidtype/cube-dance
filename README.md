@@ -8,19 +8,22 @@ This repo is built **spec-first** with [OpenSpec](https://github.com/Fission-AI/
 and developed in **phases** — see [`openspec/project.md`](openspec/project.md) for the
 full roadmap and the physical cube facts.
 
-## Status: Phase 1 — audio VU meter
+## Status: Phase 2 — cube-aware (bass/treble → regions)
 
-Load an audio file (or a built-in demo beat) and the cube reacts as a **VU meter**: it
-fills from the floor up with the loudness, on a green → amber → red ramp with a peak-hold
-cap. Audio plays out loud, synced to the visuals; the device opens in the background so
-the window appears instantly. With no audio it falls back to the Phase 0 placeholder.
+Load an audio file (or the built-in demo beat) and the cube reacts **spatially**: the
+**corners pulse with the bass, split left/right** by stereo channel, and the **beams react
+to the mids/treble** (a cooler shimmer). Audio plays out loud, synced to the visuals; the
+device opens in the background so the window appears instantly. With no audio it falls back
+to the Phase 0 placeholder.
 
 ```bash
-uv run cube-dance --demo            # synthetic beat, no file needed
-uv run cube-dance --audio track.wav # your own file (WAV/FLAC/AIFF/OGG)
-uv run cube-dance --audio track.wav --mute   # visuals only, no sound
+uv run cube-dance --demo                       # synthetic beat, no file needed
+uv run cube-dance --audio track.wav            # your own file (WAV/FLAC/AIFF/OGG)
+uv run cube-dance --audio track.wav --visual vu    # the simple Phase-1 VU meter instead
+uv run cube-dance --audio track.wav --mute     # visuals only, no sound
 ```
 
+`--visual`: `auto` (default — cube-aware "spectrum" with audio), `spectrum`, or `vu`.
 Transport: **`K`** play/pause · **`J`** restart (shown in the on-screen help).
 
 ### Record a clip to share
@@ -128,8 +131,8 @@ cube_dance/
   scenery.py        clay ground + bushes + speaker cabinets (non-LED realism props)
   truss.py          F34 truss tubes (chords + lacing + corner frames) for the metal pass
   led_mesh.py       emissive LED-strip tubes (one per run), coloured per-pixel from a texture
-  audio/            file decode + loudness envelope, transport, background playback, demo
-  visuals/          VU meter + placeholder, driven by audio features
+  audio/            file decode + loudness + bass/mid/treble (L/R) bands, transport, demo
+  visuals/          cube-aware spectrum + VU + placeholder, driven by audio features
   recording.py      live-session capture -> shareable MP4 (ffmpeg)
   render/camera.py  orbit + fly cameras (numpy matrices)
   render/scene.py   moderngl: LED points (single draw) + scenery, depth-correct

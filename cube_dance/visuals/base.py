@@ -15,7 +15,12 @@ from ..led_topology import CubeModel
 
 @dataclass
 class Features:
-    level: float = 0.0  # normalised loudness in [0, 1]
+    level: float = 0.0  # normalised overall loudness in [0, 1]
+    bass: float = 0.0  # mono band energies in [0, 1]
+    mid: float = 0.0
+    treble: float = 0.0
+    bass_l: float = 0.0  # per-channel bass (for left/right corner split)
+    bass_r: float = 0.0
 
 
 @runtime_checkable
