@@ -13,6 +13,7 @@ import math
 import time
 
 import moderngl_window as mglw
+import numpy as np
 
 from .audio import AudioSource
 from .config import CubeConfig
@@ -246,16 +247,20 @@ class CubeWindow(mglw.WindowConfig):
             t = self._pattern_time
             features = Features()
         self.visual.update(self.model, t, features)
+        self._apply_pad_flash(frame_time)
         self.scene.update_colors()
 
         self.ctx.clear(0.02, 0.02, 0.03)
         cam = self._cam()
-        viewport_h = self.wnd.buffer_size[1]
-        ps = CubeScene.proj_scale(viewport_h, cam.fovy_deg)
+        w, h = self.wnd.buffer_size
+        ps = CubeScene.proj_scale(h, cam.fovy_deg)
         self.scene.render(cam.view_bytes(), cam.proj_bytes(), ps)
 
-        # Capture the clean scene (before the HUD) for the recorder. Pace frame
-        # count to wall-clock (duplicate when behind) so A/V stays in sync.
+        # The F1 panel is drawn BEFORE the recorder capture so it appears in the
+        # video when shown; the HUD help/REC indicator is drawn AFTER (excluded).
+        if self.show_controls:
+            self.f1.render(w, h, self.controls)
+
         if self.recorder.is_recording:
             n = self.recorder.frames_due(time.time())
             if n > 0:
@@ -263,11 +268,8 @@ class CubeWindow(mglw.WindowConfig):
                 fw, fh = fb.size
                 self.recorder.write_frame(fb.read(components=3), fw, fh, n)
 
-        w, h = self.wnd.buffer_size
         if self.show_help or self.recorder.is_recording:
             self.hud.render(w, h)
-        if self.show_controls:
-            self.f1.render(w, h, self.controls)
 
         self._title_accum += frame_time
         if self._title_accum >= 0.5:
@@ -284,6 +286,18 @@ class CubeWindow(mglw.WindowConfig):
             if self._hud_accum >= 0.25:
                 self._hud_accum = 0.0
                 self._refresh_hud()
+
+    def _apply_pad_flash(self, dt: float) -> None:
+        """A pad hit flashes the whole cube in its colour, decaying away."""
+        c = self.controls
+        if c.flash_level <= 0.005:
+            return
+        c.flash_level *= math.exp(-dt / 0.22) if dt > 0 else 1.0
+        if c.flash_level > 0.01:
+            np.maximum(self.model.colors, np.array(c.flash_color, dtype=np.float32) * c.flash_level,
+                       out=self.model.colors)
+        if self.show_controls:
+            self.f1.mark_dirty()  # animate the pad glow fading
 
     def _fly_step(self, dt: float) -> None:
         keys = self.wnd.keys

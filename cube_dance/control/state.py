@@ -21,6 +21,9 @@ class ControlState:
     buttons: dict[str, bool] = field(default_factory=lambda: {b: False for b in BUTTONS})
     p: int = 0  # 2-digit display value 0..99
     pads: list[bool] = field(default_factory=lambda: [False] * 16)
+    # A pad hit fires a decaying full-cube colour flash (a manual accent / strobe).
+    flash_color: tuple[float, float, float] = (0.0, 0.0, 0.0)
+    flash_level: float = 0.0
 
     def step_encoder(self, delta: int) -> None:
         self.p = (self.p + int(delta)) % 100

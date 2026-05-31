@@ -85,5 +85,12 @@ def test_virtual_f1_interaction():
         p0 = st.p
         f1.on_scroll(x0 + ecx * sc, y0 + ecy * sc, 1, st)
         assert st.p == (p0 + 1) % 100
+
+        # Clicking a pad fires a flash and lights that pad.
+        px0, py0, px1, py1 = f1.pads_rect
+        cx = px0 + (px1 - px0) / 8  # centre of pad index 0
+        cy = py0 + (py1 - py0) / 8
+        f1.on_press(x0 + cx * sc, y0 + cy * sc, st)
+        assert st.flash_level == 1.0 and st.pads[0] and sum(st.flash_color) > 0
     finally:
         ctx.release()

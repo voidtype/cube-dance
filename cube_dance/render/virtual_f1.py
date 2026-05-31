@@ -129,6 +129,18 @@ class VirtualF1:
                 state.toggle(name)
                 self._dirty = True
                 return True
+        px0, py0, px1, py1 = self.pads_rect
+        if px0 <= ix <= px1 and py0 <= iy <= py1:
+            c = min(3, max(0, int((ix - px0) / ((px1 - px0) / 4))))
+            r = min(3, max(0, int((iy - py0) / ((py1 - py0) / 4))))
+            i = r * 4 + c
+            for k in range(16):
+                state.pads[k] = k == i
+            col = _PAD_PALETTE[i]
+            state.flash_color = (col[0] / 255.0, col[1] / 255.0, col[2] / 255.0)
+            state.flash_level = 1.0  # fires a decaying full-cube flash
+            self._dirty = True
+            return True
         return True  # swallow clicks anywhere on the panel
 
     def on_drag(self, sx: float, sy: float, state: ControlState) -> bool:
@@ -228,7 +240,12 @@ class VirtualF1:
                 idx = r_ * 4 + c_
                 x = px0 + c_ * cw
                 y = py0 + r_ * ch
-                col = _PAD_PALETTE[idx]
+                base = _PAD_PALETTE[idx]
+                if state.pads[idx]:  # the hit pad glows, fading with the flash
+                    s = 0.6 + 0.4 * max(0.0, min(1.0, state.flash_level))
+                else:
+                    s = 0.42
+                col = tuple(int(ch_ * s) for ch_ in base)
                 d.rounded_rectangle((x + 4, y + 4, x + cw - 4, y + ch - 4), radius=6, fill=col)
         sx0, sy0, sx1, sy1 = self.stop_rect
         sw = (sx1 - sx0) / 4
