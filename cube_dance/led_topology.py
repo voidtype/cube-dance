@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from .config import CubeConfig
+from .config import AXIS_Y, CubeConfig
 from .geometry import (
     _other_axes,
     build_corners,
@@ -29,13 +29,25 @@ GROUP_CORNER = np.uint8(1)
 
 
 def _edge_chord_normal(edge, cfg: CubeConfig, p0: np.ndarray) -> np.ndarray:
-    """Outward unit normal of an edge chord (from the beam centre line)."""
+    """Outward unit normal of an edge chord: the sum of the *lit* outward face
+    normals the chord lies on. This lifts LEDs straight out of their visible
+    face(s) -- so base-edge LEDs lift horizontally (not down into the ground).
+    """
     d0, d1 = _other_axes(edge.axis)
-    mid = (cfg.edge_half + cfg.half) / 2.0
+    s0, s1 = edge.fixed
+    h = cfg.half
+    include0 = not (d0 == AXIS_Y and s0 < 0)  # drop the downward (ground) face
+    include1 = not (d1 == AXIS_Y and s1 < 0)
     n = np.zeros(3)
-    n[d0] = p0[d0] - edge.fixed[0] * mid
-    n[d1] = p0[d1] - edge.fixed[1] * mid
+    if include0 and abs(p0[d0] - s0 * h) < 1e-9:
+        n[d0] += s0
+    if include1 and abs(p0[d1] - s1 * h) < 1e-9:
+        n[d1] += s1
     norm = np.linalg.norm(n)
+    if norm < 1e-9:  # fallback (shouldn't happen for lit chords)
+        mid = (cfg.edge_half + cfg.half) / 2.0
+        n[d0], n[d1] = p0[d0] - s0 * mid, p0[d1] - s1 * mid
+        norm = np.linalg.norm(n)
     return n / norm if norm > 1e-9 else n
 
 

@@ -51,12 +51,15 @@ def build_led_strips(
     strip is coloured per pixel along its length.
     """
     n = model.n
+    floor = -model.cfg.half + 0.004  # keep LEDs from being pushed below the cube bottom
     pos_all, nrm_all, uv_all = [], [], []
     for start, length in model.run_spans:
         if length < 2:
             continue
         a = model.positions[start] + model.normal[start] * offset
         b = model.positions[start + length - 1] + model.normal[start + length - 1] * offset
+        a[1] = max(a[1], floor)
+        b[1] = max(b[1], floor)
         built = _cylinder_param(a, b, radius, sides)
         if built is None:
             continue
