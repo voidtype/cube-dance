@@ -73,12 +73,14 @@ class CubeAwareVisual:
         if self.p.gamma != 1.0:
             val = np.power(val, self.p.gamma)
         val = self.p.floor + (1.0 - self.p.floor) * np.clip(val, 0.0, 1.0)
-        hue = (self.hue_base + self._phase) % 1.0
+        hue = (self.hue_base + self._phase + self.p.hue_offset) % 1.0
         colors[self.edge_idx] = hsv_to_rgb(hue, float(self.p.beam_sat), val.astype(np.float32))
 
         # --- Corners: bass, split left/right (kept warm) ---
-        warm = (self.p.corner_hue + self._corner_phase) % 1.0
+        warm = (self.p.corner_hue + self._corner_phase + self.p.hue_offset) % 1.0
         colors[self.corners_left] = hsv_to_rgb(warm, float(self.p.corner_sat), float(features.bass_l))
         colors[self.corners_right] = hsv_to_rgb(warm, float(self.p.corner_sat), float(features.bass_r))
 
+        if self.p.master != 1.0:
+            colors *= self.p.master
         np.clip(colors, 0.0, 1.0, out=colors)

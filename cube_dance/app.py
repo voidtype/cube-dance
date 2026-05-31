@@ -16,12 +16,16 @@ import moderngl_window as mglw
 
 from .audio import AudioSource
 from .config import CubeConfig
+from .control import ControlMap, ControlState
+from .control.midi import MidiInput
 from .led_topology import build_model
 from .recording import SessionRecorder
 from .render.camera import FlyCamera, OrbitCamera
 from .render.hud import HudOverlay
 from .render.scene import CubeScene
+from .render.virtual_f1 import VirtualF1
 from .visuals import CubeAwareVisual, Features, PlaceholderVisual, VuMeter
+from .visuals.params import VisualParams
 
 
 def _fmt_time(seconds: float) -> str:
@@ -31,7 +35,7 @@ def _fmt_time(seconds: float) -> str:
 
 def _control_lines(mode: str, paused: bool, audio_line: str | None = None) -> list[str]:
     common = [
-        "Tab  switch nav mode    H  hide help",
+        "Tab  switch nav mode    H  hide help    C  controls",
         "R  reset view    V  record    Esc  quit",
     ]
     if mode == "orbit":
@@ -75,14 +79,27 @@ class CubeWindow(mglw.WindowConfig):
 
         # Audio source + visual selection: VU meter when audio is loaded, else
         # the Phase 0 placeholder pattern.
+        # F1 control surface: state + mapping + (optional) MIDI + virtual panel.
+        self.controls = ControlState()
+        self.control_map = ControlMap()
+        self.vparams = VisualParams()
+        self.aparams = None
+        self.f1 = VirtualF1(self.ctx)
+        self.show_controls = False
+        self.midi = MidiInput(self.controls)
+        self.midi.start()
+
         self.audio: AudioSource | None = None
         choice = type(self).visual_choice
         if type(self).audio_file is not None:
             self.audio = AudioSource(type(self).audio_file, mute=type(self).mute, loop=type(self).loop)
+            self.aparams = self.audio.processor.p
             if choice == "vu":
                 self.visual, self.visual_name = VuMeter(self.model), "vu"
             else:  # auto / spectrum
-                self.visual = CubeAwareVisual(self.model, n_buckets=self.audio.analyzer.n_buckets)
+                self.visual = CubeAwareVisual(
+                    self.model, n_buckets=self.audio.analyzer.n_buckets, params=self.vparams
+                )
                 self.visual_name = "spectrum"
             self.audio.start()
         else:
@@ -110,6 +127,7 @@ class CubeWindow(mglw.WindowConfig):
         self._set_aspect(w, h)
 
         self._left = getattr(getattr(self.wnd, "mouse", None), "left", 1)
+        self._mouse = (0.0, 0.0)
         self._buttons: set[int] = set()
         self._keys_down: set = set()
         self._shift = False
@@ -195,10 +213,28 @@ class CubeWindow(mglw.WindowConfig):
                 pass
         self._refresh_hud()
 
+    def _toggle_controls(self) -> None:
+        self.show_controls = not self.show_controls
+        if self.show_controls:
+            self.f1.mark_dirty()
+            try:
+                self.wnd.mouse_exclusivity = False  # release the cursor to drive the panel
+            except Exception:
+                pass
+        elif self.mode == "fly":
+            try:
+                self.wnd.mouse_exclusivity = True  # recapture for fly-look
+            except Exception:
+                pass
+
     # --- Render loop ---------------------------------------------------------
     def on_render(self, render_time: float, frame_time: float) -> None:
-        if self.mode == "fly":
+        if self.mode == "fly" and not self.show_controls:  # frozen while controls are up
             self._fly_step(frame_time)
+
+        # Apply the F1 control mapping to the live params (knobs/faders/encoder).
+        if self.audio is not None:
+            self.control_map.apply(self.controls, self.vparams, self.aparams)
 
         if self.audio is not None:
             self.audio.update(frame_time)
@@ -227,9 +263,11 @@ class CubeWindow(mglw.WindowConfig):
                 fw, fh = fb.size
                 self.recorder.write_frame(fb.read(components=3), fw, fh, n)
 
+        w, h = self.wnd.buffer_size
         if self.show_help or self.recorder.is_recording:
-            w, h = self.wnd.buffer_size
             self.hud.render(w, h)
+        if self.show_controls:
+            self.f1.render(w, h, self.controls)
 
         self._title_accum += frame_time
         if self._title_accum >= 0.5:
@@ -282,6 +320,8 @@ class CubeWindow(mglw.WindowConfig):
                 self.fly.set_from_orbit(self.orbit)
             elif key == keys.V:
                 self._toggle_recording()
+            elif key == keys.C:
+                self._toggle_controls()
             elif key == keys.K and self.audio is not None:
                 self.audio.toggle()
                 self._refresh_hud()
@@ -301,19 +341,32 @@ class CubeWindow(mglw.WindowConfig):
                 print(f"[rec] saved {path}")
         if self.audio is not None:
             self.audio.close()
+        self.midi.close()
 
     def on_mouse_press_event(self, x: int, y: int, button: int) -> None:
+        if self.show_controls and self.f1.contains(x, y):
+            self.f1.on_press(x, y, self.controls)
+            return
         self._buttons.add(button)
 
     def on_mouse_release_event(self, x: int, y: int, button: int) -> None:
+        if self.show_controls:
+            self.f1.on_release()
+            return
         self._buttons.discard(button)
 
     def on_mouse_position_event(self, x: int, y: int, dx: int, dy: int) -> None:
-        # Fly-mode mouse-look when the cursor is captured.
+        self._mouse = (x, y)
+        if self.show_controls:
+            return  # no fly-look while the controls panel is up
         if self.mode == "fly" and getattr(self.wnd, "mouse_exclusivity", False):
             self.fly.look(dx, dy)
 
     def on_mouse_drag_event(self, x: int, y: int, dx: int, dy: int) -> None:
+        self._mouse = (x, y)
+        if self.show_controls:
+            self.f1.on_drag(x, y, self.controls)
+            return
         if self.mode == "fly":
             self.fly.look(dx, dy)
             return
@@ -324,6 +377,10 @@ class CubeWindow(mglw.WindowConfig):
             self.orbit.rotate(dx, dy)
 
     def on_mouse_scroll_event(self, x_offset: float, y_offset: float) -> None:
+        if self.show_controls:
+            mx, my = self._mouse
+            self.f1.on_scroll(mx, my, 1 if y_offset > 0 else -1, self.controls)
+            return
         if self.mode == "fly":
             self.fly.move_speed = max(0.3, min(30.0, self.fly.move_speed * (1.1 ** y_offset)))
         else:

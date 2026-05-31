@@ -8,6 +8,16 @@ This repo is built **spec-first** with [OpenSpec](https://github.com/Fission-AI/
 and developed in **phases** — see [`openspec/project.md`](openspec/project.md) for the
 full roadmap and the physical cube facts.
 
+## Status: Phase 3 — F1 control
+
+Press **`C`** for an on-screen **Traktor Kontrol F1** in the right quarter (mouse is freed
+and camera movement freezes while it's up). Its **knobs and faders are click-drag** (VST
+style), **buttons are grey and light when clicked**, a **7-segment display** shows P and the
+**browse encoder** (scroll over it) changes P. Controls map to the visual/AGC params: knobs
+→ hide-quiet / contrast / hue-spread / response; faders → master / evolve / accel / floor;
+P → global hue; REVERSE flips the colour-drift direction. A connected real F1 feeds the same
+controls over MIDI (best-effort; full mapping in Phase 5).
+
 ## Status: Phase 2 — cube-aware, dynamic & stereo
 
 Load an audio file (or the built-in demo beat) and the cube reacts **spatially and
@@ -116,7 +126,8 @@ orbit):
 | Shift-drag / right- or mid-drag | pan    |
 | Scroll                          | zoom   |
 
-**Always available:** `R` reset view · `V` record clip · `H` toggle help · `Esc` quit.
+**Always available:** `R` reset view · `V` record clip · `C` F1 controls · `H` toggle help ·
+`Esc` quit.
 With audio: `K` play/pause · `J` restart. With no audio: `P` pause/resume the placeholder
 pattern.
 
@@ -141,6 +152,8 @@ cube_dance/
   led_mesh.py       emissive LED-strip tubes (one per run), coloured per-pixel from a texture
   audio/            decode + window_at, streaming SpectrumAnalyzer + AGC processor, transport
   visuals/          cube-aware spectrum + VU + placeholder; VisualParams (for the DSL)
+  control/          F1 control state, control->param mapping, basic MIDI input
+  render/virtual_f1.py   interactive on-screen F1 panel (knobs/faders/buttons/display/pads)
   recording.py      live-session capture -> shareable MP4 (ffmpeg)
   render/camera.py  orbit + fly cameras (numpy matrices)
   render/scene.py   moderngl: LED points (single draw) + scenery, depth-correct

@@ -25,3 +25,6 @@ class VisualParams:
     beam_sat: float = 0.9
     # A small always-on floor so the cube never reads fully dead (0 = pure reactive).
     floor: float = 0.0
+    # Driven by the F1: overall brightness and a global hue offset (the P display).
+    master: float = 1.0
+    hue_offset: float = 0.0
