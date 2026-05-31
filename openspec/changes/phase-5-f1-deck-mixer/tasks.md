@@ -29,6 +29,25 @@
       `p`→focused deck preset; `N` bumps the focused deck's preset; pass deck labels+focus to F1.
 - [x] 4.3 `cli.py`: `--preset` sets deck 1's starting preset (others keep defaults).
 
+## 6. Performance surface (F1 as an instrument)
+
+- [x] 6.1 `engine/element.py`: `Knob`, `Trigger`, `Element.done`; transient trigger elements
+      in `elements.py` (`ColorStab`, `StrobeBurst`, `RiserSweep`, `SparkBurst`) + `Pulse` body.
+- [x] 6.2 `engine/engine.py`: per-deck `params` (intensity/hue/speed/space) + `knob_vals`,
+      `triggers`/`transients`, `fire(label)`, `set_schema`; apply in `render`.
+- [x] 6.3 `presets/`: each declares `KNOBS` + `TRIGGERS` (arbitrary factories) and richer
+      builds; `presets.load` applies the schema to the engine.
+- [x] 6.4 `engine/mixer.py`: `fire(deck,label)`, `trigger_cells`, `knob_labels/vals`,
+      `set_knob`, `reset_knobs`; `SYNC` beat-pulse + `CAPTURE` blackout.
+- [x] 6.5 `control/`: pad press queue + glow + `focus_deck`; `ControlMap` → global flags;
+      MIDI notes 0–15 → pads.
+- [x] 6.6 `render/virtual_f1.py`: per-channel coloured pads, bottom-row channel select, knob
+      labels from preset; pad/bottom interaction.
+- [x] 6.7 `app.py`: route knobs→selected deck params, pads→triggers (QUANT quantise +
+      timeout), bottom-row select, `BROWSE` reset; pad-glow decay.
+- [x] 6.8 `tests/test_phase5b.py`: schema declared, trigger spawns+expires, stab region/decay,
+      knob param affects evolution/intensity, mixer routing, blackout.
+
 ## 5. Verify & document
 
 - [x] 5.1 `tests/test_phase5.py`: mixer blends by volume; `set_deck_preset` swaps elements;

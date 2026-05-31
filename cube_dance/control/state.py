@@ -21,11 +21,11 @@ class ControlState:
     faders: list[float] = field(default_factory=lambda: [0.85, 0.0, 0.0, 0.0])
     buttons: dict[str, bool] = field(default_factory=lambda: {b: False for b in BUTTONS})
     p: int = 0  # 2-digit display value (Phase 5: the focused deck's preset index)
-    focus_deck: int = 0  # which deck the encoder edits (set by the last fader touched)
+    focus_deck: int = 0  # selected channel/deck (bottom-row button or fader touch)
     pads: list[bool] = field(default_factory=lambda: [False] * 16)
-    # A pad hit fires a decaying full-cube colour flash (a manual accent / strobe).
-    flash_color: tuple[float, float, float] = (0.0, 0.0, 0.0)
-    flash_level: float = 0.0
+    pad_glow: list[float] = field(default_factory=lambda: [0.0] * 16)  # UI glow per pad
+    # Pad hits queue (col, row) presses for the app to fire as preset triggers.
+    pad_queue: list[tuple[int, int]] = field(default_factory=list)
 
     def step_encoder(self, delta: int) -> None:
         self.p = (self.p + int(delta)) % 100
@@ -33,3 +33,9 @@ class ControlState:
     def toggle(self, name: str) -> None:
         if name in self.buttons:
             self.buttons[name] = not self.buttons[name]
+
+    def press_pad(self, col: int, row: int) -> None:
+        self.pad_queue.append((col, row))
+        i = row * 4 + col
+        if 0 <= i < 16:
+            self.pad_glow[i] = 1.0

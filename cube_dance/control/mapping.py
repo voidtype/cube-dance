@@ -1,39 +1,40 @@
-"""Map the F1 control state onto the visual / AGC parameters (Phase 5).
+"""Map the F1 control state onto the global visual flags (Phase 5).
 
-The **faders** are per-deck volumes (read directly by the deck mixer) and the
-**browse encoder** selects the focused deck's preset (handled by the app), so
-neither is mapped here. The **knobs** become global modulators every deck honors,
-and a few **buttons** toggle global looks.
+The performance surface is split:
+- **Faders** = per-deck volumes (read by the mixer).
+- **Knobs** = the focused deck's preset params (routed by the app to that deck).
+- **Pads** = the focused/per-column deck's preset triggers (routed by the app).
+- **Browse encoder** = the selected deck's preset (handled by the app).
+- **Function buttons** = the global flags set here.
 """
 
 from __future__ import annotations
 
 from .state import ControlState
 
-# Human-readable role per knob / fader, surfaced on the panel.
-KNOB_ROLES = ("intensity", "evolve", "size", "hide quiet")
-FADER_ROLES = ("deck 1", "deck 2", "deck 3", "deck 4")  # volumes (preset names shown live)
+# Fallback labels (presets override the knob labels live; faders show deck names).
+KNOB_ROLES = ("intensity", "colour", "evolve", "space")
+FADER_ROLES = ("deck 1", "deck 2", "deck 3", "deck 4")
 
-
-def _lerp(a: float, b: float, t: float) -> float:
-    return a + (b - a) * max(0.0, min(1.0, t))
+# Function-button -> global flag.
+BUTTON_ROLES = {
+    "QUANT": "quantise triggers to the beat",
+    "TYPE": "mono / stark (white)",
+    "SHIFT": "freeze the palette",
+    "REVERSE": "reverse colour drift",
+    "SYNC": "pulse the rig on the beat",
+    "CAPTURE": "blackout (kill)",
+    "SIZE": "fatten elements",
+    "BROWSE": "reset deck knobs to defaults",
+}
 
 
 class ControlMap:
-    def apply(self, s: ControlState, vp, ap) -> None:
-        # Knobs -> global modulators (affect every deck via the shared params).
-        vp.intensity = _lerp(0.3, 1.7, s.knobs[0])  # overall brightness / gain
-
-        evo = _lerp(0.0, 0.05, s.knobs[1])  # colour-evolution speed
-        vp.hue_drift_base = -evo if s.buttons.get("REVERSE") else evo
-        vp.hue_accel_per_min = _lerp(0.0, 3.0, s.knobs[1])
-
-        size = _lerp(0.5, 1.8, s.knobs[2])
-        vp.size = size * 1.5 if s.buttons.get("SIZE") else size
-
-        if ap is not None:
-            ap.presence_gamma = _lerp(0.8, 3.5, s.knobs[3])  # how hard quiet hides
-
-        # Button looks.
-        vp.freeze = bool(s.buttons.get("SHIFT"))  # hold the palette
-        vp.mono = bool(s.buttons.get("TYPE"))  # stark / desaturated
+    def apply(self, s: ControlState, vp, ap=None) -> None:
+        b = s.buttons
+        vp.mono = bool(b.get("TYPE"))
+        vp.freeze = bool(b.get("SHIFT"))
+        vp.reverse = bool(b.get("REVERSE"))
+        vp.size_boost = bool(b.get("SIZE"))
+        vp.sync_pulse = bool(b.get("SYNC"))
+        vp.blackout = bool(b.get("CAPTURE"))

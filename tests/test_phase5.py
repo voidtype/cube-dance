@@ -77,10 +77,21 @@ def _render(vparams: VisualParams, preset: str = "deep") -> np.ndarray:
     return out
 
 
-def test_intensity_scales_output_linearly():
-    full = _render(VisualParams(intensity=1.0))
-    half = _render(VisualParams(intensity=0.5))
-    assert np.allclose(half, 0.5 * full, atol=1e-5)
+def _render_intensity(k: float) -> np.ndarray:
+    eng = VisualEngine(MODEL, n_buckets=8, vparams=VisualParams())
+    presets.load("deep", eng)
+    for i, kb in enumerate(eng.knob_spec):
+        if kb.effect == "intensity":
+            eng.knob_vals[i] = k
+    out = np.zeros((MODEL.n, 3), np.float32)
+    eng.render(MODEL, 0.0, _f(), out)
+    return out
+
+
+def test_intensity_knob_scales_brightness():
+    lo = _render_intensity(0.1)
+    hi = _render_intensity(0.9)
+    assert lo.sum() > 0.0 and hi.sum() > 1.8 * lo.sum()  # brighter with the intensity knob
 
 
 def test_mono_desaturates_to_white():

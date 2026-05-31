@@ -52,8 +52,11 @@ class MidiInput:
                 s.faders[cc - 4] = v
                 s.focus_deck = cc - 4  # touching a fader focuses that deck
         elif msg.type == "note_on" and msg.velocity > 0:
-            i = msg.note % len(BUTTONS)
-            s.toggle(BUTTONS[i])
+            n = msg.note
+            if 0 <= n < 16:  # the 4x4 pads (col = deck, row = trigger)
+                s.press_pad(n % 4, n // 4)
+            else:
+                s.toggle(BUTTONS[n % len(BUTTONS)])
 
     def close(self) -> None:  # pragma: no cover - needs hardware
         self._stop = True

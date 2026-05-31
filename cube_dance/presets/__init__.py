@@ -13,7 +13,12 @@ BUILTINS = PRESET_ORDER
 
 
 def load(name: str, engine):
-    """Build ``engine`` from preset ``name``. Raises ValueError if unknown."""
+    """Build ``engine`` from preset ``name`` and apply its performance schema.
+
+    A preset module exposes ``build(engine)`` (adds elements) and may declare
+    ``KNOBS`` (list of ``Knob``) and ``TRIGGERS`` (list of ``Trigger``) for the
+    F1 surface. Raises ValueError if unknown.
+    """
     try:
         mod = importlib.import_module(f"cube_dance.presets.{name}")
     except ModuleNotFoundError as exc:
@@ -21,4 +26,6 @@ def load(name: str, engine):
     if not hasattr(mod, "build"):
         raise ValueError(f"Preset {name!r} has no build(engine)")
     mod.build(engine)
+    if hasattr(engine, "set_schema"):
+        engine.set_schema(getattr(mod, "KNOBS", None), getattr(mod, "TRIGGERS", None))
     return engine

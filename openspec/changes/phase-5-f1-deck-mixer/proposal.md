@@ -26,6 +26,14 @@ preset** for the deck you're working, and the knobs/buttons reach **into the pre
   (desaturate to white), `SIZE` = **fat** boost. Pads keep the manual accent flash.
 - **Two new presets** to fill the decks: `minimal` (calm beams + bass, no flashes) and
   `strobe` (hard white kicks + dense sparkle).
+- **Performance surface (the F1 as an instrument).** Pads become **per-channel triggers**
+  (column = channel) defined by **arbitrary preset code** — each a factory that spawns a
+  transient element (stab / riser / strobe / sparkle …) with a **colour annotation** shown
+  on the pad. Knobs become the **selected channel's preset params** (label + default per
+  preset). The **bottom row selects the channel**; the encoder then cycles that channel's
+  preset. **QUANT** quantises pad triggers to the beat; **SYNC** beat-pulses the rig;
+  `TYPE`/`SHIFT`/`REVERSE`/`SIZE`/`CAPTURE`/`BROWSE` are global performance flags. Presets
+  gain a `Pulse` body element so they read fuller.
 - **Engine split** so decks compose cheaply: `VisualEngine.render(model, t, features, out)`
   composites into a given buffer (no master/clip); `update(...)` keeps the standalone path.
 

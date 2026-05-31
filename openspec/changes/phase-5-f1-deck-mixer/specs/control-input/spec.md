@@ -1,45 +1,82 @@
 ## ADDED Requirements
 
-### Requirement: Faders are per-deck preset volumes
+### Requirement: Faders are per-channel preset volumes
 
-The four F1 faders SHALL act as the **volumes of the four mixer decks** (fader _i_ controls
-deck _i_). Raising a fader SHALL fade that deck's preset into the blended output; lowering it
-to zero SHALL remove it.
+The four F1 faders SHALL act as the **volumes of the four mixer channels** (fader _i_
+controls channel _i_). Raising a fader SHALL fade that channel's preset into the blended
+output; lowering it to zero SHALL remove it.
 
-#### Scenario: Fader drives deck volume
+#### Scenario: Fader drives channel volume
 
 - **WHEN** fader 2 is moved
-- **THEN** deck 2's contribution to the cube scales with the fader position
+- **THEN** channel 2's contribution to the cube scales with the fader position
 
-### Requirement: The browse encoder selects the focused deck's preset
+### Requirement: Pads are per-channel preset triggers
 
-The deck whose fader was **last touched** SHALL be the **focused** deck. The browse encoder
-SHALL cycle the focused deck's preset through the built-in preset order, and the 7-segment
-display SHALL show the focused deck's preset index. A keyboard key SHALL cycle it the same way.
+The 4×4 pad grid SHALL map **one column per channel**; the four pads in a column SHALL be
+that channel's preset **triggers**. Hitting a pad SHALL fire the corresponding trigger on
+that channel, and each pad SHALL show its trigger's **colour annotation**.
 
-#### Scenario: Encoder changes the focused deck's preset
+#### Scenario: A pad fires its channel's trigger
 
-- **WHEN** a fader is touched and then the encoder is scrolled
-- **THEN** that deck's preset advances through the built-in list and the display updates
+- **WHEN** a pad in column 3 is hit
+- **THEN** the corresponding trigger of channel 3's preset fires (an accent on that channel)
 
-#### Scenario: Focus follows the touched fader
+#### Scenario: Pads carry preset colours
 
-- **WHEN** a different fader is touched
-- **THEN** focus moves to that deck and the display shows that deck's current preset
+- **WHEN** a preset is loaded on a channel
+- **THEN** that column's pads display the preset's per-trigger colours (not a fixed palette)
 
-### Requirement: Knobs and buttons shape the presets globally
+### Requirement: QUANT quantises triggers to the beat
 
-The four knobs SHALL map to **global modulators** applied to every deck: intensity, evolution
-speed, size, and hide-quiet (AGC presence). Buttons SHALL toggle global looks: `REVERSE`
-flips the evolution direction, `SHIFT` freezes evolution, `TYPE` switches to stark/mono,
-`SIZE` boosts size. Changes SHALL take effect live.
+When `QUANT` is enabled, a pad hit SHALL be deferred and fired on the next detected beat
+(a detected kick or a beat-phase wrap), with a short timeout fallback so it still fires if
+no beat is detected.
 
-#### Scenario: A knob changes all decks
+#### Scenario: Quantised trigger waits for the beat
 
-- **WHEN** the evolution-speed knob is turned
-- **THEN** every audible deck's colour evolution speeds up or slows down together
+- **WHEN** `QUANT` is on and a pad is hit between beats
+- **THEN** the trigger fires on the next beat rather than immediately
+
+### Requirement: The bottom row selects the channel; the encoder cycles its preset
+
+A **bottom-row** button SHALL select its channel (the one the knobs and encoder act on), and
+the **browse encoder** SHALL cycle the **selected channel's** preset, shown on the 7-segment
+display. A keyboard key SHALL cycle it the same way.
+
+#### Scenario: Select a channel then change its preset
+
+- **WHEN** a bottom-row button is pressed and then the encoder is scrolled
+- **THEN** that channel becomes selected and its preset advances through the built-in list
+
+### Requirement: Knobs are the selected channel's preset params
+
+The four knobs SHALL drive the **selected channel's** preset **params** (intensity, hue,
+evolution speed, spatial size), using the **labels and defaults declared by that preset**.
+Selecting a different channel SHALL load that channel's current param values onto the knobs.
+
+#### Scenario: A knob changes the selected channel
+
+- **WHEN** a knob is turned
+- **THEN** the selected channel's corresponding param changes (other channels are unaffected)
+
+#### Scenario: Knob labels follow the preset
+
+- **WHEN** a channel's preset changes
+- **THEN** the knob labels reflect the new preset's declared params
+
+### Requirement: Function buttons set global performance flags
+
+The remaining function buttons SHALL set global flags applied across all channels: `TYPE`
+mono/stark, `SHIFT` freeze, `REVERSE` reverse colour drift, `SIZE` fatten, `SYNC` beat-pulse
+the rig, `CAPTURE` blackout, `BROWSE` reset the selected channel's knobs to preset defaults.
 
 #### Scenario: Mono button starkens the look
 
 - **WHEN** `TYPE` is enabled
-- **THEN** the blended output renders desaturated (stark white) across all decks
+- **THEN** the blended output renders desaturated (stark white) across all channels
+
+#### Scenario: Blackout kills output
+
+- **WHEN** `CAPTURE` is enabled
+- **THEN** the cube goes dark until it is released

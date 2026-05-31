@@ -1,10 +1,29 @@
 """`strobe` preset — hard and percussive: whole-cube white kick flashes + dense
 hat sparkle over a low-saturation spectrum. Mix in on drops.
+
+Pads are all about impact: white burst, coloured strobe, beam strobe, big riser.
 """
 
 from __future__ import annotations
 
-from ..visuals.engine.elements import HatSparkle, KickPulse, SpectrumBeams
+from ..visuals.engine.element import Knob, Trigger
+from ..visuals.engine.elements import (
+    ColorStab, HatSparkle, KickPulse, RiserSweep, SpectrumBeams, StrobeBurst,
+)
+
+KNOBS = [
+    Knob("blast", "intensity", 0.75),
+    Knob("colour", "hue", 0.5),
+    Knob("evolve", "speed", 0.6),
+    Knob("size", "space", 0.6),
+]
+
+TRIGGERS = [
+    Trigger("white", (255, 255, 255), lambda m, s, c: StrobeBurst(m, c, gain=1.6, flashes=8, interval=0.05)),
+    Trigger("blast", (255, 40, 40), lambda m, s, c: ColorStab(m, c, gain=1.4 * s, release=0.12)),
+    Trigger("beams", (40, 120, 255), lambda m, s, c: StrobeBurst(m, c, gain=1.4, flashes=6, region="beams")),
+    Trigger("riser", (255, 120, 0), lambda m, s, c: RiserSweep(m, c, dur=0.9, gain=1.3 * s)),
+]
 
 
 def build(engine) -> None:

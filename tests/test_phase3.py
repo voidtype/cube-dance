@@ -23,41 +23,20 @@ def test_control_state_encoder_and_toggle():
     assert not s.buttons["SYNC"]
 
 
-def test_mapping_knobs_buttons_reverse():
-    # Phase 5: knobs are global modulators; faders/encoder are deck volume/preset
-    # (handled by the mixer/app), so they are not mapped here.
-    s, m, vp, ap = ControlState(), ControlMap(), VisualParams(), AgcParams()
-
-    s.knobs[3] = 1.0  # hide-quiet (AGC presence)
-    m.apply(s, vp, ap)
-    hi = ap.presence_gamma
-    s.knobs[3] = 0.0
-    m.apply(s, vp, ap)
-    assert hi > ap.presence_gamma
-
-    s.knobs[0] = 1.0  # intensity
-    m.apply(s, vp, ap)
-    assert vp.intensity > 1.0
-
-    s.knobs[2] = 0.5  # size; SIZE button boosts it
-    m.apply(s, vp, ap)
-    base_size = vp.size
-    s.buttons["SIZE"] = True
-    m.apply(s, vp, ap)
-    assert vp.size > base_size
-
-    s.knobs[1] = 1.0  # evolution speed
-    s.buttons["REVERSE"] = False
-    m.apply(s, vp, ap)
-    assert vp.hue_drift_base > 0 and vp.hue_accel_per_min > 0
-    s.buttons["REVERSE"] = True
-    m.apply(s, vp, ap)
-    assert vp.hue_drift_base < 0  # REVERSE flips colour-drift direction
-
-    s.buttons["SHIFT"] = True  # freeze
-    s.buttons["TYPE"] = True  # mono / stark
-    m.apply(s, vp, ap)
-    assert vp.freeze and vp.mono
+def test_mapping_buttons_to_global_flags():
+    # Phase 5: faders=deck volume, knobs=deck params, pads=triggers, encoder=preset
+    # (routed by the app). ControlMap only turns the function buttons into vp flags.
+    s, m, vp = ControlState(), ControlMap(), VisualParams()
+    pairs = [("TYPE", "mono"), ("SHIFT", "freeze"), ("REVERSE", "reverse"),
+             ("SIZE", "size_boost"), ("SYNC", "sync_pulse"), ("CAPTURE", "blackout")]
+    for name, _ in pairs:
+        s.buttons[name] = True
+    m.apply(s, vp)
+    assert all(getattr(vp, attr) for _, attr in pairs)
+    for name, _ in pairs:
+        s.buttons[name] = False
+    m.apply(s, vp)
+    assert not any(getattr(vp, attr) for _, attr in pairs)
 
 
 def test_virtual_f1_interaction():
@@ -96,11 +75,11 @@ def test_virtual_f1_interaction():
         f1.on_scroll(x0 + ecx * sc, y0 + ecy * sc, 1, st)
         assert st.p == (p0 + 1) % 100
 
-        # Clicking a pad fires a flash and lights that pad.
+        # Clicking a pad queues a (col, row) trigger and lights that pad.
         px0, py0, px1, py1 = f1.pads_rect
-        cx = px0 + (px1 - px0) / 8  # centre of pad index 0
+        cx = px0 + (px1 - px0) / 8  # centre of column 0, row 0
         cy = py0 + (py1 - py0) / 8
         f1.on_press(x0 + cx * sc, y0 + cy * sc, st)
-        assert st.flash_level == 1.0 and st.pads[0] and sum(st.flash_color) > 0
+        assert st.pad_queue and st.pad_queue[-1] == (0, 0) and st.pad_glow[0] == 1.0
     finally:
         ctx.release()

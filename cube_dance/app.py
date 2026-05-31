@@ -13,7 +13,6 @@ import math
 import time
 
 import moderngl_window as mglw
-import numpy as np
 
 from .audio import AudioSource
 from .config import CubeConfig
@@ -96,6 +95,10 @@ class CubeWindow(mglw.WindowConfig):
         self.audio: AudioSource | None = None
         choice = type(self).visual_choice
         self._last_focus = 0
+        self._prev_browse = False
+        self._pending_fires: list = []  # quantised pad triggers awaiting the next beat
+        self._pending_age = 0.0
+        self._last_beat = 0.0
         if type(self).audio_file is not None:
             self.audio = AudioSource(type(self).audio_file, mute=type(self).mute, loop=type(self).loop)
             self.aparams = self.audio.processor.p
@@ -226,29 +229,72 @@ class CubeWindow(mglw.WindowConfig):
                 pass
         self._refresh_hud()
 
-    def _apply_deck_controls(self) -> None:
-        """Faders -> deck volumes; encoder/focus -> the focused deck's preset."""
+    def _apply_perf_controls(self, features, dt: float = 0.0) -> None:
+        """Route the F1 surface to the mixer: deck volumes, the selected deck's
+        preset (encoder) + knob params, and pad triggers (quantised on QUANT)."""
         mx = self.visual
         if not isinstance(mx, DeckMixer):
             return
-        mx.volumes = list(self.controls.faders)
+        c = self.controls
         order = list(presets.PRESET_ORDER)
         n = len(order)
-        focus = int(self.controls.focus_deck) % mx.n_decks
-        if focus != self._last_focus:  # display tracks the focused deck
-            self.controls.p = mx.preset_index[focus]
+        mx.volumes = list(c.faders)
+        focus = int(c.focus_deck) % mx.n_decks
+
+        changed_focus = focus != self._last_focus
+        if changed_focus:
+            c.p = mx.preset_index[focus]  # display tracks the selected deck
             self._last_focus = focus
             self.f1.mark_dirty()
-        target = self.controls.p % n
-        if target != self.controls.p:
-            self.controls.p = target  # keep the 7-seg display in [0, n-1]
-        if target != mx.preset_index[focus]:
+        target = c.p % n
+        if target != c.p:
+            c.p = target  # keep the 7-seg display in [0, n-1]
+        preset_changed = target != mx.preset_index[focus]
+        if preset_changed:
             mx.set_deck_preset(focus, order[target])
             self.f1.mark_dirty()
             print(f"[deck {focus + 1}] {order[target]}")
+        if changed_focus or preset_changed:  # load the deck's knob values into the knobs
+            c.knobs = mx.knob_vals(focus)
+            self.f1.mark_dirty()
+
+        browse = bool(c.buttons.get("BROWSE"))  # BROWSE press -> reset deck knobs
+        if browse and not self._prev_browse:
+            mx.reset_knobs(focus)
+            c.knobs = mx.knob_vals(focus)
+            self.f1.mark_dirty()
+        self._prev_browse = browse
+
+        for i in range(min(len(c.knobs), len(mx.knob_labels(focus)))):
+            mx.set_knob(focus, i, c.knobs[i])
+
+        # Pad triggers: fire now, or queue to the next beat when QUANT is on.
+        quant = bool(c.buttons.get("QUANT"))
+        beat = float(getattr(features, "beat", 0.0) or 0.0)
+        kicked = any(e.kind == "kick" for e in (getattr(features, "events", None) or []))
+        # A beat boundary = a detected kick or a beat-phase wrap; with a timeout
+        # fallback so a quantised hit always lands within ~0.6 s if none is found.
+        boundary = kicked or (self._last_beat > 0.6 and beat < 0.3)
+        self._last_beat = beat
+        while c.pad_queue:
+            col, row = c.pad_queue.pop(0)
+            label = mx.trigger_label(col, row)
+            if label is None:
+                continue
+            if quant:
+                self._pending_fires.append((col, label))
+                self._pending_age = 0.0
+            else:
+                mx.fire(col, label, 1.0)
+        if self._pending_fires:
+            self._pending_age += dt
+            if boundary or self._pending_age > 0.6:
+                for col, label in self._pending_fires:
+                    mx.fire(col, label, 1.0)
+                self._pending_fires.clear()
 
     def _bump_focus_preset(self) -> None:
-        """Keyboard `N`: advance the focused deck's preset (same as the encoder)."""
+        """Keyboard `N`: advance the selected deck's preset (same as the encoder)."""
         if isinstance(self.visual, DeckMixer):
             self.controls.p = self.controls.p + 1
             self.f1.mark_dirty()
@@ -272,23 +318,20 @@ class CubeWindow(mglw.WindowConfig):
         if self.mode == "fly" and not self.show_controls:  # frozen while controls are up
             self._fly_step(frame_time)
 
-        # Apply the F1 control mapping to the live params (knobs/buttons -> global
-        # modulators), then route faders -> deck volumes and the encoder -> preset.
+        # Buttons -> global flags; then route faders/encoder/knobs/pads to the mixer.
         if self.audio is not None:
-            self.control_map.apply(self.controls, self.vparams, self.aparams)
-            self._apply_deck_controls()
-
-        if self.audio is not None:
+            self.control_map.apply(self.controls, self.vparams)
             self.audio.update(frame_time)
             t = self.audio.position
             features = self.audio.features(frame_time)
+            self._apply_perf_controls(features, frame_time)
         else:
             if not self.paused:
                 self._pattern_time += frame_time
             t = self._pattern_time
             features = Features()
         self.visual.update(self.model, t, features)
-        self._apply_pad_flash(frame_time)
+        self._decay_pad_glow(frame_time)
         self.scene.update_colors()
 
         self.ctx.clear(0.02, 0.02, 0.03)
@@ -300,8 +343,7 @@ class CubeWindow(mglw.WindowConfig):
         # The F1 panel is drawn BEFORE the recorder capture so it appears in the
         # video when shown; the HUD help/REC indicator is drawn AFTER (excluded).
         if self.show_controls:
-            labels = self.visual.preset_name if isinstance(self.visual, DeckMixer) else None
-            self.f1.render(w, h, self.controls, deck_labels=labels, focus=int(self.controls.focus_deck))
+            self._render_f1(w, h)
 
         if self.recorder.is_recording:
             n = self.recorder.frames_due(time.time())
@@ -329,17 +371,29 @@ class CubeWindow(mglw.WindowConfig):
                 self._hud_accum = 0.0
                 self._refresh_hud()
 
-    def _apply_pad_flash(self, dt: float) -> None:
-        """A pad hit flashes the whole cube in its colour, decaying away."""
+    def _render_f1(self, w: int, h: int) -> None:
+        mx = self.visual
+        if isinstance(mx, DeckMixer):
+            focus = int(self.controls.focus_deck) % mx.n_decks
+            pad_colors = []
+            for c in range(mx.n_decks):
+                cells = mx.trigger_cells(c)
+                pad_colors.append([cells[r][1] if r < len(cells) else None for r in range(4)])
+            self.f1.render(w, h, self.controls, deck_labels=mx.preset_name, focus=focus,
+                           knob_labels=mx.knob_labels(focus), pad_colors=pad_colors)
+        else:
+            self.f1.render(w, h, self.controls)
+
+    def _decay_pad_glow(self, dt: float) -> None:
+        """Fade the on-screen pad glow after a hit."""
         c = self.controls
-        if c.flash_level <= 0.005:
+        glow = c.pad_glow
+        if not any(g > 0.01 for g in glow):
             return
-        c.flash_level *= math.exp(-dt / 0.22) if dt > 0 else 1.0
-        if c.flash_level > 0.01:
-            np.maximum(self.model.colors, np.array(c.flash_color, dtype=np.float32) * c.flash_level,
-                       out=self.model.colors)
+        k = math.exp(-dt / 0.25) if dt > 0 else 1.0
+        c.pad_glow = [g * k for g in glow]
         if self.show_controls:
-            self.f1.mark_dirty()  # animate the pad glow fading
+            self.f1.mark_dirty()
 
     def _fly_step(self, dt: float) -> None:
         keys = self.wnd.keys

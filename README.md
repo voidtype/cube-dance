@@ -13,25 +13,68 @@ This repo is built **spec-first** with [OpenSpec](https://github.com/Fission-AI/
 and developed in **phases** — see [`openspec/project.md`](openspec/project.md) for the
 full roadmap and the physical cube facts.
 
-## Status: Phase 5 — the F1 as a 4-deck preset mixer
+## Status: Phase 5 — the F1 as a performance instrument
 
 The F1 becomes the live instrument. The default visual is a **4-deck mixer**: a preset
-"plays" on each of the four faders and **the fader is that deck's volume** — blend presets
-live like a VJ mixer.
+"plays" on each channel and **the fader is that channel's volume** — blend presets live like
+a VJ mixer, then perform on top with per-channel pad triggers and per-preset knobs.
 
-- **Faders = deck volumes.** Decks 1–4 default to `deep`, `punchy`, `minimal`, `strobe`
-  (only deck 1 up at launch). Push a fader to fade its preset into the cube.
-- **P encoder selects the focused deck's preset.** The deck whose fader you last touched is
-  **focused** (highlighted on the panel); scroll the **browse encoder** to cycle its preset,
-  shown on the 7-segment display. `N` does the same from the keyboard.
-- **Knobs shape every deck:** **intensity**, **evolve** (colour speed + acceleration),
-  **size** (sweep/chase width, sparkle count), **hide-quiet** (AGC presence).
-- **Buttons:** `REVERSE` flips the colour drift, `SHIFT` **freezes** the palette, `TYPE`
-  goes **mono/stark** (white), `SIZE` boosts size. Pads still fire a manual accent flash.
+- **Faders = channel volumes.** Channels 1–4 default to `deep`, `punchy`, `minimal`,
+  `strobe` (only channel 1 up at launch). Push a fader to fade its preset in.
+- **Pads = per-channel triggers, coloured by the preset.** Each **column is a channel**; its
+  4 pads are that preset's triggers (a stab, a build/riser, a strobe, a sparkle…), each a
+  bit of **arbitrary preset code** with a **colour annotation**. Hit a pad to fire it.
+- **Knobs = the selected channel's preset params** (e.g. `deep`'s *bright / colour / evolve /
+  width*), with the preset's labels + defaults.
+- **Channel select + preset.** Click a **bottom-row** button to select that channel, then
+  turn the **browse encoder** to cycle its preset (shown on the 7-seg display); `N` too.
+- **`QUANT`** snaps pad triggers to the beat; **`SYNC`** pulses the whole rig on the beat;
+  **`TYPE`** mono/stark, **`SHIFT`** freeze, **`REVERSE`** reverse drift, **`SIZE`** fatten,
+  **`CAPTURE`** blackout, **`BROWSE`** reset the channel's knobs.
 
 ```bash
-uv run cube-dance --audio track.wav     # C for the F1; push faders to mix the four decks
+uv run cube-dance --audio track.wav     # C for the F1; faders mix, pads trigger, knobs shape
 ```
+
+<details>
+<summary><b>Full F1 control map</b> (click to expand)</summary>
+
+| Control | Role |
+| --- | --- |
+| **Fader 1–4** | Channel/deck **volume** — fade each preset in/out of the blend. |
+| **Pads (4×4)** | **Column = channel**, the 4 rows are that preset's **triggers**. Each trigger is preset code that spawns a transient effect (stab / strobe / riser / sparkle / …); the pad shows the trigger's **colour**. Hit to fire (quantised when `QUANT` is on). |
+| **Knob 1–4** | The **selected** channel's preset **params**: `intensity`, `hue/colour`, `evolve` (drift speed), `space`/size. Labels + defaults come from the preset. |
+| **Bottom row 1–4** | **Channel select** — pick which channel the knobs + encoder act on (lit = selected). |
+| **Browse encoder + display** | Cycle the **selected channel's preset**; the 7-seg shows its index. (`N` on the keyboard does the same.) |
+| **QUANT** | Quantise pad triggers to the detected beat (fires on the next beat, ≤0.6 s fallback). |
+| **SYNC** | Pulse the whole rig brighter on each detected kick. |
+| **TYPE** | Mono / stark — render desaturated (white). |
+| **SHIFT** | Freeze the evolving palette. |
+| **REVERSE** | Reverse the colour-drift direction. |
+| **SIZE** | Fatten moving / sparkle elements. |
+| **CAPTURE** | Blackout (kill output). |
+| **BROWSE** | Reset the selected channel's knobs to the preset defaults. |
+
+A real F1 over MIDI feeds the same state (CC → knobs/faders, notes 0–15 → pads, others →
+buttons); exact numbers depend on your Controller-Editor mapping.
+
+**Authoring a preset's surface** — a preset module declares its knobs and pad triggers
+(arbitrary factories that return a transient `Element`):
+
+```python
+from ..visuals.engine.element import Knob, Trigger
+from ..visuals.engine.elements import ColorStab, RiserSweep
+
+KNOBS = [Knob("bright", "intensity", 0.6), Knob("colour", "hue", 0.5),
+         Knob("evolve", "speed", 0.35), Knob("width", "space", 0.5)]
+
+TRIGGERS = [
+    Trigger("stab",  (255, 170, 60), lambda m, s, c: ColorStab(m, c, gain=s, release=0.35)),
+    Trigger("build", (255, 90, 40),  lambda m, s, c: RiserSweep(m, c, dur=1.6, gain=0.9 * s)),
+]
+```
+
+</details>
 
 ## Status: Phase 4 — evolving visual engine (event-driven, preset-authored)
 

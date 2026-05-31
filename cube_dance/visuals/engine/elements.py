@@ -145,6 +145,108 @@ class Chase(Element):
         out += band[:, None] * rgb[None, :]
 
 
+class Pulse(Element):
+    """Whole-cube colour body that breathes with energy/bass (gives presets weight)."""
+
+    blend = "add"
+
+    def __init__(self, model, hue: float = 0.6, sat: float = 0.7, base: float = 0.06,
+                 gain: float = 0.5, react: str = "energy") -> None:
+        self.n = model.n
+        self.hue, self.sat, self.base, self.gain, self.react = hue, sat, base, gain, react
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        drive = float(getattr(ctx.features, "bass", 0.0) or 0.0) if self.react == "bass" else ctx.energy
+        b = self.base + self.gain * drive
+        out += hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, ctx.sat(self.sat), np.full(self.n, b, np.float32))
+
+
+def _region_idx(model, region: str):
+    if region == "corners":
+        return np.where(model.corner_mask)[0]
+    if region == "beams":
+        return np.where(model.edge_mask)[0]
+    return None  # whole cube
+
+
+# --- Transient trigger elements (spawned by preset pad triggers) -------------
+
+class ColorStab(Element):
+    """A decaying coloured flash over a region -- the default pad hit."""
+
+    def __init__(self, model, color, gain: float = 1.0, release: float = 0.28,
+                 region: str = "all") -> None:
+        self.idx = _region_idx(model, region)
+        self.color = np.asarray(color, np.float32)
+        self.env = EnvFollower(release); self.env.trigger(max(0.15, gain))
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        v = self.env.step(ctx.dt)
+        if v <= 0.004:
+            self.done = True
+            return
+        blend_into(out, self.idx, self.color * min(1.0, v), "add")
+
+
+class StrobeBurst(Element):
+    """A short series of sharp flashes (white or coloured)."""
+
+    def __init__(self, model, color, gain: float = 1.3, flashes: int = 5,
+                 interval: float = 0.07, region: str = "all") -> None:
+        self.idx = _region_idx(model, region)
+        self.color = np.asarray(color, np.float32) * gain
+        self.flashes, self.interval = flashes, interval
+        self._t = 0.0
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        self._t += ctx.dt
+        if self._t >= self.flashes * self.interval:
+            self.done = True
+            return
+        if (self._t % self.interval) / self.interval < 0.5:  # on half of each cycle
+            blend_into(out, self.idx, self.color, "add")
+
+
+class RiserSweep(Element):
+    """A bright band that sweeps up the cube while brightening, then ends (a build)."""
+
+    def __init__(self, model, color, dur: float = 1.4, gain: float = 1.0,
+                 width: float = 0.16, axis: int = 1) -> None:
+        h = (model.positions[:, axis] + model.cfg.half) / model.cfg.side_m
+        self.h = np.clip(h, 0.0, 1.0).astype(np.float32)
+        self.color = np.asarray(color, np.float32)
+        self.dur, self.gain, self.width = dur, gain, width
+        self._t = 0.0
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        self._t += ctx.dt
+        if self._t >= self.dur:
+            self.done = True
+            return
+        p = self._t / self.dur
+        band = np.exp(-((self.h - p) / self.width) ** 2) * self.gain * (0.3 + 0.7 * p)
+        out += band[:, None] * self.color[None, :]
+
+
+class SparkBurst(Element):
+    """A burst of random sparkles across the beams, decaying away."""
+
+    _rng = np.random.default_rng()
+
+    def __init__(self, model, color, count: int = 36, release: float = 0.5) -> None:
+        edge = np.where(model.edge_mask)[0]
+        self.idx = self._rng.choice(edge, size=min(count, len(edge)), replace=False)
+        self.color = np.asarray(color, np.float32)
+        self.env = EnvFollower(release); self.env.trigger(1.0)
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        v = self.env.step(ctx.dt)
+        if v <= 0.01:
+            self.done = True
+            return
+        out[self.idx] += self.color * v
+
+
 class AmbientWash(Element):
     """A faint always-on evolving wash so the cube never reads fully dead."""
 

@@ -132,14 +132,15 @@ class VirtualF1:
                 return True
         px0, py0, px1, py1 = self.pads_rect
         if px0 <= ix <= px1 and py0 <= iy <= py1:
-            c = min(3, max(0, int((ix - px0) / ((px1 - px0) / 4))))
-            r = min(3, max(0, int((iy - py0) / ((py1 - py0) / 4))))
-            i = r * 4 + c
-            for k in range(16):
-                state.pads[k] = k == i
-            col = _PAD_PALETTE[i]
-            state.flash_color = (col[0] / 255.0, col[1] / 255.0, col[2] / 255.0)
-            state.flash_level = 1.0  # fires a decaying full-cube flash
+            c = min(3, max(0, int((ix - px0) / ((px1 - px0) / 4))))  # column = deck
+            r = min(3, max(0, int((iy - py0) / ((py1 - py0) / 4))))  # row = trigger
+            state.press_pad(c, r)  # app fires this deck's trigger (quantised if QUANT)
+            self._dirty = True
+            return True
+        sx0, sy0, sx1, sy1 = self.stop_rect  # bottom row = channel select
+        if sx0 <= ix <= sx1 and sy0 <= iy <= sy1:
+            col = min(3, max(0, int((ix - sx0) / ((sx1 - sx0) / 4))))
+            state.focus_deck = col
             self._dirty = True
             return True
         return True  # swallow clicks anywhere on the panel
@@ -189,7 +190,8 @@ class VirtualF1:
         for name, box in segs.items():
             d.rectangle(box, fill=color if name in on else (40, 22, 6))
 
-    def _image(self, state: ControlState, deck_labels=None, focus: int = 0) -> Image.Image:
+    def _image(self, state: ControlState, deck_labels=None, focus: int = 0,
+               knob_labels=None, pad_colors=None) -> Image.Image:
         img = Image.new("RGBA", (PANEL_W, PANEL_H), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
         d.rounded_rectangle((0, 0, PANEL_W - 1, PANEL_H - 1), radius=14, fill=(22, 22, 26, 238),
@@ -203,8 +205,8 @@ class VirtualF1:
             ex = cx + (r - 6) * np.sin(ang)
             ey = cy - (r - 6) * np.cos(ang)
             d.line((cx, cy, ex, ey), fill=(230, 180, 60), width=3)
-            d.text((cx - 16, cy + r + 2), "FILTER", font=self._small, fill=(150, 150, 156))
-            d.text((cx - 18, cy + r + 14), KNOB_ROLES[i][:9], font=self._small, fill=(110, 110, 120))
+            label = (knob_labels[i] if knob_labels and i < len(knob_labels) else KNOB_ROLES[i])
+            d.text((cx - 18, cy + r + 2), str(label)[:9], font=self._small, fill=(170, 170, 178))
 
         for i, (cx, top, bot, hw) in enumerate(self.faders):
             focused = i == focus
@@ -239,32 +241,40 @@ class VirtualF1:
         d.line((ecx, ecy, ecx, ecy - er + 4), fill=(150, 150, 158), width=2)
         d.text((ecx - er - 4, ecy + er + 2), "PRESET", font=self._small, fill=(120, 120, 130))
 
-        # Pads 4x4 + STOP row.
+        # Pads 4x4: column = deck, row = that deck's preset trigger (its colour).
         px0, py0, px1, py1 = self.pads_rect
         cw, ch = (px1 - px0) / 4, (py1 - py0) / 4
-        for r_ in range(4):
-            for c_ in range(4):
+        for c_ in range(4):  # column = deck/channel
+            for r_ in range(4):  # row = trigger
                 idx = r_ * 4 + c_
-                x = px0 + c_ * cw
-                y = py0 + r_ * ch
-                base = _PAD_PALETTE[idx]
-                if state.pads[idx]:  # the hit pad glows, fading with the flash
-                    s = 0.6 + 0.4 * max(0.0, min(1.0, state.flash_level))
-                else:
-                    s = 0.42
-                col = tuple(int(ch_ * s) for ch_ in base)
-                d.rounded_rectangle((x + 4, y + 4, x + cw - 4, y + ch - 4), radius=6, fill=col)
+                x, y = px0 + c_ * cw, py0 + r_ * ch
+                base = None
+                if pad_colors is not None and c_ < len(pad_colors) and r_ < len(pad_colors[c_]):
+                    base = pad_colors[c_][r_]
+                if base is None:  # no trigger on this cell
+                    d.rounded_rectangle((x + 4, y + 4, x + cw - 4, y + ch - 4), radius=6, fill=(28, 28, 32))
+                    continue
+                glow = max(0.0, min(1.0, state.pad_glow[idx]))
+                s = 0.40 + 0.60 * glow
+                col = tuple(int(min(255, ch_ * s)) for ch_ in base)
+                outline = (235, 205, 110) if c_ == focus else (70, 70, 78)
+                d.rounded_rectangle((x + 4, y + 4, x + cw - 4, y + ch - 4), radius=6,
+                                    fill=col, outline=outline, width=2 if c_ == focus else 1)
+        # STOP row = channel select; the selected channel lights brightest.
         sx0, sy0, sx1, sy1 = self.stop_rect
         sw = (sx1 - sx0) / 4
         for c_ in range(4):
-            d.rounded_rectangle((sx0 + c_ * sw + 3, sy0, sx0 + (c_ + 1) * sw - 3, sy1), radius=4, fill=(210, 110, 30))
+            on = c_ == focus
+            d.rounded_rectangle((sx0 + c_ * sw + 3, sy0, sx0 + (c_ + 1) * sw - 3, sy1), radius=4,
+                                fill=(235, 150, 40) if on else (120, 64, 20),
+                                outline=(245, 220, 150) if on else (90, 50, 16), width=2 if on else 1)
         return img
 
     def render(self, win_w: int, win_h: int, state: ControlState,
-               deck_labels=None, focus: int = 0) -> None:
+               deck_labels=None, focus: int = 0, knob_labels=None, pad_colors=None) -> None:
         self.set_screen(win_w, win_h)
         if self._tex is None or self._dirty:
-            img = self._image(state, deck_labels, focus).transpose(Image.FLIP_TOP_BOTTOM)
+            img = self._image(state, deck_labels, focus, knob_labels, pad_colors).transpose(Image.FLIP_TOP_BOTTOM)
             if self._tex is not None:
                 self._tex.release()
             self._tex = self.ctx.texture((PANEL_W, PANEL_H), 4, img.tobytes())

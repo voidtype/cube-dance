@@ -1,0 +1,106 @@
+"""Phase 5b: F1 performance surface — preset knob params + pad triggers."""
+
+from __future__ import annotations
+
+import numpy as np
+
+from cube_dance import presets
+from cube_dance.config import CubeConfig
+from cube_dance.led_topology import build_model
+from cube_dance.visuals import Features
+from cube_dance.visuals.engine import VisualEngine
+from cube_dance.visuals.engine.element import Knob, Trigger
+from cube_dance.visuals.engine.elements import ColorStab
+from cube_dance.visuals.engine.mixer import DeckMixer
+
+MODEL = build_model(CubeConfig())
+
+
+def _f():
+    return Features(level=0.8, bass=0.8, bass_l=0.7, bass_r=0.6,
+                    buckets_l=np.ones(8, np.float32), buckets_r=np.ones(8, np.float32))
+
+
+def test_presets_declare_knobs_and_triggers():
+    for name in presets.PRESET_ORDER:
+        eng = VisualEngine(MODEL, n_buckets=8)
+        presets.load(name, eng)
+        assert 1 <= len(eng.knob_spec) <= 4
+        assert all(isinstance(k, Knob) for k in eng.knob_spec)
+        assert 1 <= len(eng.triggers) <= 4
+        assert all(isinstance(t, Trigger) for t in eng.triggers.values())
+        # every trigger carries a colour annotation
+        for t in eng.triggers.values():
+            assert len(t.color) == 3
+
+
+def test_fire_spawns_transient_then_expires():
+    eng = VisualEngine(MODEL, n_buckets=8)
+    presets.load("punchy", eng)
+    label = eng.trigger_order[0]
+    out = np.zeros((MODEL.n, 3), np.float32)
+
+    eng.render(MODEL, 0.0, _f(), out)  # establish dt baseline
+    eng.fire(label, 1.0)
+    assert len(eng.transients) == 1
+    eng.render(MODEL, 1 / 60, _f(), out)
+    assert out.sum() > 0.0  # the stab is drawing
+
+    for i in range(120):  # decays and is pruned
+        eng.render(MODEL, (2 + i) / 60, _f(), out)
+    assert len(eng.transients) == 0
+
+
+def test_color_stab_region_and_decay():
+    out = np.zeros((MODEL.n, 3), np.float32)
+    stab = ColorStab(MODEL, (1.0, 0.0, 0.0), gain=1.0, release=0.1, region="corners")
+
+    class C:  # minimal ctx
+        dt = 1 / 60
+    stab.apply(C(), out)
+    assert out[MODEL.corner_mask].sum() > 0.0
+    assert out[MODEL.edge_mask].sum() == 0.0  # corners only
+    for _ in range(60):
+        stab.apply(C(), out)
+    assert stab.done
+
+
+def test_knob_param_changes_evolution_and_intensity():
+    eng = VisualEngine(MODEL, n_buckets=8)
+    presets.load("deep", eng)
+    # find the speed knob and zero it -> hue should not advance
+    for i, kb in enumerate(eng.knob_spec):
+        if kb.effect == "speed":
+            eng.knob_vals[i] = 0.0
+    out = np.zeros((MODEL.n, 3), np.float32)
+    t = 0.0
+    for _ in range(60):
+        t += 1 / 60
+        eng.render(MODEL, t, _f(), out)
+    assert eng._hue == 0.0  # speed=0 -> frozen drift
+
+
+def test_mixer_routes_triggers_and_knobs_per_deck():
+    mx = DeckMixer(MODEL, n_buckets=8)
+    # each deck's pad column has its preset's trigger colours
+    cells = mx.trigger_cells(1)
+    assert len(cells) >= 1 and len(cells[0][1]) == 3
+    # firing a deck adds a transient on that deck only
+    label = mx.trigger_label(2, 0)
+    mx.fire(2, label, 1.0)
+    assert len(mx.decks[2].transients) == 1 and len(mx.decks[0].transients) == 0
+    # knob set + reset
+    mx.set_knob(0, 0, 0.9)
+    assert mx.knob_vals(0)[0] == 0.9
+    mx.reset_knobs(0)
+    assert mx.knob_vals(0)[0] == mx.decks[0].knob_spec[0].default
+
+
+def test_blackout_kills_output():
+    mx = DeckMixer(MODEL, n_buckets=8)
+    mx.volumes = [0.9, 0, 0, 0]
+    mx.update(MODEL, 0.0, _f())
+    assert MODEL.colors.sum() > 0.0
+    mx.vparams.blackout = True
+    mx.update(MODEL, 1 / 60, _f())
+    assert float(MODEL.colors.sum()) == 0.0
