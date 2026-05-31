@@ -47,6 +47,8 @@
       timeout), bottom-row select, `BROWSE` reset; pad-glow decay.
 - [x] 6.8 `tests/test_phase5b.py`: schema declared, trigger spawns+expires, stab region/decay,
       knob param affects evolution/intensity, mixer routing, blackout.
+- [x] 6.9 Four stylistically distinct presets on new elements (`HeatField`, `DigitalRain`,
+      `PlasmaField`, `SirenStrobe`): `inferno`, `matrix`, `plasma`, `siren`; `PRESET_ORDER` = 8.
 
 ## 5. Verify & document
 

@@ -247,6 +247,121 @@ class SparkBurst(Element):
         out[self.idx] += self.color * v
 
 
+class PlasmaField(Element):
+    """Smooth flowing colour field over the whole cube (psychedelic oil-slick).
+
+    Not beat-reactive -- a continuous interference pattern of sinusoids over the
+    3-D position, with the hue rotating via evolution. Deliberately unlike the
+    discrete beam/corner visuals.
+    """
+
+    blend = "add"
+
+    def __init__(self, model, sat: float = 0.95, base: float = 0.55, hue_base: float = 0.0) -> None:
+        P = (model.positions / model.cfg.side_m).astype(np.float32)
+        self.x, self.y, self.z = P[:, 0], P[:, 1], P[:, 2]
+        self.sat, self.base, self.hue_base, self.n = sat, base, hue_base, model.n
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        t = ctx.t
+        sc = 3.0 * (0.4 + ctx.size)
+        a = np.sin(self.x * sc + t * 0.7)
+        b = np.sin(self.z * sc - t * 0.9)
+        c = np.sin((self.x + self.y + self.z) * sc * 0.6 + t * 0.5)
+        field = (a + b + c) / 3.0
+        hue = (self.hue_base + 0.3 * field + ctx.evo_hue) % 1.0
+        val = (self.base * (0.55 + 0.45 * np.sin(field * 3.1 + t * 0.6)) * (0.7 + 0.5 * ctx.energy))
+        out += hsv_to_rgb(hue.astype(np.float32), np.float32(ctx.sat(self.sat)), val.astype(np.float32))
+
+
+class HeatField(Element):
+    """A rising, flickering fire: white/yellow-hot at the base, red embers up top.
+
+    Locked warm palette (the hue knob only *tints* it); flickers per-pixel and
+    surges with the bass. Nothing like the rainbow spectrum visuals.
+    """
+
+    blend = "add"
+    _rng = np.random.default_rng(7)
+
+    def __init__(self, model, gain: float = 1.1) -> None:
+        h = (model.positions[:, 1] + model.cfg.half) / model.cfg.side_m
+        self.h = np.clip(h, 0.0, 1.0).astype(np.float32)
+        self.phase = self._rng.uniform(0.0, 6.283, model.n).astype(np.float32)
+        self.gain, self.n = gain, model.n
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        t = ctx.t
+        flick = 0.55 + 0.45 * np.sin(t * 9.0 + self.phase) * np.sin(t * 5.3 + self.phase * 1.7)
+        bass = float(getattr(ctx.features, "bass", 0.0) or 0.0)
+        reach = 0.55 + 0.6 * ctx.size  # flame height
+        heat = np.clip((reach - self.h) / reach, 0.0, 1.0)
+        f = np.clip(heat * (0.7 + 0.9 * bass + 0.3 * ctx.energy) * flick * self.gain, 0.0, 1.25)
+        hue = (0.02 + 0.10 * f + ctx.evo_hue) % 1.0  # red -> yellow as it heats; evo tints
+        sat = np.zeros_like(f) if ctx.mono else np.clip(1.05 - 0.9 * f, 0.0, 1.0)  # white-hot base
+        out += hsv_to_rgb(hue.astype(np.float32), sat.astype(np.float32), np.clip(f * 1.15, 0.0, 1.0))
+
+
+class DigitalRain(Element):
+    """Matrix-style rain: bright heads fall down the cube, trailing upward.
+
+    Discrete green streams (the hue knob recolours them); driven by treble. The
+    'fall' (space) knob sets the speed. Sparse and downward -- a digital look.
+    """
+
+    blend = "add"
+
+    def __init__(self, model, hue_base: float = 0.34, sat: float = 0.9,
+                 drops: int = 5, trail: float = 0.22) -> None:
+        h = (model.positions[:, 1] + model.cfg.half) / model.cfg.side_m
+        self.h = np.clip(h, 0.0, 1.0).astype(np.float32)
+        P = model.positions
+        col = (np.round(P[:, 0] * 3).astype(int) * 31 + np.round(P[:, 2] * 3).astype(int) * 7)
+        self.off = ((col % 17) / 17.0).astype(np.float32)  # per-column phase offset
+        self.hue_base, self.sat, self.drops, self.trail, self.n = hue_base, sat, drops, trail, model.n
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        t = ctx.t
+        speed = 0.30 + 0.6 * ctx.size
+        tr = float(getattr(ctx.features, "treble", 0.0) or 0.0)
+        bright = np.zeros(self.n, np.float32)
+        K = self.drops
+        for k in range(K):
+            head = 1.0 - ((t * speed + self.off + k / float(K)) % 1.0)  # falls 1 -> 0
+            d = self.h - head  # >0 above the head = trail
+            bright = np.maximum(bright, np.where((d >= 0) & (d < self.trail), 1.0 - d / self.trail, 0.0))
+        val = bright * (0.45 + 0.8 * tr + 0.4 * ctx.energy)
+        hue = np.float32((self.hue_base + ctx.evo_hue) % 1.0)
+        out += hsv_to_rgb(hue, np.float32(ctx.sat(self.sat)), val.astype(np.float32))
+
+
+class SirenStrobe(Element):
+    """Hard two-colour emergency strobe: the left/right halves swap on a fast pulse.
+
+    Police/rave alarm energy -- hard cuts between two hues on opposite sides. The
+    'rate' (space) knob sets the speed; surges with energy.
+    """
+
+    blend = "add"
+
+    def __init__(self, model, hue_a: float = 0.0, hue_b: float = 0.62, sat: float = 1.0,
+                 rate: float = 3.0) -> None:
+        x = model.positions[:, 0]
+        self.left = x < 0.0
+        self.right = ~self.left
+        self.hue_a, self.hue_b, self.sat, self.rate = hue_a, hue_b, sat, rate
+        self._phase = 0.0
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        self._phase = (self._phase + self.rate * (0.4 + ctx.size) * ctx.dt) % 1.0
+        sat = ctx.sat(self.sat)
+        v = 0.85 + 0.15 * ctx.energy
+        if self._phase < 0.5:
+            out[self.left] += np.asarray(hsv_to_rgb((self.hue_a + ctx.evo_hue) % 1.0, sat, v), np.float32)
+        else:
+            out[self.right] += np.asarray(hsv_to_rgb((self.hue_b + ctx.evo_hue) % 1.0, sat, v), np.float32)
+
+
 class AmbientWash(Element):
     """A faint always-on evolving wash so the cube never reads fully dead."""
 

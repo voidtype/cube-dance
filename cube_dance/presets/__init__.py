@@ -7,8 +7,10 @@ from __future__ import annotations
 
 import importlib
 
-# Ordered list the deck mixer + browse encoder cycle through.
-PRESET_ORDER = ("deep", "punchy", "minimal", "strobe")
+# Ordered list the deck mixer + browse encoder cycle through. The first four are
+# the original mixer-friendly presets (deck defaults); the next four are wilder,
+# stylistically distinct "imaginings" of what a preset can be.
+PRESET_ORDER = ("deep", "punchy", "minimal", "strobe", "inferno", "matrix", "plasma", "siren")
 BUILTINS = PRESET_ORDER
 
 

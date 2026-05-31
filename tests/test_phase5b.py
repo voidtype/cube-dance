@@ -17,8 +17,40 @@ MODEL = build_model(CubeConfig())
 
 
 def _f():
-    return Features(level=0.8, bass=0.8, bass_l=0.7, bass_r=0.6,
+    return Features(level=0.8, bass=0.8, mid=0.6, treble=0.6, bass_l=0.7, bass_r=0.6,
                     buckets_l=np.ones(8, np.float32), buckets_r=np.ones(8, np.float32))
+
+
+def _mean_rgb(name: str) -> np.ndarray:
+    eng = VisualEngine(MODEL, n_buckets=8)
+    presets.load(name, eng)
+    out = np.zeros((MODEL.n, 3), np.float32)
+    t = 0.0
+    for _ in range(40):
+        t += 1 / 60
+        eng.render(MODEL, t, _f(), out)
+    return out.mean(axis=0)
+
+
+def test_all_eight_presets_load_and_render():
+    assert len(presets.PRESET_ORDER) == 8
+    for name in presets.PRESET_ORDER:
+        eng = VisualEngine(MODEL, n_buckets=8)
+        presets.load(name, eng)
+        out = np.zeros((MODEL.n, 3), np.float32)
+        t = 0.0
+        for _ in range(20):
+            t += 1 / 60
+            eng.render(MODEL, t, _f(), out)
+        assert out.sum() > 0.0, name
+
+
+def test_new_presets_are_visually_distinct():
+    fire, rain, plas, siren = (_mean_rgb(n) for n in ("inferno", "matrix", "plasma", "siren"))
+    assert fire[0] > fire[2] + 0.02          # inferno: warm, red >> blue
+    assert rain[1] > rain[0] and rain[1] > rain[2]  # matrix: green dominant
+    assert plas.sum() > 0.05                 # plasma: a full colour field
+    assert siren.sum() > 0.02                # siren: lit
 
 
 def test_presets_declare_knobs_and_triggers():

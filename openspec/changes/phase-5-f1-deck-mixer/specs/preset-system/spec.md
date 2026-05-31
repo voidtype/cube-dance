@@ -4,7 +4,8 @@
 
 The preset system SHALL expose an **ordered list** of built-in presets that the deck mixer
 and the browse encoder cycle through. The list SHALL include at least `deep`, `punchy`,
-`minimal`, and `strobe`, and selecting an index SHALL load that preset onto a deck.
+`minimal`, and `strobe` (and MAY include stylistically distinct presets such as `inferno`,
+`matrix`, `plasma`, `siren`), and selecting an index SHALL load that preset onto a deck.
 
 #### Scenario: Encoder cycles the built-in order
 
