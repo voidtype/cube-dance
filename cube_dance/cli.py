@@ -42,6 +42,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--demo", action="store_true", help="Use a synthetic demo beat (no file needed).")
     p.add_argument("--mute", action="store_true", help="Do not play sound; drive the visuals silently.")
+    p.add_argument("--record", action="store_true", help="Start recording an MP4 at launch (V toggles; stops on quit).")
+    p.add_argument("--record-fps", type=int, default=30, help="Recording framerate (default 30).")
+    p.add_argument("--record-dir", type=str, default="recordings", help="Output folder for recordings.")
     return p
 
 
@@ -83,7 +86,10 @@ def main(argv: list[str] | None = None) -> int:
 
     from .app import run
 
-    run(config_overrides=overrides, extra_args=extra, audio_file=audio_file, mute=ns.mute, loop=loop)
+    run(
+        config_overrides=overrides, extra_args=extra, audio_file=audio_file, mute=ns.mute, loop=loop,
+        record_auto=ns.record, record_fps=ns.record_fps, record_dir=ns.record_dir,
+    )
     return 0
 
 

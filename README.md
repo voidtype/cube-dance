@@ -23,6 +23,22 @@ uv run cube-dance --audio track.wav --mute   # visuals only, no sound
 
 Transport: **`K`** play/pause · **`J`** restart (shown in the on-screen help).
 
+### Record a clip to share
+
+Press **`V`** to start/stop recording (or pass `--record` to start at launch and stop on
+quit). It captures the live window — your camera moves and all — to a **Facebook-ready
+MP4** (H.264 + AAC, `+faststart`) and muxes the audio that played. The on-screen help/REC
+overlay is **not** in the clip. Files land in `recordings/cube-<timestamp>.mp4`.
+
+```bash
+uv run cube-dance --demo --record           # auto-record from launch
+uv run cube-dance --audio track.wav         # then press V to start/stop
+uv run cube-dance --demo --record-fps 60 --record-dir ~/Desktop
+```
+
+The audio is muxed even with `--mute` (so the clip has sound); with no audio source the
+clip is video-only. Needs `ffmpeg` (uses your system one, or the bundled `imageio-ffmpeg`).
+
 ### The cube (Phase 0 foundation)
 
 An explorable native 3D simulation of the cube with a dense, abstract LED representation:
@@ -85,8 +101,9 @@ controls are always shown in the on-screen help (toggle with **`H`**).
 | `Shift` (hold)   | move faster       |
 | Scroll           | adjust move speed |
 
-**Always available:** `R` reset view · `H` toggle help · `Esc` quit. With audio: `K`
-play/pause · `J` restart. With no audio: `P` pause/resume the placeholder pattern.
+**Always available:** `R` reset view · `V` record clip · `H` toggle help · `Esc` quit.
+With audio: `K` play/pause · `J` restart. With no audio: `P` pause/resume the placeholder
+pattern.
 
 moderngl-window flags pass through, e.g. `uv run cube-dance --window glfw --vsync True`.
 
@@ -103,12 +120,15 @@ cube_dance/
   config.py         CubeConfig — dimensions (from the SCAD), densities, scenery toggles
   geometry.py       12 edges (beam chords) + 8 corner cubes, deterministic ordering
   led_topology.py   dense LED pixels, addressing, regions -> CubeModel + color buffer
-  patterns.py       placeholder test pattern (temporary; replaced in Phase 1)
-  scenery.py        floor grid + rough speaker cabinets (non-LED realism props)
+  patterns.py       placeholder test pattern (no-audio fallback)
+  scenery.py        clay ground + bushes + speaker cabinets (non-LED realism props)
+  audio/            file decode + loudness envelope, transport, background playback, demo
+  visuals/          VU meter + placeholder, driven by audio features
+  recording.py      live-session capture -> shareable MP4 (ffmpeg)
   render/camera.py  orbit + fly cameras (numpy matrices)
   render/scene.py   moderngl: LED points (single draw) + scenery, depth-correct
   render/hud.py     on-screen help overlay (Pillow text -> texture)
-  app.py            moderngl-window viewer (render loop, dual nav modes, input)
+  app.py            moderngl-window viewer (render loop, dual nav modes, input, recording)
   selftest.py       headless data-path validation
   cli.py            entrypoint (cube-dance / python -m cube_dance)
 reference/whole_cube.scad   the source-of-truth OpenSCAD model

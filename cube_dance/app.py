@@ -10,12 +10,14 @@ from __future__ import annotations
 
 import dataclasses
 import math
+import time
 
 import moderngl_window as mglw
 
 from .audio import AudioSource
 from .config import CubeConfig
 from .led_topology import build_model
+from .recording import SessionRecorder
 from .render.camera import FlyCamera, OrbitCamera
 from .render.hud import HudOverlay
 from .render.scene import CubeScene
@@ -30,7 +32,7 @@ def _fmt_time(seconds: float) -> str:
 def _control_lines(mode: str, paused: bool, audio_line: str | None = None) -> list[str]:
     common = [
         "Tab  switch nav mode    H  hide help",
-        "R  reset view    Esc  quit",
+        "R  reset view    V  record    Esc  quit",
     ]
     if mode == "orbit":
         head = ["NAV: ORBIT (3D-editor)", "Left-drag orbit | Shift/right-drag pan | Scroll zoom"]
@@ -56,6 +58,9 @@ class CubeWindow(mglw.WindowConfig):
     audio_file = None  # set by the CLI (an AudioFile) to drive a VU meter
     mute: bool = False
     loop: bool = False
+    record_auto: bool = False
+    record_fps: int = 30
+    record_dir: str = "recordings"
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -76,6 +81,10 @@ class CubeWindow(mglw.WindowConfig):
             self.audio.start()
         else:
             self.visual = PlaceholderVisual()
+
+        self.recorder = SessionRecorder(
+            self.audio, loop=type(self).loop, fps=type(self).record_fps, outdir=type(self).record_dir
+        )
 
         fovy = 45.0
         radius = self.cfg.half * math.sqrt(3.0)
@@ -108,6 +117,9 @@ class CubeWindow(mglw.WindowConfig):
         print(f"Cube model: {self.model.n} LED pixels "
               f"({int(self.model.edge_mask.sum())} edge, {int(self.model.corner_mask.sum())} corner)")
 
+        if type(self).record_auto:
+            self._toggle_recording()
+
     # --- Helpers -------------------------------------------------------------
     def _set_aspect(self, w: int, h: int) -> None:
         a = w / max(h, 1)
@@ -126,9 +138,36 @@ class CubeWindow(mglw.WindowConfig):
             f"{_fmt_time(self.audio.position)} / {_fmt_time(self.audio.duration)}  [{state}]"
         )
 
+    def _rec_line(self) -> str | None:
+        if not self.recorder.is_recording:
+            return None
+        return f"● REC  {_fmt_time(self.recorder.elapsed)}   (V to stop)"
+
     def _refresh_hud(self) -> None:
-        lines = _control_lines(self.mode, self.paused, self._audio_line()) if self.show_help else []
+        rec = self._rec_line()
+        if self.show_help:
+            lines = _control_lines(self.mode, self.paused, self._audio_line())
+        else:
+            lines = []  # help hidden, but still surface the REC indicator
+        if rec:
+            lines = [rec] + lines
         self.hud.set_text(lines)
+
+    def _toggle_recording(self) -> None:
+        if self.recorder.is_recording:
+            path = self.recorder.stop()
+            if path:
+                print(f"[rec] saved {path}")
+            elif self.recorder.error:
+                print(f"[rec] error: {self.recorder.error}")
+        else:
+            w, h = self.wnd.fbo.size
+            self.recorder.start(w, h)
+            if self.recorder.error:
+                print(f"[rec] could not start: {self.recorder.error}")
+            else:
+                print(f"[rec] recording -> {self.recorder._final}")
+        self._refresh_hud()
 
     def _toggle_mode(self) -> None:
         if self.mode == "orbit":
@@ -148,7 +187,7 @@ class CubeWindow(mglw.WindowConfig):
         self._refresh_hud()
 
     # --- Render loop ---------------------------------------------------------
-    def on_render(self, time: float, frame_time: float) -> None:
+    def on_render(self, render_time: float, frame_time: float) -> None:
         if self.mode == "fly":
             self._fly_step(frame_time)
 
@@ -170,7 +209,14 @@ class CubeWindow(mglw.WindowConfig):
         ps = CubeScene.proj_scale(viewport_h, cam.fovy_deg)
         self.scene.render(cam.view_bytes(), cam.proj_bytes(), ps)
 
-        if self.show_help:
+        # Capture the clean scene (before the HUD) for the recorder.
+        now = time.time()
+        if self.recorder.due(now):
+            fb = self.wnd.fbo
+            fw, fh = fb.size
+            self.recorder.write_frame(fb.read(components=3), fw, fh, now)
+
+        if self.show_help or self.recorder.is_recording:
             w, h = self.wnd.buffer_size
             self.hud.render(w, h)
 
@@ -183,8 +229,8 @@ class CubeWindow(mglw.WindowConfig):
             except Exception:
                 pass
 
-        # Refresh the HUD a few times a second so the audio position ticks.
-        if self.audio is not None and self.show_help:
+        # Refresh the HUD a few times a second so the audio position / REC timer tick.
+        if (self.audio is not None and self.show_help) or self.recorder.is_recording:
             self._hud_accum += frame_time
             if self._hud_accum >= 0.25:
                 self._hud_accum = 0.0
@@ -223,6 +269,8 @@ class CubeWindow(mglw.WindowConfig):
             elif key == keys.R:
                 self.orbit.reset()
                 self.fly.set_from_orbit(self.orbit)
+            elif key == keys.V:
+                self._toggle_recording()
             elif key == keys.K and self.audio is not None:
                 self.audio.toggle()
                 self._refresh_hud()
@@ -236,6 +284,10 @@ class CubeWindow(mglw.WindowConfig):
             self._keys_down.discard(key)
 
     def on_close(self) -> None:
+        if self.recorder.is_recording:
+            path = self.recorder.stop()
+            if path:
+                print(f"[rec] saved {path}")
         if self.audio is not None:
             self.audio.close()
 
@@ -273,12 +325,18 @@ def run(
     audio_file=None,
     mute: bool = False,
     loop: bool = False,
+    record_auto: bool = False,
+    record_fps: int = 30,
+    record_dir: str = "recordings",
 ) -> None:
     """Launch the interactive viewer. ``extra_args`` is passed to moderngl-window."""
     CubeWindow.config_overrides = config_overrides or {}
     CubeWindow.audio_file = audio_file
     CubeWindow.mute = mute
     CubeWindow.loop = loop
+    CubeWindow.record_auto = record_auto
+    CubeWindow.record_fps = record_fps
+    CubeWindow.record_dir = record_dir
     args = list(extra_args or [])
     if not any(a in ("-wnd", "--window") for a in args):
         args += ["--window", "glfw"]  # reliable core profile on macOS
