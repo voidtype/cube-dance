@@ -4,6 +4,11 @@ Sound-reactive LED control software and 3D simulation for a **2.6 m F34 truss cu
 used at dance-music events. The lights are primarily sound-reactive and evolve over time;
 downstream mapping software (MadMapper) drives the physical pixels.
 
+![Cube Dance running — the glowing LED truss cube with the on-screen Traktor F1 deck mixer](docs/hero.png)
+
+*The simulator running: rainbow spectrum beams and bass-lit corners on the truss cube, with
+the on-screen Traktor Kontrol F1 (press `C`) driving the 4-deck preset mixer.*
+
 This repo is built **spec-first** with [OpenSpec](https://github.com/Fission-AI/OpenSpec)
 and developed in **phases** — see [`openspec/project.md`](openspec/project.md) for the
 full roadmap and the physical cube facts.
