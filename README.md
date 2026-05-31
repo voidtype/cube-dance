@@ -13,6 +13,27 @@ This repo is built **spec-first** with [OpenSpec](https://github.com/Fission-AI/
 and developed in **phases** — see [`openspec/project.md`](openspec/project.md) for the
 full roadmap and the physical cube facts.
 
+## Status: Phase 6 — live audio input
+
+Drive the whole show off **real-time sound** (the DJ's output / a line-in / a mic) instead of
+a file — the analysis was streaming from day one, so the live input drops in behind the same
+window-at-the-playhead contract.
+
+```bash
+uv run cube-dance --list-audio-inputs                 # see your input devices
+uv run cube-dance --live                               # default input
+uv run cube-dance --live --input-device "Volt"         # pick a device (name or index)
+uv run cube-dance --live --input-gain 1.5              # boost a quiet line
+```
+
+- Captures into a rolling ring buffer on a background thread (non-blocking; degrades to
+  silence if no device). Presented as **stereo** (mono inputs are duplicated) so the L/R
+  features work. The HUD shows a **LIVE** indicator and elapsed time — no transport (you
+  can't seek a live feed), and it never "ends".
+- On macOS the first run may ask for **microphone permission**; a virtual loopback (e.g.
+  *Background Music*) or an interface input (e.g. *Volt*) captures the music without a mic.
+- Recording (`V`) in live mode is **video-only** for now (no file to mux).
+
 ## Status: Phase 5 — the F1 as a performance instrument
 
 The F1 becomes the live instrument. The default visual is a **4-deck mixer**: a preset
@@ -242,7 +263,8 @@ cube_dance/
   scenery.py        clay ground + bushes + speaker cabinets (non-LED realism props)
   truss.py          F34 truss tubes (chords + lacing + corner frames) for the metal pass
   led_mesh.py       emissive LED-strip tubes (one per run), coloured per-pixel from a texture
-  audio/            decode + window_at, streaming analyzer + AGC, event detection, transport
+  audio/            file decode + live input (ring buffer), streaming analyzer + AGC,
+                    event detection, transport — all behind one window_at(t, win) contract
   visuals/          VU + placeholder + params; engine/ (elements, evolution, deck mixer)
   presets/          Python presets: build(engine) + KNOBS/TRIGGERS (8: deep, punchy,
                     minimal, strobe, inferno, matrix, plasma, siren)

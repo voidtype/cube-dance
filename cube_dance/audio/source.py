@@ -35,7 +35,8 @@ class AudioSource:
         self.playing = False
         self._pos = 0.0  # virtual-clock position (seconds)
         self._frame = 0  # live-clock frame counter
-        self._live = False
+        self._live = False  # output stream is live (file playback)
+        self._is_live = bool(getattr(audio, "is_live", False))  # source is a live input
         self._opening = False
         self._stream = None
         self._lock = threading.Lock()
@@ -55,6 +56,8 @@ class AudioSource:
 
     @property
     def finished(self) -> bool:
+        if self._is_live:
+            return False  # a live feed never ends
         return (not self.loop) and self.position >= self.duration - 1e-3
 
     def features(self, dt: float):
@@ -66,13 +69,16 @@ class AudioSource:
 
     # --- Lifecycle / transport ----------------------------------------------
     def start(self) -> None:
-        """Begin playback. Returns immediately; the device opens in the background."""
+        """Begin playback/capture. Returns immediately; devices open in the background."""
         self.playing = True
+        if self._is_live:
+            self.audio.start()  # open the live input stream (no output monitoring)
+            return
         if not self.mute:
             self._spawn_open()
 
     def _spawn_open(self) -> None:
-        if self._opening or self._live or self._stream is not None:
+        if self._is_live or self._opening or self._live or self._stream is not None:
             return
         self._opening = True
         threading.Thread(target=self._open_stream, daemon=True).start()
@@ -130,6 +136,10 @@ class AudioSource:
 
     def update(self, dt: float) -> None:
         """Advance the virtual clock (no-op once the device stream is live)."""
+        if self._is_live:  # live input: wall-clock elapsed only, never finishes
+            if self.playing:
+                self._pos += max(dt, 0.0)
+            return
         if self.playing and not self._live:
             self._pos += max(dt, 0.0)
             if self._pos >= self.duration:
@@ -166,6 +176,8 @@ class AudioSource:
         self.seek(0.0)
 
     def seek(self, t: float) -> None:
+        if self._is_live:
+            return  # a live feed cannot be repositioned
         t = min(max(t, 0.0), self.duration)
         self._pos = t
         if self._live:
@@ -173,6 +185,11 @@ class AudioSource:
                 self._frame = int(t * self.audio.sr)
 
     def close(self) -> None:
+        if self._is_live:
+            try:  # pragma: no cover - device
+                self.audio.close()
+            except Exception:  # noqa: BLE001
+                pass
         if self._stream is not None:  # pragma: no cover - device
             try:
                 self._stream.stop()

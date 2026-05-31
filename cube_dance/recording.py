@@ -168,7 +168,8 @@ class SessionRecorder:
         if not (tmp_video and os.path.exists(tmp_video)):
             return None
 
-        if self.audio_source is not None and self.audio_source.audio.duration > 0:
+        live = self.audio_source is not None and getattr(self.audio_source.audio, "is_live", False)
+        if self.audio_source is not None and not live and self.audio_source.audio.duration > 0:
             try:
                 import soundfile as sf
 

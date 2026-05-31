@@ -42,6 +42,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to an audio file (WAV/FLAC/AIFF/OGG) to play as a VU meter.",
     )
     p.add_argument("--demo", action="store_true", help="Use a synthetic demo beat (no file needed).")
+    p.add_argument("--live", action="store_true", help="Drive the visuals from a live audio input (line/mic).")
+    p.add_argument("--input-device", default=None, help="Live input device (name substring or index).")
+    p.add_argument("--input-gain", type=float, default=1.0, help="Live input gain multiplier (default 1.0).")
+    p.add_argument("--list-audio-inputs", action="store_true", help="List available audio input devices and exit.")
     p.add_argument("--mute", action="store_true", help="Do not play sound; drive the visuals silently.")
     p.add_argument(
         "--visual", choices=["auto", "spectrum", "vu"], default="auto",
@@ -74,9 +78,24 @@ def main(argv: list[str] | None = None) -> int:
     if ns.no_truss:
         overrides["show_truss"] = False
 
+    if ns.list_audio_inputs:
+        from .audio import list_input_devices
+
+        print("Audio input devices:")
+        for line in list_input_devices():
+            print("  " + line)
+        return 0
+
     audio_file = None
     loop = False
-    if ns.demo:
+    if ns.live:
+        from .audio import LiveAudioInput
+
+        dev = ns.input_device
+        if dev is not None and dev.lstrip("-").isdigit():
+            dev = int(dev)
+        audio_file = LiveAudioInput(device=dev, gain=ns.input_gain)
+    elif ns.demo:
         from .audio.demo import make_demo
 
         audio_file = make_demo()

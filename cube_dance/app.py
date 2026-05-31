@@ -171,11 +171,13 @@ class CubeWindow(mglw.WindowConfig):
     def _audio_line(self) -> str | None:
         if self.audio is None:
             return None
-        state = "PLAYING" if self.audio.playing else "PAUSED"
         tag = self.visual_name
         if isinstance(self.visual, DeckMixer):
             f = int(self.controls.focus_deck) % self.visual.n_decks
             tag = f"mixer · deck {f + 1}:{self.visual.preset_name[f]}"
+        if getattr(self.audio, "_is_live", False):
+            return f"● LIVE   {_fmt_time(self.audio.position)}   · {tag}"
+        state = "PLAYING" if self.audio.playing else "PAUSED"
         return (
             f"K play/pause  J restart   "
             f"{_fmt_time(self.audio.position)} / {_fmt_time(self.audio.duration)}  [{state}]  · {tag}"
