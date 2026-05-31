@@ -42,16 +42,21 @@ void main() {
 LED_STRIP_FRAGMENT_SHADER = """
 #version 330
 uniform sampler2D u_colors;
+uniform float u_n_leds;   // total LED count (for the discrete-LED gap pattern)
+uniform float u_led_frac; // lit fraction of each LED cell (rest is a dark gap)
 in float v_uv;
 in vec3 v_n;
 in vec3 v_vpos;
 out vec4 f_color;
 void main() {
     vec3 c = texture(u_colors, vec2(v_uv, 0.5)).rgb;   // per-pixel LED colour
+    // Discrete LEDs: a small dark break between each one.
+    float ph = fract(v_uv * u_n_leds);
+    float gap = 1.0 - smoothstep(u_led_frac * 0.5, u_led_frac * 0.5 + 0.07, abs(ph - 0.5));
     vec3 n = normalize(v_n);
     vec3 vd = normalize(-v_vpos);
     float rim = pow(1.0 - max(dot(n, vd), 0.0), 2.0) * 0.30;  // subtle edge pop
-    f_color = vec4(c * (1.0 + rim), 1.0);                      // emissive
+    f_color = vec4(c * gap * (1.0 + rim), 1.0);               // emissive
 }
 """
 
@@ -181,8 +186,9 @@ class CubeScene:
         self.metal_prog = ctx.program(vertex_shader=METAL_VERTEX_SHADER, fragment_shader=METAL_FRAGMENT_SHADER)
 
         # LED color buffer as a 1-D (N x 1) texture, sampled along each strip.
+        # NEAREST so each LED is its own crisp colour (discrete look).
         self._color_tex = ctx.texture((model.n, 1), 3, dtype="f4")
-        self._color_tex.filter = (mgl.LINEAR, mgl.LINEAR)
+        self._color_tex.filter = (mgl.NEAREST, mgl.NEAREST)
         self.update_colors()
 
         # Emissive LED strip geometry (one tube per run); static positions.
@@ -260,6 +266,8 @@ class CubeScene:
         self.strip_prog["u_view"].write(view_bytes)
         self.strip_prog["u_proj"].write(proj_bytes)
         _set(self.strip_prog, "u_colors", 0)
+        _set(self.strip_prog, "u_n_leds", float(self.model.n))
+        _set(self.strip_prog, "u_led_frac", 0.6)
         self.strip_vao.render(mgl.TRIANGLES, vertices=self._strip_n)
 
         if self.marker_vao is not None:
