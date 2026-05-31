@@ -1,0 +1,127 @@
+# Cube Dance
+
+Sound-reactive LED control software and 3D simulation for a **2.6 m F34 truss cube**
+used at dance-music events. The lights are primarily sound-reactive and evolve over time;
+downstream mapping software (MadMapper) drives the physical pixels.
+
+This repo is built **spec-first** with [OpenSpec](https://github.com/Fission-AI/OpenSpec)
+and developed in **phases** — see [`openspec/project.md`](openspec/project.md) for the
+full roadmap and the physical cube facts.
+
+## Status: Phase 1 — audio VU meter
+
+Load an audio file (or a built-in demo beat) and the cube reacts as a **VU meter**: it
+fills from the floor up with the loudness, on a green → amber → red ramp with a peak-hold
+cap. Audio plays out loud, synced to the visuals; the device opens in the background so
+the window appears instantly. With no audio it falls back to the Phase 0 placeholder.
+
+```bash
+uv run cube-dance --demo            # synthetic beat, no file needed
+uv run cube-dance --audio track.wav # your own file (WAV/FLAC/AIFF/OGG)
+uv run cube-dance --audio track.wav --mute   # visuals only, no sound
+```
+
+Transport: **`K`** play/pause · **`J`** restart (shown in the on-screen help).
+
+### The cube (Phase 0 foundation)
+
+An explorable native 3D simulation of the cube with a dense, abstract LED representation:
+
+- **12 edge beams**, each lit with **2 rows per visible face** (the truss chords) — so
+  top/vertical edges show ~3 parallel rows; the **base edges** light only their outward
+  vertical face (ground-/up-facing rows are skipped, as they'd be invisible or stepped on).
+- **8 corner cubes** lit on their **edges** (the glowing ⊠ outline) plus **X-panels** —
+  denser, and a deliberate visual feature.
+- Optional **scenery** for realism: a **clay ground**, surrounding **bushes** (it's a
+  bush doof), and rough **speaker** cabinets (one sub front-centre, two mains in the same
+  plane) with little **blue marker LEDs** at their base. Toggle with `--no-floor` /
+  `--no-speakers` / `--no-bushes`.
+- A single `(N, 3)` RGB **color buffer** is the hand-off contract every later phase writes.
+- A placeholder, non-audio test pattern (edge sweep + corner pulse) animates the buffer
+  so you can see the pixels light up. (Phase 1 replaces it with audio.)
+
+~9,700 LED pixels at default density; renders as a glowing truss cube on a stage.
+
+## Requirements
+
+- **Python 3.12+** and [**uv**](https://docs.astral.sh/uv/).
+- A desktop GPU. On macOS it uses OpenGL 4.1 (via Metal) through the **glfw** backend.
+
+## Run
+
+```bash
+uv run cube-dance              # launch the interactive viewer
+uv run cube-dance --selftest   # headless data-path check (no window)
+```
+
+Options:
+
+```bash
+uv run cube-dance --edge-density 144 --corner-density 200   # denser LEDs
+uv run cube-dance --no-floor --no-speakers --no-bushes      # hide scenery
+```
+
+### Navigating the scene
+
+There are **two navigation modes** — press **`Tab`** to switch. The active mode and its
+controls are always shown in the on-screen help (toggle with **`H`**).
+
+**Orbit mode** (like a 3D editor / Blender) — default:
+
+| Input                           | Action |
+| ------------------------------- | ------ |
+| Left-drag                       | orbit around the cube |
+| Shift-drag / right- or mid-drag | pan    |
+| Scroll                          | zoom   |
+
+**Fly mode** (like an FPS) — press `Tab` to enter (the mouse is captured):
+
+| Input            | Action            |
+| ---------------- | ----------------- |
+| Mouse            | look              |
+| `W` `A` `S` `D`  | move              |
+| `Space` / `E`    | up                |
+| `Ctrl` / `Q`     | down              |
+| `Shift` (hold)   | move faster       |
+| Scroll           | adjust move speed |
+
+**Always available:** `R` reset view · `H` toggle help · `Esc` quit. With audio: `K`
+play/pause · `J` restart. With no audio: `P` pause/resume the placeholder pattern.
+
+moderngl-window flags pass through, e.g. `uv run cube-dance --window glfw --vsync True`.
+
+## Develop
+
+```bash
+uv run pytest        # unit tests + offscreen GPU render test (skips if no GL)
+```
+
+### Layout
+
+```
+cube_dance/
+  config.py         CubeConfig — dimensions (from the SCAD), densities, scenery toggles
+  geometry.py       12 edges (beam chords) + 8 corner cubes, deterministic ordering
+  led_topology.py   dense LED pixels, addressing, regions -> CubeModel + color buffer
+  patterns.py       placeholder test pattern (temporary; replaced in Phase 1)
+  scenery.py        floor grid + rough speaker cabinets (non-LED realism props)
+  render/camera.py  orbit + fly cameras (numpy matrices)
+  render/scene.py   moderngl: LED points (single draw) + scenery, depth-correct
+  render/hud.py     on-screen help overlay (Pillow text -> texture)
+  app.py            moderngl-window viewer (render loop, dual nav modes, input)
+  selftest.py       headless data-path validation
+  cli.py            entrypoint (cube-dance / python -m cube_dance)
+reference/whole_cube.scad   the source-of-truth OpenSCAD model
+openspec/                   specs, project context, and per-phase change proposals
+```
+
+### OpenSpec workflow
+
+Each phase is one change under `openspec/changes/`. Capabilities live in
+`openspec/specs/` and accrete as changes are archived. The OpenSpec CLI needs Node ≥ 18:
+
+```bash
+openspec list                          # active changes
+openspec validate <change> --strict    # validate a change
+openspec show <change>                 # view proposal/specs/tasks
+```

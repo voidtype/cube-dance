@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Build / packaging
+build/
+dist/
+
+# OS
+.DS_Store
+
+# Local large audio assets (commit only small test clips deliberately)
+assets/audio/*.wav
+assets/audio/*.flac
+assets/audio/*.mp3
+assets/audio/*.aiff
+
+# Editor
+.idea/
+.vscode/
