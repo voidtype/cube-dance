@@ -8,6 +8,26 @@ This repo is built **spec-first** with [OpenSpec](https://github.com/Fission-AI/
 and developed in **phases** — see [`openspec/project.md`](openspec/project.md) for the
 full roadmap and the physical cube facts.
 
+## Status: Phase 4 — evolving visual engine (event-driven, preset-authored)
+
+The default `spectrum` visual is now a **layered element engine** fed by **classified
+musical events**, not just raw bands:
+
+- **Event detection** (streaming, heuristic): per-band spectral-flux onsets → classify
+  **kick / hat / snare / perc**; sustained bass stays the continuous stream (kick-vs-bass by
+  attack). Rough tempo/beat phase.
+- **Elements** subscribe to events + features and composite: `BassCorners`, `SpectrumBeams`,
+  `KickPulse`, `HatSparkle`, `Sweep`, `Chase`, `AmbientWash`, with LFO/envelope/evolver
+  modulators.
+- **Evolution + composition awareness**: energy/onset-density tracking + an **accelerating**
+  hue drift so a set keeps changing.
+- **Python presets** author the look: `presets/<name>.py` with `build(engine)`. Pick with
+  `--preset deep|punchy`; press **`N`** to cycle live.
+
+```bash
+uv run cube-dance --audio track.wav --preset punchy   # then N to cycle presets
+```
+
 ## Status: Phase 3 — F1 control
 
 Press **`C`** for an on-screen **Traktor Kontrol F1** in the right quarter (mouse is freed
@@ -126,8 +146,8 @@ orbit):
 | Shift-drag / right- or mid-drag | pan    |
 | Scroll                          | zoom   |
 
-**Always available:** `R` reset view · `V` record clip · `C` F1 controls · `H` toggle help ·
-`Esc` quit.
+**Always available:** `R` reset view · `V` record clip · `C` F1 controls · `N` cycle preset ·
+`H` toggle help · `Esc` quit.
 With audio: `K` play/pause · `J` restart. With no audio: `P` pause/resume the placeholder
 pattern.
 
@@ -150,8 +170,9 @@ cube_dance/
   scenery.py        clay ground + bushes + speaker cabinets (non-LED realism props)
   truss.py          F34 truss tubes (chords + lacing + corner frames) for the metal pass
   led_mesh.py       emissive LED-strip tubes (one per run), coloured per-pixel from a texture
-  audio/            decode + window_at, streaming SpectrumAnalyzer + AGC processor, transport
-  visuals/          cube-aware spectrum + VU + placeholder; VisualParams (for the DSL)
+  audio/            decode + window_at, streaming analyzer + AGC, event detection, transport
+  visuals/          VU + placeholder + params; engine/ (elements, modulators, evolution)
+  presets/          Python presets: build(engine) composes elements (deep, punchy)
   control/          F1 control state, control->param mapping, basic MIDI input
   render/virtual_f1.py   interactive on-screen F1 panel (knobs/faders/buttons/display/pads)
   recording.py      live-session capture -> shareable MP4 (ffmpeg)

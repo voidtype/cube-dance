@@ -25,8 +25,10 @@ from .render.camera import FlyCamera, OrbitCamera
 from .render.hud import HudOverlay
 from .render.scene import CubeScene
 from .render.virtual_f1 import VirtualF1
-from .visuals import CubeAwareVisual, Features, PlaceholderVisual, VuMeter
+from .visuals import Features, PlaceholderVisual, VuMeter
+from .visuals.engine import VisualEngine
 from .visuals.params import VisualParams
+from . import presets
 
 
 def _fmt_time(seconds: float) -> str:
@@ -64,6 +66,7 @@ class CubeWindow(mglw.WindowConfig):
     mute: bool = False
     loop: bool = False
     visual_choice: str = "auto"
+    preset: str = "deep"
     record_auto: bool = False
     record_fps: int = 30
     record_dir: str = "recordings"
@@ -95,16 +98,16 @@ class CubeWindow(mglw.WindowConfig):
         if type(self).audio_file is not None:
             self.audio = AudioSource(type(self).audio_file, mute=type(self).mute, loop=type(self).loop)
             self.aparams = self.audio.processor.p
+            self._preset_name = ""
             if choice == "vu":
                 self.visual, self.visual_name = VuMeter(self.model), "vu"
-            else:  # auto / spectrum
-                self.visual = CubeAwareVisual(
-                    self.model, n_buckets=self.audio.analyzer.n_buckets, params=self.vparams
-                )
-                self.visual_name = "spectrum"
+            else:  # auto / spectrum -> preset-driven element engine
+                self.visual = self._build_engine(type(self).preset)
+                self.visual_name = "spectrum:" + self._preset_name
             self.audio.start()
         else:
             self.visual, self.visual_name = PlaceholderVisual(), "placeholder"
+            self._preset_name = ""
 
         self.recorder = SessionRecorder(
             self.audio, loop=type(self).loop, fps=type(self).record_fps, outdir=type(self).record_dir
@@ -212,6 +215,26 @@ class CubeWindow(mglw.WindowConfig):
                 self.wnd.mouse_exclusivity = False
             except Exception:
                 pass
+        self._refresh_hud()
+
+    def _build_engine(self, name: str):
+        engine = VisualEngine(self.model, n_buckets=self.audio.analyzer.n_buckets, vparams=self.vparams)
+        try:
+            presets.load(name, engine)
+            self._preset_name = name
+        except ValueError:
+            presets.load("deep", engine)
+            self._preset_name = "deep"
+        return engine
+
+    def _cycle_preset(self) -> None:
+        if self.audio is None or self.visual_name == "vu":
+            return
+        order = list(presets.BUILTINS)
+        i = (order.index(self._preset_name) + 1) % len(order) if self._preset_name in order else 0
+        self.visual = self._build_engine(order[i])
+        self.visual_name = "spectrum:" + self._preset_name
+        print(f"[preset] {self._preset_name}")
         self._refresh_hud()
 
     def _toggle_controls(self) -> None:
@@ -336,6 +359,8 @@ class CubeWindow(mglw.WindowConfig):
                 self._toggle_recording()
             elif key == keys.C:
                 self._toggle_controls()
+            elif key == keys.N and self.audio is not None:
+                self._cycle_preset()
             elif key == keys.K and self.audio is not None:
                 self.audio.toggle()
                 self._refresh_hud()
@@ -408,6 +433,7 @@ def run(
     mute: bool = False,
     loop: bool = False,
     visual_choice: str = "auto",
+    preset: str = "deep",
     record_auto: bool = False,
     record_fps: int = 30,
     record_dir: str = "recordings",
@@ -418,6 +444,7 @@ def run(
     CubeWindow.mute = mute
     CubeWindow.loop = loop
     CubeWindow.visual_choice = visual_choice
+    CubeWindow.preset = preset
     CubeWindow.record_auto = record_auto
     CubeWindow.record_fps = record_fps
     CubeWindow.record_dir = record_dir

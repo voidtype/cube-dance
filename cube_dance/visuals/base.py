@@ -27,6 +27,8 @@ class Features:
     bass_r: float = 0.0
     buckets_l: Optional[np.ndarray] = None  # (n_buckets,) per-channel spectrum
     buckets_r: Optional[np.ndarray] = None
+    events: Optional[list] = None  # classified onset Events this frame (kick/hat/snare/perc)
+    beat: float = 0.0  # rough beat phase 0..1
 
 
 @runtime_checkable
