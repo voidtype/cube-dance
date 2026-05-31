@@ -66,6 +66,8 @@ class CubeModel:
         element_id: list[np.ndarray] = []
         param: list[np.ndarray] = []
         normals: list[np.ndarray] = []
+        spans: list[tuple[int, int]] = []  # (start, length) of each contiguous LED run
+        total = [0]
 
         def add(p0, p1, n, grp, eid, *, normal_const=None, center=None):
             pts, t = _samples(p0, p1, n)
@@ -79,6 +81,8 @@ class CubeModel:
                 d = pts - center
                 norm = np.linalg.norm(d, axis=1, keepdims=True)
                 normals.append((d / np.where(norm > 1e-9, norm, 1.0)).astype(np.float32))
+            spans.append((total[0], n))
+            total[0] += n
 
         # --- Edges first (each edge: one or more lit chord rows) ---
         n_edge = cfg.edge_pixel_count()
@@ -104,6 +108,7 @@ class CubeModel:
         self.element_id = np.concatenate(element_id).astype(np.int32)
         self.param = np.concatenate(param).astype(np.float32)
         self.normal = np.concatenate(normals, axis=0).astype(np.float32)
+        self.run_spans = spans  # list of (start, length): each straight LED run
         self.colors = np.zeros_like(self.positions)  # (N, 3) float32, LEDs off
 
         # --- Precomputed region index lists for O(1) vectorised writes ---

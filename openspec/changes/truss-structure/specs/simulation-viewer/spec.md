@@ -4,19 +4,19 @@
 
 The viewer SHALL render the truss structure as an **opaque dull-aluminium** material
 (ambient + diffuse + a soft, low specular highlight that reacts to the light and camera)
-drawn **beneath** the LEDs, and SHALL offset each LED onto the outer surface of its tube so
-the lights read as mounted on the truss rather than buried in it. LED brightness SHALL be
-**independent of the viewing angle**: it SHALL NOT change with how densely the LED sprites
-overlap on screen (achieved by max-blending rather than additive summing) and an LED SHALL
-NOT be occluded by, or flicker against, the tube it is mounted on. Opaque geometry in front
-of an LED (the near side of the truss, speakers, the ground) SHALL still occlude it for
-realism. The truss SHALL be toggleable.
+drawn beneath the LEDs. The **LEDs SHALL be rendered as emissive solid geometry** — a thin
+tube along each LED run, sitting on the outer surface of the truss tube and coloured
+per-pixel from the LED color buffer — **not** as point sprites. Because the LEDs are solid
+geometry with proper per-fragment depth, their brightness SHALL be **independent of the
+view angle** (no sprite-density or single-depth popping artifacts), and opaque geometry in
+front of an LED (the near side of the truss, speakers, the ground) SHALL occlude it
+correctly. The truss SHALL be toggleable.
 
 #### Scenario: Truss sits under the lights
 
 - **WHEN** the viewer renders with the truss enabled
-- **THEN** the truss appears as an opaque metallic frame and the LEDs appear on its tube
-  surfaces (not buried)
+- **THEN** the truss appears as an opaque metallic frame and the LED tubes appear on its
+  outer surfaces (mounted on it, not buried)
 
 #### Scenario: Opaque geometry occludes LEDs
 
@@ -26,11 +26,10 @@ realism. The truss SHALL be toggleable.
 
 #### Scenario: LED brightness is view-independent
 
-- **WHEN** the camera rotates around the cube (e.g. viewing a corner X panel from
-  different angles)
-- **THEN** each LED line stays consistently lit — no diagonal becomes brighter or dimmer
-  than the other with the angle, and LEDs do not flicker against their tubes (brightness
-  does not depend on sprite overlap because LEDs are max-blended, not additively summed)
+- **WHEN** the camera rotates around the cube (e.g. viewing a corner X panel from many
+  angles, including low/grazing ones)
+- **THEN** every LED run stays consistently lit — neither X diagonal becomes brighter or
+  dimmer than the other with the angle, and no LED line flickers or dims as the view moves
 
 #### Scenario: Truss can be toggled off
 

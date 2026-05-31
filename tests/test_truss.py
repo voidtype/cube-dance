@@ -41,6 +41,26 @@ def test_cylinder_and_truss_shapes():
     assert tp.min() > -cfg.half - 0.05 and tp.max() < cfg.half + 0.05
 
 
+def test_run_spans_partition_the_pixels():
+    m = build_model(CubeConfig())
+    total = 0
+    for start, length in m.run_spans:
+        assert start == total  # contiguous, in order
+        total += length
+    assert total == m.n
+
+
+def test_led_strip_mesh():
+    from cube_dance.led_mesh import build_led_strips
+
+    m = build_model(CubeConfig())
+    pos, nrm, uv = build_led_strips(m)
+    assert pos.shape == nrm.shape and pos.shape[0] > 0 and pos.shape[0] % 3 == 0
+    assert uv.shape[0] == pos.shape[0]
+    assert 0.0 <= float(uv.min()) and float(uv.max()) <= 1.0
+    assert np.isfinite(pos).all()
+
+
 def test_chord_tubes_lie_under_led_chords():
     cfg = CubeConfig()
     m = build_model(cfg)

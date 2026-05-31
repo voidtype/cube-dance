@@ -19,15 +19,18 @@ def _offscreen_shader_check(verbose: bool) -> None:
         import moderngl as mgl
 
         from .render.scene import (
-            LED_FRAGMENT_SHADER,
-            LED_VERTEX_SHADER,
+            LED_STRIP_FRAGMENT_SHADER,
+            LED_STRIP_VERTEX_SHADER,
+            METAL_FRAGMENT_SHADER,
+            METAL_VERTEX_SHADER,
             SOLID_FRAGMENT_SHADER,
             SOLID_VERTEX_SHADER,
         )
 
         ctx = mgl.create_standalone_context(require=330)
-        ctx.program(vertex_shader=LED_VERTEX_SHADER, fragment_shader=LED_FRAGMENT_SHADER)
+        ctx.program(vertex_shader=LED_STRIP_VERTEX_SHADER, fragment_shader=LED_STRIP_FRAGMENT_SHADER)
         ctx.program(vertex_shader=SOLID_VERTEX_SHADER, fragment_shader=SOLID_FRAGMENT_SHADER)
+        ctx.program(vertex_shader=METAL_VERTEX_SHADER, fragment_shader=METAL_FRAGMENT_SHADER)
         ctx.release()
         if verbose:
             print("[selftest] offscreen shader compile: OK")

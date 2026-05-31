@@ -127,6 +127,7 @@ cube_dance/
   patterns.py       placeholder test pattern (no-audio fallback)
   scenery.py        clay ground + bushes + speaker cabinets (non-LED realism props)
   truss.py          F34 truss tubes (chords + lacing + corner frames) for the metal pass
+  led_mesh.py       emissive LED-strip tubes (one per run), coloured per-pixel from a texture
   audio/            file decode + loudness envelope, transport, background playback, demo
   visuals/          VU meter + placeholder, driven by audio features
   recording.py      live-session capture -> shareable MP4 (ffmpeg)
