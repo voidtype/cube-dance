@@ -51,7 +51,10 @@ out vec4 f_color;
 void main() {
     float r = length(gl_PointCoord - vec2(0.5)) * 2.0;
     if (r > 1.0) discard;
-    f_color = vec4(v_color * exp(-r * r * 4.0), 1.0);
+    // Flat-ish bright core (full out to ~0.55, soft to the rim). With MAX blending
+    // overlapping cores merge into a continuous bright line of consistent brightness.
+    float core = smoothstep(1.0, 0.55, r);
+    f_color = vec4(v_color * core, 1.0);
 }
 """
 
@@ -135,7 +138,7 @@ class CubeScene:
         ctx: mgl.Context,
         model: CubeModel,
         *,
-        led_radius_m: float = 0.016,
+        led_radius_m: float = 0.020,
         marker_radius_m: float = 0.03,
         ambient: float = 0.55,
         min_px: float = 1.5,
@@ -229,16 +232,19 @@ class CubeScene:
             _set(self.metal_prog, "u_color", (0.40, 0.42, 0.45))  # dull aluminium
             self.truss_vao.render(mgl.TRIANGLES, vertices=self._truss_n)
 
-        # --- Additive emissive LEDs ---
-        # Depth-TEST on (opaque truss/speakers/ground occlude LEDs behind them, for
-        # realism) but depth-WRITE off (LEDs don't occlude each other -> transparent,
-        # consistent brightness). A small depth bias (in the shader) stops each LED from
-        # z-fighting the tube it's mounted on, which caused the view-angle flicker.
+        # --- Emissive LEDs, blended with MAX (not ADD) ---
+        # MAX blending means overlapping LED sprites take the brightest value instead of
+        # summing, so brightness no longer depends on how densely the sprites pile up
+        # (foreshortening) -- that additive pile-up was making one X diagonal brighter
+        # than the other and flipping with the view angle. MAX is also order-independent
+        # (no flicker). Depth-TEST stays on (truss/speakers/ground still occlude LEDs);
+        # depth-WRITE off + a small depth bias keep each LED clear of its own tube.
         ctx.enable(mgl.DEPTH_TEST)
         if self._has_depth_mask:
             ctx.depth_mask = False
         ctx.enable(mgl.BLEND)
         ctx.blend_func = (mgl.ONE, mgl.ONE)
+        ctx.blend_equation = mgl.MAX
         ctx.enable(mgl.PROGRAM_POINT_SIZE)
 
         self.led_prog["u_view"].write(view_bytes)
@@ -254,5 +260,6 @@ class CubeScene:
             _set(self.led_prog, "u_radius", float(self.marker_radius_m))
             self.marker_vao.render(mgl.POINTS, vertices=self._marker_n)
 
+        ctx.blend_equation = mgl.FUNC_ADD  # restore default (HUD uses normal alpha blend)
         if self._has_depth_mask:
             ctx.depth_mask = True
