@@ -48,6 +48,7 @@ class CubeConfig:
     show_floor: bool = True  # clay ground plane
     show_speakers: bool = True  # speaker cabinets + their blue marker LEDs
     show_bushes: bool = True  # surrounding bushes (it's a bush doof)
+    show_truss: bool = True  # dull-aluminium F34 truss beneath the LEDs
 
     def __post_init__(self) -> None:
         if not (1 <= self.corner_x_faces <= 3):

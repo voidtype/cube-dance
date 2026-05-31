@@ -17,6 +17,7 @@ import numpy as np
 
 from ..led_topology import CubeModel
 from ..scenery import build_solids, build_speaker_markers
+from ..truss import build_truss
 
 # Shader sources are module-level so the headless self-test can compile them.
 LED_VERTEX_SHADER = """
@@ -80,6 +81,43 @@ void main() {
 """
 
 
+METAL_VERTEX_SHADER = """
+#version 330
+uniform mat4 u_view;
+uniform mat4 u_proj;
+in vec3 in_pos;
+in vec3 in_normal;
+out vec3 v_n;
+out vec3 v_vpos;
+void main() {
+    vec4 vp = u_view * vec4(in_pos, 1.0);
+    v_vpos = vp.xyz;
+    v_n = mat3(u_view) * in_normal;
+    gl_Position = u_proj * vp;
+}
+"""
+
+METAL_FRAGMENT_SHADER = """
+#version 330
+in vec3 v_n;
+in vec3 v_vpos;
+out vec4 f_color;
+uniform vec3 u_color;
+void main() {
+    vec3 n = normalize(v_n);
+    vec3 l = normalize(vec3(0.3, 0.8, 0.6));   // view-space light
+    vec3 vdir = normalize(-v_vpos);
+    if (dot(n, vdir) < 0.0) n = -n;            // two-sided
+    float diff = max(dot(n, l), 0.0);
+    vec3 half_v = normalize(l + vdir);
+    float spec = pow(max(dot(n, half_v), 0.0), 20.0) * 0.30;   // dull, soft sheen
+    float fres = pow(1.0 - max(dot(n, vdir), 0.0), 3.0) * 0.12;
+    vec3 c = u_color * (0.22 + 0.55 * diff) + vec3(spec) + vec3(fres);
+    f_color = vec4(c, 1.0);
+}
+"""
+
+
 def _set(prog: mgl.Program, name: str, value) -> None:
     try:
         prog[name].value = value
@@ -93,11 +131,12 @@ class CubeScene:
         ctx: mgl.Context,
         model: CubeModel,
         *,
-        led_radius_m: float = 0.012,
+        led_radius_m: float = 0.016,
         marker_radius_m: float = 0.03,
         ambient: float = 0.55,
         min_px: float = 1.5,
         max_px: float = 48.0,
+        led_surface_offset_m: float = 0.024,
     ) -> None:
         self.ctx = ctx
         self.model = model
@@ -110,9 +149,11 @@ class CubeScene:
 
         self.led_prog = ctx.program(vertex_shader=LED_VERTEX_SHADER, fragment_shader=LED_FRAGMENT_SHADER)
         self.solid_prog = ctx.program(vertex_shader=SOLID_VERTEX_SHADER, fragment_shader=SOLID_FRAGMENT_SHADER)
+        self.metal_prog = ctx.program(vertex_shader=METAL_VERTEX_SHADER, fragment_shader=METAL_FRAGMENT_SHADER)
 
-        # LEDs: static positions + dynamic colors.
-        self._pos_vbo = ctx.buffer(model.positions.astype("f4").tobytes())
+        # LEDs: static positions (nudged onto the tube surfaces) + dynamic colors.
+        led_pos = model.positions + model.normal * led_surface_offset_m if self.cfg.show_truss else model.positions
+        self._pos_vbo = ctx.buffer(led_pos.astype("f4").tobytes())
         self._col_vbo = ctx.buffer(model.colors.astype("f4").tobytes(), dynamic=True)
         self.led_vao = ctx.vertex_array(
             self.led_prog, [(self._pos_vbo, "3f", "in_pos"), (self._col_vbo, "3f", "in_color")]
@@ -129,6 +170,18 @@ class CubeScene:
             self.solid_vao = ctx.vertex_array(
                 self.solid_prog,
                 [(spos, "3f", "in_pos"), (snrm, "3f", "in_normal"), (scol, "3f", "in_color")],
+            )
+
+        # Dull-aluminium truss beneath the LEDs (one combined draw).
+        self.truss_vao = None
+        self._truss_n = 0
+        if self.cfg.show_truss:
+            t_pos, t_nrm = build_truss(self.cfg)
+            self._truss_n = t_pos.shape[0]
+            tpos = ctx.buffer(t_pos.tobytes())
+            tnrm = ctx.buffer(t_nrm.tobytes())
+            self.truss_vao = ctx.vertex_array(
+                self.metal_prog, [(tpos, "3f", "in_pos"), (tnrm, "3f", "in_normal")]
             )
 
         # Speaker marker LEDs (blue, additive points).
@@ -159,12 +212,18 @@ class CubeScene:
         ctx.enable(mgl.DEPTH_TEST)
         if self._has_depth_mask:
             ctx.depth_mask = True
-        if self.solid_vao is not None:
+        if self.solid_vao is not None or self.truss_vao is not None:
             ctx.disable(mgl.BLEND)
+        if self.solid_vao is not None:
             self.solid_prog["u_view"].write(view_bytes)
             self.solid_prog["u_proj"].write(proj_bytes)
             _set(self.solid_prog, "u_ambient", float(self.ambient))
             self.solid_vao.render(mgl.TRIANGLES, vertices=self._solid_n)
+        if self.truss_vao is not None:
+            self.metal_prog["u_view"].write(view_bytes)
+            self.metal_prog["u_proj"].write(proj_bytes)
+            _set(self.metal_prog, "u_color", (0.40, 0.42, 0.45))  # dull aluminium
+            self.truss_vao.render(mgl.TRIANGLES, vertices=self._truss_n)
 
         # --- Additive emissive elements: depth-test on, depth-write off ---
         ctx.enable(mgl.BLEND)

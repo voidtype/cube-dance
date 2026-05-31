@@ -36,6 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--no-floor", action="store_true", help="Hide the clay ground.")
     p.add_argument("--no-speakers", action="store_true", help="Hide the speaker scenery.")
     p.add_argument("--no-bushes", action="store_true", help="Hide the surrounding bushes.")
+    p.add_argument("--no-truss", action="store_true", help="Hide the aluminium truss structure.")
     p.add_argument(
         "--audio", type=str, default=None,
         help="Path to an audio file (WAV/FLAC/AIFF/OGG) to play as a VU meter.",
@@ -65,6 +66,8 @@ def main(argv: list[str] | None = None) -> int:
         overrides["show_speakers"] = False
     if ns.no_bushes:
         overrides["show_bushes"] = False
+    if ns.no_truss:
+        overrides["show_truss"] = False
 
     audio_file = None
     loop = False

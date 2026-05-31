@@ -48,6 +48,9 @@ An explorable native 3D simulation of the cube with a dense, abstract LED repres
   vertical face (ground-/up-facing rows are skipped, as they'd be invisible or stepped on).
 - **8 corner cubes** lit on their **edges** (the glowing ⊠ outline) plus **X-panels** —
   denser, and a deliberate visual feature.
+- A **dull-aluminium F34 truss** beneath the LEDs — the 4 chords per beam (the LED rows
+  sit on them), diagonal lacing (the triangles) on the visible faces, and corner-cube
+  frames. Shaded as metal that reacts to light. Toggle with `--no-truss`.
 - Optional **scenery** for realism: a **clay ground**, surrounding **bushes** (it's a
   bush doof), and rough **speaker** cabinets (one sub front-centre, two mains in the same
   plane) with little **blue marker LEDs** at their base. Toggle with `--no-floor` /
@@ -122,6 +125,7 @@ cube_dance/
   led_topology.py   dense LED pixels, addressing, regions -> CubeModel + color buffer
   patterns.py       placeholder test pattern (no-audio fallback)
   scenery.py        clay ground + bushes + speaker cabinets (non-LED realism props)
+  truss.py          F34 truss tubes (chords + lacing + corner frames) for the metal pass
   audio/            file decode + loudness envelope, transport, background playback, demo
   visuals/          VU meter + placeholder, driven by audio features
   recording.py      live-session capture -> shareable MP4 (ffmpeg)
