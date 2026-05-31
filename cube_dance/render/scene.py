@@ -28,12 +28,16 @@ uniform float u_proj_scale;
 uniform float u_radius;
 uniform float u_min_px;
 uniform float u_max_px;
+uniform float u_depth_bias;
 in vec3 in_pos;
 in vec3 in_color;
 out vec3 v_color;
 void main() {
     vec4 vpos = u_view * vec4(in_pos, 1.0);
     gl_Position = u_proj * vpos;
+    // Nudge the LED slightly toward the camera so it isn't z-fight-occluded by the
+    // very tube it's mounted on, while still being occluded by anything clearly in front.
+    gl_Position.z -= u_depth_bias * gl_Position.w;
     float z = max(-vpos.z, 0.001);
     gl_PointSize = clamp(2.0 * u_radius * u_proj_scale / z, u_min_px, u_max_px);
     v_color = in_color;
@@ -225,10 +229,14 @@ class CubeScene:
             _set(self.metal_prog, "u_color", (0.40, 0.42, 0.45))  # dull aluminium
             self.truss_vao.render(mgl.TRIANGLES, vertices=self._truss_n)
 
-        # --- Additive emissive LEDs: depth test OFF so the glow is view-independent ---
-        # (consistent brightness from any angle, transparent through each other and the
-        # open truss). The truss/scenery above already wrote depth for the opaque look.
-        ctx.disable(mgl.DEPTH_TEST)
+        # --- Additive emissive LEDs ---
+        # Depth-TEST on (opaque truss/speakers/ground occlude LEDs behind them, for
+        # realism) but depth-WRITE off (LEDs don't occlude each other -> transparent,
+        # consistent brightness). A small depth bias (in the shader) stops each LED from
+        # z-fighting the tube it's mounted on, which caused the view-angle flicker.
+        ctx.enable(mgl.DEPTH_TEST)
+        if self._has_depth_mask:
+            ctx.depth_mask = False
         ctx.enable(mgl.BLEND)
         ctx.blend_func = (mgl.ONE, mgl.ONE)
         ctx.enable(mgl.PROGRAM_POINT_SIZE)
@@ -238,9 +246,13 @@ class CubeScene:
         _set(self.led_prog, "u_proj_scale", float(proj_scale))
         _set(self.led_prog, "u_min_px", float(self.min_px))
         _set(self.led_prog, "u_max_px", float(self.max_px))
+        _set(self.led_prog, "u_depth_bias", 0.0018)  # beat coincident surfaces (own tube / speaker face)
         _set(self.led_prog, "u_radius", float(self.led_radius_m))
         self.led_vao.render(mgl.POINTS, vertices=self.model.n)
 
         if self.marker_vao is not None:
             _set(self.led_prog, "u_radius", float(self.marker_radius_m))
             self.marker_vao.render(mgl.POINTS, vertices=self._marker_n)
+
+        if self._has_depth_mask:
+            ctx.depth_mask = True
