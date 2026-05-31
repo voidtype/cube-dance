@@ -11,14 +11,25 @@ from __future__ import annotations
 
 import threading
 
+from .analysis import SpectrumAnalyzer
 from .file import AudioFile
+from .processor import AgcParams, FeatureProcessor
 
 
 class AudioSource:
-    def __init__(self, audio: AudioFile, mute: bool = False, loop: bool = False) -> None:
+    def __init__(
+        self,
+        audio: AudioFile,
+        mute: bool = False,
+        loop: bool = False,
+        n_buckets: int = 8,
+        agc: AgcParams | None = None,
+    ) -> None:
         self.audio = audio
         self.mute = mute
         self.loop = loop
+        self.analyzer = SpectrumAnalyzer(audio.sr, n_buckets=n_buckets)
+        self.processor = FeatureProcessor(self.analyzer, agc)
         self.playing = False
         self._pos = 0.0  # virtual-clock position (seconds)
         self._frame = 0  # live-clock frame counter
@@ -44,12 +55,10 @@ class AudioSource:
     def finished(self) -> bool:
         return (not self.loop) and self.position >= self.duration - 1e-3
 
-    def level(self) -> float:
-        return self.audio.level_at(self.position)
-
-    def bands(self) -> dict[str, float]:
-        """bass/mid/treble (mono) + bass_l/bass_r at the current position."""
-        return self.audio.bands_at(self.position)
+    def features(self, dt: float):
+        """Stream-analyse the window at the current position -> dynamic Features."""
+        window = self.audio.window_at(self.position, self.analyzer.win)
+        return self.processor.process(window, dt)
 
     # --- Lifecycle / transport ----------------------------------------------
     def start(self) -> None:

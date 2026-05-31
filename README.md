@@ -8,13 +8,21 @@ This repo is built **spec-first** with [OpenSpec](https://github.com/Fission-AI/
 and developed in **phases** — see [`openspec/project.md`](openspec/project.md) for the
 full roadmap and the physical cube facts.
 
-## Status: Phase 2 — cube-aware (bass/treble → regions)
+## Status: Phase 2 — cube-aware, dynamic & stereo
 
-Load an audio file (or the built-in demo beat) and the cube reacts **spatially**: the
-**corners pulse with the bass, split left/right** by stereo channel, and the **beams react
-to the mids/treble** (a cooler shimmer). Audio plays out loud, synced to the visuals; the
-device opens in the background so the window appears instantly. With no audio it falls back
-to the Phase 0 placeholder.
+Load an audio file (or the built-in demo beat) and the cube reacts **spatially and
+musically**:
+
+- **Corners ← bass**, split **left/right** by stereo channel.
+- **Beams ← the spectrum**: frequency runs *along* each beam (low→high), and beams
+  **lateralise by stereo** — content panned left lights the left beams, right the right.
+- **Dynamic auto-levelling**: each band adapts to the track (so any mix looks good) while
+  **quiet passages exponentially hide** and loud ones pop. Analysis is **streaming** (a
+  short window at the playhead — no precompute, instant load, and ready for live input).
+- **Colours evolve and accelerate** over a set, per frequency.
+
+Audio plays out loud, synced to the visuals; the device opens in the background so the
+window appears instantly. With no audio it falls back to the Phase 0 placeholder.
 
 ```bash
 uv run cube-dance --demo                       # synthetic beat, no file needed
@@ -131,8 +139,8 @@ cube_dance/
   scenery.py        clay ground + bushes + speaker cabinets (non-LED realism props)
   truss.py          F34 truss tubes (chords + lacing + corner frames) for the metal pass
   led_mesh.py       emissive LED-strip tubes (one per run), coloured per-pixel from a texture
-  audio/            file decode + loudness + bass/mid/treble (L/R) bands, transport, demo
-  visuals/          cube-aware spectrum + VU + placeholder, driven by audio features
+  audio/            decode + window_at, streaming SpectrumAnalyzer + AGC processor, transport
+  visuals/          cube-aware spectrum + VU + placeholder; VisualParams (for the DSL)
   recording.py      live-session capture -> shareable MP4 (ffmpeg)
   render/camera.py  orbit + fly cameras (numpy matrices)
   render/scene.py   moderngl: LED points (single draw) + scenery, depth-correct

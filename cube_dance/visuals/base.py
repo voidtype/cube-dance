@@ -8,19 +8,25 @@ beat phase, ...) without changing the interface.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol, runtime_checkable
+from typing import Optional, Protocol, runtime_checkable
+
+import numpy as np
 
 from ..led_topology import CubeModel
 
 
 @dataclass
 class Features:
-    level: float = 0.0  # normalised overall loudness in [0, 1]
-    bass: float = 0.0  # mono band energies in [0, 1]
+    """Dynamic, auto-levelled audio features for a single frame (all in [0, 1])."""
+
+    level: float = 0.0  # overall loudness
+    bass: float = 0.0  # mono band aggregates
     mid: float = 0.0
     treble: float = 0.0
-    bass_l: float = 0.0  # per-channel bass (for left/right corner split)
+    bass_l: float = 0.0  # per-channel bass (left/right corner split)
     bass_r: float = 0.0
+    buckets_l: Optional[np.ndarray] = None  # (n_buckets,) per-channel spectrum
+    buckets_r: Optional[np.ndarray] = None
 
 
 @runtime_checkable

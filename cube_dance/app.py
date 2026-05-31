@@ -82,7 +82,8 @@ class CubeWindow(mglw.WindowConfig):
             if choice == "vu":
                 self.visual, self.visual_name = VuMeter(self.model), "vu"
             else:  # auto / spectrum
-                self.visual, self.visual_name = CubeAwareVisual(self.model), "spectrum"
+                self.visual = CubeAwareVisual(self.model, n_buckets=self.audio.analyzer.n_buckets)
+                self.visual_name = "spectrum"
             self.audio.start()
         else:
             self.visual, self.visual_name = PlaceholderVisual(), "placeholder"
@@ -202,7 +203,7 @@ class CubeWindow(mglw.WindowConfig):
         if self.audio is not None:
             self.audio.update(frame_time)
             t = self.audio.position
-            features = Features(level=self.audio.level(), **self.audio.bands())
+            features = self.audio.features(frame_time)
         else:
             if not self.paused:
                 self._pattern_time += frame_time

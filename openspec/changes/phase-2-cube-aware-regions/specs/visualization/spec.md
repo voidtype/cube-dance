@@ -1,37 +1,49 @@
 ## ADDED Requirements
 
-### Requirement: Feature set carries frequency bands
+### Requirement: Feature set carries per-channel frequency buckets
 
-The visual feature set SHALL carry, in addition to the overall level, the **bass**, **mid**,
-and **treble** band energies (mono) and the per-channel **bass_l** and **bass_r**, so a
-visual can react to frequency content and stereo position. Existing visuals that use only
-the level SHALL continue to work unchanged.
+The visual feature set SHALL carry, in addition to the overall level, the **per-channel
+frequency buckets** (left and right) and convenience aggregates (bass/mid/treble, and
+left/right bass), so a visual can react to frequency content and stereo position. Existing
+visuals that use only the level SHALL continue to work unchanged.
 
-#### Scenario: Bands available to visuals
+#### Scenario: Buckets available to visuals
 
 - **WHEN** a visual is updated with the current features while audio plays
-- **THEN** the features expose level plus bass/mid/treble and left/right bass values
+- **THEN** the features expose the left and right bucket arrays plus level and the
+  band aggregates
 
-### Requirement: Cube-aware spectrum visual
+### Requirement: Cube-aware, stereo, evolving visual
 
-The system SHALL provide a **cube-aware** visual that maps frequency bands to cube regions:
-the **corners** SHALL respond to **bass**, split **left/right** by channel (left corners
-driven by left-channel bass, right corners by right-channel bass), and the **beams**
-(edges) SHALL respond to **mid/treble**. Band responses SHALL be smoothed (fast attack,
-slower release) and the visual MAY evolve gently over time (e.g. slow hue drift). It writes
-only the shared `(N,3)` color buffer.
+The system SHALL provide a cube-aware visual mapping frequency and stereo to cube regions:
+- **Corners ← bass**, split **left/right** by channel (left-hand corners follow the left
+  channel's bass, right-hand corners the right).
+- **Beams ← the spectrum**: frequency SHALL run **along** each beam (low→high) so a beam is
+  a small spectrum rather than one flat colour, and beams SHALL **lateralise by stereo**
+  (left-side beams follow the left channel, right-side the right, centre beams the mono mix)
+  — content panned to one side shows on that side.
+- Brightness SHALL come from the dynamically-levelled features (stark: quiet hides).
+- Colours SHALL **evolve over time and accelerate** (a hue drift whose rate grows over a
+  set), mapped per frequency.
+All parameters SHALL be held in a configurable params object (for the later DSL), and the
+visual SHALL write only the shared `(N,3)` color buffer.
 
-#### Scenario: Bass lights the corners, treble lights the beams
+#### Scenario: Bass corners, spectrum beams
 
 - **WHEN** a bass-heavy moment occurs
-- **THEN** the corner pixels brighten more than the edge pixels
-- **WHEN** a treble-heavy moment occurs
-- **THEN** the edge (beam) pixels brighten relative to the corners
+- **THEN** the corners brighten more than the beams
+- **WHEN** higher-frequency content occurs
+- **THEN** the beams brighten, with hue varying along the beam by frequency
 
-#### Scenario: Stereo splits left/right corners
+#### Scenario: Stereo lateralises
 
-- **WHEN** bass is stronger in the left channel than the right
-- **THEN** the left-hand corners are brighter than the right-hand corners
+- **WHEN** content is panned to one channel
+- **THEN** that side's corners/beams respond more strongly than the other side's
+
+#### Scenario: Colour evolves over time
+
+- **WHEN** the visual runs for a while
+- **THEN** the hues drift (and the drift accelerates), so the look is not static
 
 ### Requirement: Visual selection
 
