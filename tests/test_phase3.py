@@ -75,6 +75,13 @@ def test_virtual_f1_interaction():
         f1.on_scroll(x0 + ecx * sc, y0 + ecy * sc, 1, st)
         assert st.p == (p0 + 1) % 100
 
+        # Click-drag the encoder up -> P advances too (turning it like a knob).
+        p1 = st.p
+        f1.on_press(x0 + ecx * sc, y0 + ecy * sc, st)
+        f1.on_drag(x0 + ecx * sc, y0 + (ecy - 48) * sc, st)
+        f1.on_release()
+        assert st.p != p1
+
         # Clicking a pad queues a (col, row) trigger and lights that pad.
         px0, py0, px1, py1 = f1.pads_rect
         cx = px0 + (px1 - px0) / 8  # centre of column 0, row 0

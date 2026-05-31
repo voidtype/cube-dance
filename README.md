@@ -31,7 +31,8 @@ a VJ mixer, then perform on top with per-channel pad triggers and per-preset kno
 - **Knobs = the selected channel's preset params** (e.g. `deep`'s *bright / colour / evolve /
   width*), with the preset's labels + defaults.
 - **Channel select + preset.** Click a **bottom-row** button to select that channel, then
-  turn the **browse encoder** to cycle its preset (shown on the 7-seg display); `N` too.
+  **drag (or scroll) the browse encoder** to cycle its preset (shown on the 7-seg display);
+  `N` cycles it too.
 - **`QUANT`** snaps pad triggers to the beat; **`SYNC`** pulses the whole rig on the beat;
   **`TYPE`** mono/stark, **`SHIFT`** freeze, **`REVERSE`** reverse drift, **`SIZE`** fatten,
   **`CAPTURE`** blackout, **`BROWSE`** reset the channel's knobs.

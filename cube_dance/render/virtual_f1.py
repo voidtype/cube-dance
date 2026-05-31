@@ -130,6 +130,9 @@ class VirtualF1:
                 state.toggle(name)
                 self._dirty = True
                 return True
+        if self._hit_encoder(ix, iy):  # preset encoder: click-drag (up = next) or scroll
+            self._drag = ("encoder", 0, state.p, iy)
+            return True
         px0, py0, px1, py1 = self.pads_rect
         if px0 <= ix <= px1 and py0 <= iy <= py1:
             c = min(3, max(0, int((ix - px0) / ((px1 - px0) / 4))))  # column = deck
@@ -155,16 +158,23 @@ class VirtualF1:
         elif kind == "fader":
             cx, top, bot, hw = self.faders[i]
             state.faders[i] = float(np.clip((bot - iy) / (bot - top), 0.0, 1.0))
+        elif kind == "encoder":  # drag up to advance the preset
+            steps = int(round((start_iy - iy) / 12.0))
+            state.p = (int(start_val) + steps) % 100
         self._dirty = True
         return True
 
     def on_release(self) -> None:
         self._drag = None
 
+    def _hit_encoder(self, ix: float, iy: float) -> bool:
+        dx0, dy0, _dx1, dy1 = self.display
+        ecx, _ecy, er = self.encoder
+        return (dx0 - 10 <= ix <= ecx + er + 8) and (dy0 - 10 <= iy <= dy1 + 10)
+
     def on_scroll(self, sx: float, sy: float, direction: int, state: ControlState) -> bool:
         ix, iy = self._to_img(sx, sy)
-        ecx, ecy, er = self.encoder
-        if abs(ix - ecx) <= er + 14 and abs(iy - ecy) <= er + 14:
+        if self._hit_encoder(ix, iy):
             state.step_encoder(1 if direction > 0 else -1)
             self._dirty = True
             return True
@@ -239,7 +249,7 @@ class VirtualF1:
         ecx, ecy, er = self.encoder
         d.ellipse((ecx - er, ecy - er, ecx + er, ecy + er), fill=(50, 50, 56), outline=(95, 95, 104), width=2)
         d.line((ecx, ecy, ecx, ecy - er + 4), fill=(150, 150, 158), width=2)
-        d.text((ecx - er - 4, ecy + er + 2), "PRESET", font=self._small, fill=(120, 120, 130))
+        d.text((ecx - er - 10, ecy + er + 2), "PRESET drag", font=self._small, fill=(120, 120, 130))
 
         # Pads 4x4: column = deck, row = that deck's preset trigger (its colour).
         px0, py0, px1, py1 = self.pads_rect
