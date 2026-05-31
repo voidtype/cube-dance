@@ -134,15 +134,24 @@ def corner_cube_edges(corner: Corner, cfg: CubeConfig) -> list[tuple[np.ndarray,
     return edges
 
 
-def corner_x_faces(corner: Corner, cfg: CubeConfig) -> list[tuple[np.ndarray, np.ndarray]]:
-    """X-panel diagonals on a corner's outward faces, as (p0, p1) pairs."""
+def corner_x_faces(
+    corner: Corner, cfg: CubeConfig
+) -> list[tuple[np.ndarray, np.ndarray, np.ndarray]]:
+    """X-panel diagonals on a corner's outward faces.
+
+    Returns ``(p0, p1, face_normal)`` per diagonal. ``face_normal`` is the face's
+    outward axis unit vector, used to lift the X LEDs straight out of the face
+    (keeping both diagonals coplanar so they can't occlude each other).
+    """
     signs = corner.signs
     inner, outer = cfg.edge_half, cfg.half
-    segments: list[tuple[np.ndarray, np.ndarray]] = []
+    segments: list[tuple[np.ndarray, np.ndarray, np.ndarray]] = []
 
     for face_axis in range(cfg.corner_x_faces):
         d0, d1 = _other_axes(face_axis)
         face_coord = signs[face_axis] * outer
+        normal = np.zeros(3)
+        normal[face_axis] = float(signs[face_axis])
 
         def pt(c0: float, c1: float) -> np.ndarray:
             p = np.zeros(3)
@@ -154,8 +163,8 @@ def corner_x_faces(corner: Corner, cfg: CubeConfig) -> list[tuple[np.ndarray, np
         lo0, hi0 = signs[d0] * inner, signs[d0] * outer
         lo1, hi1 = signs[d1] * inner, signs[d1] * outer
         a, b, c, d = pt(lo0, lo1), pt(hi0, lo1), pt(hi0, hi1), pt(lo0, hi1)
-        segments.append((a, c))
-        segments.append((b, d))
+        segments.append((a, c, normal))
+        segments.append((b, d, normal))
     return segments
 
 

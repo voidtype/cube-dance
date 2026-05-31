@@ -140,7 +140,7 @@ class CubeScene:
         ambient: float = 0.55,
         min_px: float = 1.5,
         max_px: float = 48.0,
-        led_surface_offset_m: float = 0.024,
+        led_surface_offset_m: float = 0.030,
     ) -> None:
         self.ctx = ctx
         self.model = model

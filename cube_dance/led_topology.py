@@ -95,8 +95,9 @@ class CubeModel:
             if cfg.corner_edges:
                 for p0, p1 in corner_cube_edges(corner, cfg):
                     add(p0, p1, n_cedge, GROUP_CORNER, corner.index, center=center)
-            for p0, p1 in corner_x_faces(corner, cfg):
-                add(p0, p1, n_diag, GROUP_CORNER, corner.index, center=center)
+            for p0, p1, face_normal in corner_x_faces(corner, cfg):
+                # Lift X LEDs straight out of their face (coplanar -> no mutual occlusion).
+                add(p0, p1, n_diag, GROUP_CORNER, corner.index, normal_const=face_normal)
 
         self.positions = np.concatenate(positions, axis=0).astype(np.float32)
         self.group = np.concatenate(group).astype(np.uint8)

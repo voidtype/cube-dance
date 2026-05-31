@@ -95,7 +95,7 @@ def build_truss(
     for corner in build_corners():
         for a, b in corner_cube_edges(corner, cfg):
             add(a, b, chord_radius * 0.8)
-        for a, b in corner_x_faces(corner, cfg):
+        for a, b, _normal in corner_x_faces(corner, cfg):
             add(a, b, lace_radius)
 
     pos = np.concatenate(pos_all, axis=0)
