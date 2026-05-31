@@ -69,7 +69,7 @@ class SessionRecorder:
         self._h = 0
         self._start_wall = 0.0
         self._start_pos = 0.0
-        self._last: float | None = None
+        self._frame_index = 0  # frames written so far (paced to wall-clock)
         self._tmp_video: str | None = None
         self._final: str | None = None
         self.error: str | None = None
@@ -114,23 +114,35 @@ class SessionRecorder:
             return
         self._start_wall = now if now is not None else time.time()
         self._start_pos = self.audio_source.position if self.audio_source is not None else 0.0
-        self._last = None
+        self._frame_index = 0
 
-    def due(self, now: float) -> bool:
-        if not self.is_recording:
-            return False
-        return self._last is None or (now - self._last) >= (1.0 / self.fps)
+    def frames_due(self, now: float) -> int:
+        """How many frames to write *now* to keep the video at real-time.
 
-    def write_frame(self, rgb_bytes: bytes, w: int, h: int, now: float) -> None:
+        Paced against absolute wall-clock (not incrementally), so timing error
+        can't accumulate: behind -> duplicate frames; ahead -> write none. This
+        keeps the encoded duration equal to the real elapsed time, so it stays
+        in sync with the muxed audio regardless of the render/capture rate.
+        """
         if not self.is_recording:
+            return 0
+        target = int((now - self._start_wall) * self.fps) + 1
+        n = target - self._frame_index
+        if n <= 0:
+            return 0
+        return min(n, self.fps * 2)  # bound a single catch-up burst
+
+    def write_frame(self, rgb_bytes: bytes, w: int, h: int, count: int = 1) -> None:
+        if not self.is_recording or count <= 0:
             return
         try:
             if (w, h) != (self._w, self._h):
                 from PIL import Image
 
                 rgb_bytes = Image.frombytes("RGB", (w, h), rgb_bytes).resize((self._w, self._h)).tobytes()
-            self._proc.stdin.write(rgb_bytes)
-            self._last = now
+            for _ in range(count):
+                self._proc.stdin.write(rgb_bytes)
+            self._frame_index += count
         except Exception as exc:  # noqa: BLE001
             self.error = str(exc)
             self._safe_kill()
@@ -140,7 +152,9 @@ class SessionRecorder:
             return None
         proc = self._proc
         self._proc = None
-        elapsed = max(0.1, time.time() - self._start_wall)
+        # Match the audio length to the encoded video exactly (frames / fps) so
+        # the two streams are the same duration and stay in sync.
+        video_dur = self._frame_index / self.fps if self._frame_index else max(0.1, time.time() - self._start_wall)
         try:
             proc.stdin.close()
         except Exception:  # noqa: BLE001
@@ -158,7 +172,7 @@ class SessionRecorder:
             try:
                 import soundfile as sf
 
-                seg = audio_segment(self.audio_source.audio, self._start_pos, elapsed, self.loop)
+                seg = audio_segment(self.audio_source.audio, self._start_pos, video_dur, self.loop)
                 tmp_wav = final + ".audio.wav"
                 sf.write(tmp_wav, seg, self.audio_source.audio.sr)
                 ff = find_ffmpeg()

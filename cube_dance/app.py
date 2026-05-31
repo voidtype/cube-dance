@@ -209,12 +209,14 @@ class CubeWindow(mglw.WindowConfig):
         ps = CubeScene.proj_scale(viewport_h, cam.fovy_deg)
         self.scene.render(cam.view_bytes(), cam.proj_bytes(), ps)
 
-        # Capture the clean scene (before the HUD) for the recorder.
-        now = time.time()
-        if self.recorder.due(now):
-            fb = self.wnd.fbo
-            fw, fh = fb.size
-            self.recorder.write_frame(fb.read(components=3), fw, fh, now)
+        # Capture the clean scene (before the HUD) for the recorder. Pace frame
+        # count to wall-clock (duplicate when behind) so A/V stays in sync.
+        if self.recorder.is_recording:
+            n = self.recorder.frames_due(time.time())
+            if n > 0:
+                fb = self.wnd.fbo
+                fw, fh = fb.size
+                self.recorder.write_frame(fb.read(components=3), fw, fh, n)
 
         if self.show_help or self.recorder.is_recording:
             w, h = self.wnd.buffer_size

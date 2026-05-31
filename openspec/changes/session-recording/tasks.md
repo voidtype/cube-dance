@@ -8,6 +8,7 @@
 - [x] 2.2 `recording.py`: `audio_segment(audio, start_s, dur_s, loop)` — return the `(m, ch)` samples for the window, wrapping if `loop` else zero-padding past the end.
 - [x] 2.3 `recording.py`: `SessionRecorder` — `start()` spawns the video ffmpeg (rawvideo rgb24 stdin → H.264/yuv420p/+faststart temp), records start wall-time + audio position, locks WxH (even dims); `due(now)` gates capture to the target fps; `write_frame(rgb_bytes, w, h)` resizes if needed and pipes; `stop()` closes video, writes the audio slice to a temp WAV, muxes to the final timestamped `.mp4`, cleans temps, returns the path.
 - [x] 2.4 `recording.py`: guard subprocess errors; `is_recording`, `elapsed` properties.
+- [x] 2.5 A/V sync: pace frame count to absolute wall-clock via `frames_due(now)` (duplicate when behind, skip when ahead) so capture-rate error can't accumulate; derive the muxed audio length from the exact encoded frame count. (Fix: video ran ~13% fast and drifted out of sync.)
 
 ## 3. Viewer integration
 

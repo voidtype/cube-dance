@@ -40,6 +40,26 @@ def test_audio_segment_length_and_padding():
     assert seg[15, 0] < seg[5, 0]  # wrapped back to low indices
 
 
+def test_frames_due_paces_to_wallclock():
+    """Frame count must track real elapsed time regardless of call cadence."""
+    rec = SessionRecorder(fps=30)
+    rec._proc = object()  # mark "recording" without launching ffmpeg
+    rec._start_wall = 0.0
+    rec._frame_index = 0
+    total = 0
+    now = 0.0
+    steps = [0.004, 0.05, 0.02, 0.1, 0.007]  # irregular: fast and slow renders
+    i = 0
+    while now < 2.0:
+        n = rec.frames_due(now)
+        rec._frame_index += n
+        total += n
+        now += steps[i % len(steps)]
+        i += 1
+    rec._proc = None
+    assert 58 <= total <= 62  # ~ 2.0 s * 30 fps, no accumulated drift
+
+
 def _ffmpeg_has_stream(path: str, kind: str) -> bool:
     """True if `path` has a video (kind='v') or audio (kind='a') stream."""
     ff = find_ffmpeg()
@@ -61,11 +81,10 @@ def test_recorder_produces_mp4_with_video_and_audio(tmp_path):
     w, h = 64, 48
     rec.start(w, h)
     assert rec.is_recording and rec.error is None
-    rec._start_wall = time.time() - 1.5  # simulate a 1.5 s capture window
 
     frame = (np.random.default_rng(0).integers(0, 255, (h, w, 3))).astype(np.uint8).tobytes()
-    for i in range(30):
-        rec.write_frame(frame, w, h, now=i / 20.0)
+    for _ in range(30):  # 30 frames @ 20fps -> 1.5 s of video
+        rec.write_frame(frame, w, h, 1)
 
     path = rec.stop()
     assert path and os.path.exists(path) and os.path.getsize(path) > 1024
