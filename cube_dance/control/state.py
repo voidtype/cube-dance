@@ -17,9 +17,11 @@ BUTTONS: tuple[str, ...] = (
 @dataclass
 class ControlState:
     knobs: list[float] = field(default_factory=lambda: [0.5, 0.5, 0.5, 0.5])  # FILTER 1-4
-    faders: list[float] = field(default_factory=lambda: [0.85, 0.4, 0.3, 0.05])
+    # Faders are per-deck volumes (Phase 5): deck 1 up, the rest silent at launch.
+    faders: list[float] = field(default_factory=lambda: [0.85, 0.0, 0.0, 0.0])
     buttons: dict[str, bool] = field(default_factory=lambda: {b: False for b in BUTTONS})
-    p: int = 0  # 2-digit display value 0..99
+    p: int = 0  # 2-digit display value (Phase 5: the focused deck's preset index)
+    focus_deck: int = 0  # which deck the encoder edits (set by the last fader touched)
     pads: list[bool] = field(default_factory=lambda: [False] * 16)
     # A pad hit fires a decaying full-cube colour flash (a manual accent / strobe).
     flash_color: tuple[float, float, float] = (0.0, 0.0, 0.0)

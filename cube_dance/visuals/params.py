@@ -28,3 +28,8 @@ class VisualParams:
     # Driven by the F1: overall brightness and a global hue offset (the P display).
     master: float = 1.0
     hue_offset: float = 0.0
+    # Phase 5 global modulators (knobs/buttons), honored by every element/deck.
+    intensity: float = 1.0  # overall element gain (applied once in the engine)
+    size: float = 1.0  # spatial extent of moving / sparkle elements
+    freeze: bool = False  # hold the evolving palette in place
+    mono: bool = False  # render stark / desaturated (white)

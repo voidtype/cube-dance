@@ -26,7 +26,7 @@ from .render.hud import HudOverlay
 from .render.scene import CubeScene
 from .render.virtual_f1 import VirtualF1
 from .visuals import Features, PlaceholderVisual, VuMeter
-from .visuals.engine import VisualEngine
+from .visuals.engine.mixer import DeckMixer
 from .visuals.params import VisualParams
 from . import presets
 
@@ -95,19 +95,24 @@ class CubeWindow(mglw.WindowConfig):
 
         self.audio: AudioSource | None = None
         choice = type(self).visual_choice
+        self._last_focus = 0
         if type(self).audio_file is not None:
             self.audio = AudioSource(type(self).audio_file, mute=type(self).mute, loop=type(self).loop)
             self.aparams = self.audio.processor.p
-            self._preset_name = ""
             if choice == "vu":
                 self.visual, self.visual_name = VuMeter(self.model), "vu"
-            else:  # auto / spectrum -> preset-driven element engine
-                self.visual = self._build_engine(type(self).preset)
-                self.visual_name = "spectrum:" + self._preset_name
+            else:  # auto / spectrum -> 4-deck preset mixer
+                deck_presets = list(presets.PRESET_ORDER)[:4]
+                if type(self).preset in presets.PRESET_ORDER:
+                    deck_presets[0] = type(self).preset  # --preset seeds deck 1
+                self.visual = DeckMixer(
+                    self.model, n_buckets=self.audio.analyzer.n_buckets,
+                    vparams=self.vparams, deck_presets=deck_presets,
+                )
+                self.visual_name = "mixer"
             self.audio.start()
         else:
             self.visual, self.visual_name = PlaceholderVisual(), "placeholder"
-            self._preset_name = ""
 
         self.recorder = SessionRecorder(
             self.audio, loop=type(self).loop, fps=type(self).record_fps, outdir=type(self).record_dir
@@ -164,9 +169,13 @@ class CubeWindow(mglw.WindowConfig):
         if self.audio is None:
             return None
         state = "PLAYING" if self.audio.playing else "PAUSED"
+        tag = self.visual_name
+        if isinstance(self.visual, DeckMixer):
+            f = int(self.controls.focus_deck) % self.visual.n_decks
+            tag = f"mixer · deck {f + 1}:{self.visual.preset_name[f]}"
         return (
             f"K play/pause  J restart   "
-            f"{_fmt_time(self.audio.position)} / {_fmt_time(self.audio.duration)}  [{state}]  · {self.visual_name}"
+            f"{_fmt_time(self.audio.position)} / {_fmt_time(self.audio.duration)}  [{state}]  · {tag}"
         )
 
     def _rec_line(self) -> str | None:
@@ -217,25 +226,32 @@ class CubeWindow(mglw.WindowConfig):
                 pass
         self._refresh_hud()
 
-    def _build_engine(self, name: str):
-        engine = VisualEngine(self.model, n_buckets=self.audio.analyzer.n_buckets, vparams=self.vparams)
-        try:
-            presets.load(name, engine)
-            self._preset_name = name
-        except ValueError:
-            presets.load("deep", engine)
-            self._preset_name = "deep"
-        return engine
-
-    def _cycle_preset(self) -> None:
-        if self.audio is None or self.visual_name == "vu":
+    def _apply_deck_controls(self) -> None:
+        """Faders -> deck volumes; encoder/focus -> the focused deck's preset."""
+        mx = self.visual
+        if not isinstance(mx, DeckMixer):
             return
-        order = list(presets.BUILTINS)
-        i = (order.index(self._preset_name) + 1) % len(order) if self._preset_name in order else 0
-        self.visual = self._build_engine(order[i])
-        self.visual_name = "spectrum:" + self._preset_name
-        print(f"[preset] {self._preset_name}")
-        self._refresh_hud()
+        mx.volumes = list(self.controls.faders)
+        order = list(presets.PRESET_ORDER)
+        n = len(order)
+        focus = int(self.controls.focus_deck) % mx.n_decks
+        if focus != self._last_focus:  # display tracks the focused deck
+            self.controls.p = mx.preset_index[focus]
+            self._last_focus = focus
+            self.f1.mark_dirty()
+        target = self.controls.p % n
+        if target != self.controls.p:
+            self.controls.p = target  # keep the 7-seg display in [0, n-1]
+        if target != mx.preset_index[focus]:
+            mx.set_deck_preset(focus, order[target])
+            self.f1.mark_dirty()
+            print(f"[deck {focus + 1}] {order[target]}")
+
+    def _bump_focus_preset(self) -> None:
+        """Keyboard `N`: advance the focused deck's preset (same as the encoder)."""
+        if isinstance(self.visual, DeckMixer):
+            self.controls.p = self.controls.p + 1
+            self.f1.mark_dirty()
 
     def _toggle_controls(self) -> None:
         self.show_controls = not self.show_controls
@@ -256,9 +272,11 @@ class CubeWindow(mglw.WindowConfig):
         if self.mode == "fly" and not self.show_controls:  # frozen while controls are up
             self._fly_step(frame_time)
 
-        # Apply the F1 control mapping to the live params (knobs/faders/encoder).
+        # Apply the F1 control mapping to the live params (knobs/buttons -> global
+        # modulators), then route faders -> deck volumes and the encoder -> preset.
         if self.audio is not None:
             self.control_map.apply(self.controls, self.vparams, self.aparams)
+            self._apply_deck_controls()
 
         if self.audio is not None:
             self.audio.update(frame_time)
@@ -282,7 +300,8 @@ class CubeWindow(mglw.WindowConfig):
         # The F1 panel is drawn BEFORE the recorder capture so it appears in the
         # video when shown; the HUD help/REC indicator is drawn AFTER (excluded).
         if self.show_controls:
-            self.f1.render(w, h, self.controls)
+            labels = self.visual.preset_name if isinstance(self.visual, DeckMixer) else None
+            self.f1.render(w, h, self.controls, deck_labels=labels, focus=int(self.controls.focus_deck))
 
         if self.recorder.is_recording:
             n = self.recorder.frames_due(time.time())
@@ -360,7 +379,7 @@ class CubeWindow(mglw.WindowConfig):
             elif key == keys.C:
                 self._toggle_controls()
             elif key == keys.N and self.audio is not None:
-                self._cycle_preset()
+                self._bump_focus_preset()
             elif key == keys.K and self.audio is not None:
                 self.audio.toggle()
                 self._refresh_hud()

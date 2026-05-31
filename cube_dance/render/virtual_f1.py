@@ -121,6 +121,7 @@ class VirtualF1:
         for i, (cx, top, bot, hw) in enumerate(self.faders):
             if abs(ix - cx) <= hw + 10 and top - 12 <= iy <= bot + 12:
                 state.faders[i] = float(np.clip((bot - iy) / (bot - top), 0.0, 1.0))
+                state.focus_deck = i  # touching a fader focuses that deck
                 self._drag = ("fader", i, state.faders[i], iy)
                 self._dirty = True
                 return True
@@ -188,7 +189,7 @@ class VirtualF1:
         for name, box in segs.items():
             d.rectangle(box, fill=color if name in on else (40, 22, 6))
 
-    def _image(self, state: ControlState) -> Image.Image:
+    def _image(self, state: ControlState, deck_labels=None, focus: int = 0) -> Image.Image:
         img = Image.new("RGBA", (PANEL_W, PANEL_H), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
         d.rounded_rectangle((0, 0, PANEL_W - 1, PANEL_H - 1), radius=14, fill=(22, 22, 26, 238),
@@ -206,11 +207,17 @@ class VirtualF1:
             d.text((cx - 18, cy + r + 14), KNOB_ROLES[i][:9], font=self._small, fill=(110, 110, 120))
 
         for i, (cx, top, bot, hw) in enumerate(self.faders):
-            d.rounded_rectangle((cx - 3, top, cx + 3, bot), radius=3, fill=(40, 40, 46))
+            focused = i == focus
+            # Focused deck gets a highlighted track + caps.
+            track = (90, 80, 40) if focused else (40, 40, 46)
+            d.rounded_rectangle((cx - 3, top, cx + 3, bot), radius=3, fill=track)
             hy = bot - state.faders[i] * (bot - top)
+            cap = (230, 180, 60) if focused else (140, 140, 150)
             d.rounded_rectangle((cx - hw, hy - 9, cx + hw, hy + 9), radius=4,
-                                fill=(70, 70, 78), outline=(140, 140, 150), width=1)
-            d.text((cx - 16, bot + 4), FADER_ROLES[i][:9], font=self._small, fill=(120, 120, 130))
+                                fill=(80, 76, 60) if focused else (70, 70, 78), outline=cap, width=2 if focused else 1)
+            label = (deck_labels[i] if deck_labels and i < len(deck_labels) else FADER_ROLES[i])
+            d.text((cx - 20, bot + 4), f"{i + 1} {label}"[:10], font=self._small,
+                   fill=(235, 205, 110) if focused else (120, 120, 130))
 
         for name, (x0, y0, x1, y1) in self.buttons.items():
             on = state.buttons.get(name, False)
@@ -230,7 +237,7 @@ class VirtualF1:
         ecx, ecy, er = self.encoder
         d.ellipse((ecx - er, ecy - er, ecx + er, ecy + er), fill=(50, 50, 56), outline=(95, 95, 104), width=2)
         d.line((ecx, ecy, ecx, ecy - er + 4), fill=(150, 150, 158), width=2)
-        d.text((ecx - er, ecy + er + 2), "P (scroll)", font=self._small, fill=(120, 120, 130))
+        d.text((ecx - er - 4, ecy + er + 2), "PRESET", font=self._small, fill=(120, 120, 130))
 
         # Pads 4x4 + STOP row.
         px0, py0, px1, py1 = self.pads_rect
@@ -253,10 +260,11 @@ class VirtualF1:
             d.rounded_rectangle((sx0 + c_ * sw + 3, sy0, sx0 + (c_ + 1) * sw - 3, sy1), radius=4, fill=(210, 110, 30))
         return img
 
-    def render(self, win_w: int, win_h: int, state: ControlState) -> None:
+    def render(self, win_w: int, win_h: int, state: ControlState,
+               deck_labels=None, focus: int = 0) -> None:
         self.set_screen(win_w, win_h)
         if self._tex is None or self._dirty:
-            img = self._image(state).transpose(Image.FLIP_TOP_BOTTOM)
+            img = self._image(state, deck_labels, focus).transpose(Image.FLIP_TOP_BOTTOM)
             if self._tex is not None:
                 self._tex.release()
             self._tex = self.ctx.texture((PANEL_W, PANEL_H), 4, img.tobytes())

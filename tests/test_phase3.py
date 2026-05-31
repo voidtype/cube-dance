@@ -23,31 +23,41 @@ def test_control_state_encoder_and_toggle():
     assert not s.buttons["SYNC"]
 
 
-def test_mapping_knobs_faders_encoder_reverse():
+def test_mapping_knobs_buttons_reverse():
+    # Phase 5: knobs are global modulators; faders/encoder are deck volume/preset
+    # (handled by the mixer/app), so they are not mapped here.
     s, m, vp, ap = ControlState(), ControlMap(), VisualParams(), AgcParams()
 
-    s.knobs[0] = 1.0
+    s.knobs[3] = 1.0  # hide-quiet (AGC presence)
     m.apply(s, vp, ap)
     hi = ap.presence_gamma
-    s.knobs[0] = 0.0
+    s.knobs[3] = 0.0
     m.apply(s, vp, ap)
-    assert hi > ap.presence_gamma  # knob drives the param
+    assert hi > ap.presence_gamma
 
-    s.faders[0] = 1.0
+    s.knobs[0] = 1.0  # intensity
     m.apply(s, vp, ap)
-    assert vp.master > 1.0
+    assert vp.intensity > 1.0
 
-    s.p = 50
+    s.knobs[2] = 0.5  # size; SIZE button boosts it
     m.apply(s, vp, ap)
-    assert abs(vp.hue_offset - 0.5) < 1e-6
+    base_size = vp.size
+    s.buttons["SIZE"] = True
+    m.apply(s, vp, ap)
+    assert vp.size > base_size
 
-    s.faders[1] = 1.0
+    s.knobs[1] = 1.0  # evolution speed
     s.buttons["REVERSE"] = False
     m.apply(s, vp, ap)
-    assert vp.hue_drift_base > 0
+    assert vp.hue_drift_base > 0 and vp.hue_accel_per_min > 0
     s.buttons["REVERSE"] = True
     m.apply(s, vp, ap)
     assert vp.hue_drift_base < 0  # REVERSE flips colour-drift direction
+
+    s.buttons["SHIFT"] = True  # freeze
+    s.buttons["TYPE"] = True  # mono / stark
+    m.apply(s, vp, ap)
+    assert vp.freeze and vp.mono
 
 
 def test_virtual_f1_interaction():

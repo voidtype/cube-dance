@@ -50,6 +50,7 @@ class MidiInput:
                 s.knobs[cc] = v
             elif 4 <= cc < 8:
                 s.faders[cc - 4] = v
+                s.focus_deck = cc - 4  # touching a fader focuses that deck
         elif msg.type == "note_on" and msg.velocity > 0:
             i = msg.note % len(BUTTONS)
             s.toggle(BUTTONS[i])

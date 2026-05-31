@@ -19,6 +19,9 @@ class Context:
     evo_hue: float = 0.0  # accelerating global hue offset
     energy: float = 0.0  # smoothed overall energy 0..1
     density: float = 0.0  # smoothed onset density
+    # Phase 5 global modulators (from the F1 knobs/buttons).
+    size: float = 1.0  # spatial extent multiplier for moving / sparkle elements
+    mono: bool = False  # render stark / desaturated (white)
 
     def events(self, kind: str | None = None):
         evs = getattr(self.features, "events", None) or []
@@ -27,6 +30,10 @@ class Context:
     @property
     def beat(self) -> float:
         return float(getattr(self.features, "beat", 0.0) or 0.0)
+
+    def sat(self, s: float) -> float:
+        """Saturation honoring the mono (stark) flag."""
+        return 0.0 if self.mono else s
 
 
 class EnvFollower:

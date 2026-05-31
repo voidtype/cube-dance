@@ -7,7 +7,9 @@ from __future__ import annotations
 
 import importlib
 
-BUILTINS = ("deep", "punchy")
+# Ordered list the deck mixer + browse encoder cycle through.
+PRESET_ORDER = ("deep", "punchy", "minimal", "strobe")
+BUILTINS = PRESET_ORDER
 
 
 def load(name: str, engine):

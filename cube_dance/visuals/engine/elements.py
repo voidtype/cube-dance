@@ -25,9 +25,10 @@ class BassCorners(Element):
 
     def apply(self, ctx: Context, out: np.ndarray) -> None:
         warm = (self.hue + ctx.evo_hue) % 1.0
+        sat = ctx.sat(self.sat)
         f = ctx.features
-        blend_into(out, self.cl, np.asarray(hsv_to_rgb(warm, self.sat, float(f.bass_l)), np.float32), self.blend)
-        blend_into(out, self.cr, np.asarray(hsv_to_rgb(warm, self.sat, float(f.bass_r)), np.float32), self.blend)
+        blend_into(out, self.cl, np.asarray(hsv_to_rgb(warm, sat, float(f.bass_l)), np.float32), self.blend)
+        blend_into(out, self.cr, np.asarray(hsv_to_rgb(warm, sat, float(f.bass_r)), np.float32), self.blend)
 
 
 class SpectrumBeams(Element):
@@ -51,7 +52,7 @@ class SpectrumBeams(Element):
         val = np.where(self.side == 0, bl[self.bucket],
                        np.where(self.side == 1, br[self.bucket], mono[self.bucket])).astype(np.float32)
         hue = (self.hue_base + ctx.evo_hue) % 1.0
-        blend_into(out, self.idx, hsv_to_rgb(hue, self.sat, val), self.blend)
+        blend_into(out, self.idx, hsv_to_rgb(hue, ctx.sat(self.sat), val), self.blend)
 
 
 class KickPulse(Element):
@@ -76,7 +77,7 @@ class KickPulse(Element):
         v = self.env.step(ctx.dt) * self.gain
         if v <= 0.002:
             return
-        rgb = np.asarray(hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, self.sat, min(1.0, v)), np.float32)
+        rgb = np.asarray(hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, ctx.sat(self.sat), min(1.0, v)), np.float32)
         blend_into(out, self.idx, rgb, self.blend)
 
 
@@ -94,8 +95,9 @@ class HatSparkle(Element):
     def apply(self, ctx: Context, out: np.ndarray) -> None:
         if ctx.dt > 0:
             self.spark *= math.exp(-ctx.dt / self.release)
+        count = max(1, int(round(self.count * ctx.size)))
         for e in ctx.events("hat"):
-            pick = self._rng.choice(self.edge_idx, size=min(self.count, len(self.edge_idx)), replace=False)
+            pick = self._rng.choice(self.edge_idx, size=min(count, len(self.edge_idx)), replace=False)
             self.spark[pick] = np.maximum(self.spark[pick], e.strength)
         lit = self.spark > 0.01
         if lit.any():
@@ -116,8 +118,9 @@ class Sweep(Element):
 
     def apply(self, ctx: Context, out: np.ndarray) -> None:
         self._phase = (self._phase + self.rate * ctx.dt) % 1.0
-        band = np.exp(-((self.h - self._phase) / self.width) ** 2) * self.gain * (0.35 + 0.65 * ctx.energy)
-        rgb = np.asarray(hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, self.sat, 1.0), np.float32)
+        width = max(0.01, self.width * ctx.size)
+        band = np.exp(-((self.h - self._phase) / width) ** 2) * self.gain * (0.35 + 0.65 * ctx.energy)
+        rgb = np.asarray(hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, ctx.sat(self.sat), 1.0), np.float32)
         out += band[:, None] * rgb[None, :]
 
 
@@ -135,9 +138,10 @@ class Chase(Element):
 
     def apply(self, ctx: Context, out: np.ndarray) -> None:
         self._phase = (self._phase + self.rate * ctx.dt) % 1.0
+        width = max(0.01, self.width * ctx.size)
         d = np.abs((self.ang - self._phase + 0.5) % 1.0 - 0.5)  # wrap-around distance
-        band = np.exp(-(d / self.width) ** 2) * self.gain * (0.35 + 0.65 * ctx.energy)
-        rgb = np.asarray(hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, self.sat, 1.0), np.float32)
+        band = np.exp(-(d / width) ** 2) * self.gain * (0.35 + 0.65 * ctx.energy)
+        rgb = np.asarray(hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, ctx.sat(self.sat), 1.0), np.float32)
         out += band[:, None] * rgb[None, :]
 
 
@@ -152,5 +156,5 @@ class AmbientWash(Element):
 
     def apply(self, ctx: Context, out: np.ndarray) -> None:
         b = self.base * (0.4 + 0.6 * ctx.energy)
-        hue = (self.h * 0.2 + ctx.evo_hue) % 1.0
-        out += hsv_to_rgb(hue, self.sat, np.full(self.n, b, np.float32))
+        hue = (self.h * 0.2 * ctx.size + ctx.evo_hue) % 1.0
+        out += hsv_to_rgb(hue, ctx.sat(self.sat), np.full(self.n, b, np.float32))
