@@ -33,7 +33,7 @@ def _mean_rgb(name: str) -> np.ndarray:
 
 
 def test_all_eight_presets_load_and_render():
-    assert len(presets.PRESET_ORDER) == 8
+    assert len(presets.PRESET_ORDER) >= 8
     for name in presets.PRESET_ORDER:
         eng = VisualEngine(MODEL, n_buckets=8)
         presets.load(name, eng)

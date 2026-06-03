@@ -362,6 +362,77 @@ class SirenStrobe(Element):
             out[self.right] += np.asarray(hsv_to_rgb((self.hue_b + ctx.evo_hue) % 1.0, sat, v), np.float32)
 
 
+class Spiral(Element):
+    """A 3-D (double) helix wrapping the cube vertically.
+
+    Each LED lights by its proximity to a parametric helix curve, so the wireframe
+    cube lights up *where the spiral intersects the structure*. With ``double`` a
+    second, counter-rotating helix runs in a contrasting hue, and the points where
+    the two helices **cross** glow white — the intersection of the two spirals.
+    Rotation accelerates with energy; the radius pulses with the bass; kicks bloom it.
+    """
+
+    blend = "add"
+
+    def __init__(self, model, radius: float = 1.25, turns: float = 2.5, width: float = 0.055,
+                 hue: float = 0.0, hue_b: float = 0.5, sat: float = 0.95, double: bool = True,
+                 base_speed: float = 0.16, intersect: float = 1.8, samples: int = 160) -> None:
+        P = model.positions
+        half = float(model.cfg.half)
+        self.x = P[:, 0].astype(np.float32)
+        self.y = P[:, 1].astype(np.float32)
+        self.z = P[:, 2].astype(np.float32)
+        self.half = half
+        self.side = float(model.cfg.side_m)
+        self.radius, self.turns, self.width = radius, turns, width
+        self.hue, self.hue_b, self.sat = hue, hue_b, sat
+        self.double, self.base_speed, self.intersect = double, base_speed, intersect
+        self.samples = samples
+        self._s = np.linspace(0.0, 1.0, samples, dtype=np.float32)
+        self._phase = 0.0
+        self._bloom = EnvFollower(0.25)
+
+    def _proximity(self, R: float, w: float, direction: float, phase: float, density: float):
+        """Per-LED brightness from the true 3-D distance to the helix curve.
+
+        ``density`` (0..1) is how much of the helix has grown in, from the bottom;
+        samples beyond it are pushed away so the spiral fills 0->100%.
+        """
+        theta = direction * (2.0 * np.pi * self.turns * self._s) + phase
+        px = (R * np.cos(theta)).astype(np.float32)
+        py = (-self.half + self.side * self._s).astype(np.float32)
+        py = np.where(self._s <= density, py, np.float32(1e6))  # hide the un-grown tip
+        pz = (R * np.sin(theta)).astype(np.float32)
+        dx = self.x[:, None] - px[None, :]
+        dy = self.y[:, None] - py[None, :]
+        dz = self.z[:, None] - pz[None, :]
+        md2 = (dx * dx + dy * dy + dz * dz).min(axis=1)
+        return np.exp(-md2 / (w * w)).astype(np.float32)
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        for e in ctx.events("kick"):
+            self._bloom.trigger(e.strength)
+        bloom = self._bloom.step(ctx.dt)
+        self._phase += self.base_speed * (0.6 + 1.4 * ctx.energy) * ctx.dt * 2.0 * np.pi
+
+        bass = float(getattr(ctx.features, "bass", 0.0) or 0.0)
+        R = self.radius * self.half * (1.0 + 0.16 * bass)
+        density = float(np.clip((ctx.size - 0.5) / 1.3, 0.0, 1.0))  # 'density' knob: 0->100%
+        w = self.width * self.half * (1.0 + 0.7 * bloom)
+        sat = ctx.sat(self.sat)
+
+        a = self._proximity(R, w, 1.0, self._phase, density)
+        rgb_a = np.asarray(hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, sat, 1.0), np.float32)
+        out += a[:, None] * rgb_a[None, :]
+
+        if self.double:
+            b = self._proximity(R, w, -1.0, self._phase, density)
+            rgb_b = np.asarray(hsv_to_rgb((self.hue_b + ctx.evo_hue) % 1.0, sat, 1.0), np.float32)
+            out += b[:, None] * rgb_b[None, :]
+            inter = (a * b) * (self.intersect * (1.0 + 2.5 * bloom))  # bright only where they cross
+            out += inter[:, None]  # white intersection glow
+
+
 class AmbientWash(Element):
     """A faint always-on evolving wash so the cube never reads fully dead."""
 
