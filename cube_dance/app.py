@@ -99,6 +99,8 @@ class CubeWindow(mglw.WindowConfig):
         self._pending_fires: list = []  # quantised pad triggers awaiting the next beat
         self._pending_age = 0.0
         self._last_beat = 0.0
+        self._knob_engaged = [False] * len(self.controls.knobs)  # soft-takeover per knob
+        self._knob_ref = list(self.controls.knobs)
         if type(self).audio_file is not None:
             self.audio = AudioSource(type(self).audio_file, mute=type(self).mute, loop=type(self).loop)
             self.aparams = self.audio.processor.p
@@ -231,6 +233,11 @@ class CubeWindow(mglw.WindowConfig):
                 pass
         self._refresh_hud()
 
+    def _reset_pickup(self) -> None:
+        """Disengage all knobs (soft takeover): they must cross the new deck's values."""
+        self._knob_engaged = [False] * len(self.controls.knobs)
+        self._knob_ref = list(self.controls.knobs)
+
     def _apply_perf_controls(self, features, dt: float = 0.0) -> None:
         """Route the F1 surface to the mixer: deck volumes, the selected deck's
         preset (encoder) + knob params, and pad triggers (quantised on QUANT)."""
@@ -256,19 +263,30 @@ class CubeWindow(mglw.WindowConfig):
             mx.set_deck_preset(focus, order[target])
             self.f1.mark_dirty()
             print(f"[deck {focus + 1}] {order[target]}")
-        if changed_focus or preset_changed:  # load the deck's knob values into the knobs
-            c.knobs = mx.knob_vals(focus)
-            self.f1.mark_dirty()
+        # Soft takeover (pickup): switching decks must NOT snap a deck's params to the
+        # knob positions (a real F1's knobs can't move). Each deck holds its own values;
+        # a knob re-engages only once it crosses the deck's stored value, then drives it.
+        if changed_focus or preset_changed:
+            self._reset_pickup()
 
-        browse = bool(c.buttons.get("BROWSE"))  # BROWSE press -> reset deck knobs
+        browse = bool(c.buttons.get("BROWSE"))  # BROWSE press -> reset deck knobs to preset defaults
         if browse and not self._prev_browse:
             mx.reset_knobs(focus)
-            c.knobs = mx.knob_vals(focus)
+            self._reset_pickup()
             self.f1.mark_dirty()
         self._prev_browse = browse
 
+        targets = mx.knob_vals(focus)
         for i in range(min(len(c.knobs), len(mx.knob_labels(focus)))):
-            mx.set_knob(focus, i, c.knobs[i])
+            cur, tgt = c.knobs[i], targets[i]
+            if not self._knob_engaged[i]:  # engage when the knob reaches/crosses the value
+                moved = abs(cur - self._knob_ref[i]) > 1e-3
+                crossed = (self._knob_ref[i] - tgt) * (cur - tgt) <= 0.0
+                if abs(cur - tgt) <= 0.02 or (moved and crossed):
+                    self._knob_engaged[i] = True
+                    self.f1.mark_dirty()
+            if self._knob_engaged[i]:
+                mx.set_knob(focus, i, cur)
 
         # Pad triggers: fire now, or queue to the next beat when QUANT is on.
         quant = bool(c.buttons.get("QUANT"))
@@ -382,7 +400,8 @@ class CubeWindow(mglw.WindowConfig):
                 cells = mx.trigger_cells(c)
                 pad_colors.append([cells[r][1] if r < len(cells) else None for r in range(4)])
             self.f1.render(w, h, self.controls, deck_labels=mx.preset_name, focus=focus,
-                           knob_labels=mx.knob_labels(focus), pad_colors=pad_colors)
+                           knob_labels=mx.knob_labels(focus), pad_colors=pad_colors,
+                           knob_targets=mx.knob_vals(focus), knob_engaged=self._knob_engaged)
         else:
             self.f1.render(w, h, self.controls)
 

@@ -201,7 +201,7 @@ class VirtualF1:
             d.rectangle(box, fill=color if name in on else (40, 22, 6))
 
     def _image(self, state: ControlState, deck_labels=None, focus: int = 0,
-               knob_labels=None, pad_colors=None) -> Image.Image:
+               knob_labels=None, pad_colors=None, knob_targets=None, knob_engaged=None) -> Image.Image:
         img = Image.new("RGBA", (PANEL_W, PANEL_H), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
         d.rounded_rectangle((0, 0, PANEL_W - 1, PANEL_H - 1), radius=14, fill=(22, 22, 26, 238),
@@ -211,10 +211,16 @@ class VirtualF1:
         for i, (cx, cy, r) in enumerate(self.knobs):
             d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(48, 48, 54), outline=(90, 90, 98), width=2)
             d.ellipse((cx - r + 6, cy - r + 6, cx + r - 6, cy + r - 6), fill=(34, 34, 40))
+            engaged = not knob_engaged or i >= len(knob_engaged) or knob_engaged[i]
+            # Target tick = the deck's stored value; turn the knob onto it to pick up.
+            if knob_targets is not None and i < len(knob_targets) and not engaged:
+                ta = (float(knob_targets[i]) - 0.5) * 2.0 * 2.30
+                tx, ty = cx + (r - 3) * np.sin(ta), cy - (r - 3) * np.cos(ta)
+                d.ellipse((tx - 3, ty - 3, tx + 3, ty + 3), fill=(90, 200, 255))  # blue = pick-up point
             ang = (state.knobs[i] - 0.5) * 2.0 * (2.30)  # +-130 deg
             ex = cx + (r - 6) * np.sin(ang)
             ey = cy - (r - 6) * np.cos(ang)
-            d.line((cx, cy, ex, ey), fill=(230, 180, 60), width=3)
+            d.line((cx, cy, ex, ey), fill=(230, 180, 60) if engaged else (120, 120, 96), width=3)
             label = (knob_labels[i] if knob_labels and i < len(knob_labels) else KNOB_ROLES[i])
             d.text((cx - 18, cy + r + 2), str(label)[:9], font=self._small, fill=(170, 170, 178))
 
@@ -281,10 +287,12 @@ class VirtualF1:
         return img
 
     def render(self, win_w: int, win_h: int, state: ControlState,
-               deck_labels=None, focus: int = 0, knob_labels=None, pad_colors=None) -> None:
+               deck_labels=None, focus: int = 0, knob_labels=None, pad_colors=None,
+               knob_targets=None, knob_engaged=None) -> None:
         self.set_screen(win_w, win_h)
         if self._tex is None or self._dirty:
-            img = self._image(state, deck_labels, focus, knob_labels, pad_colors).transpose(Image.FLIP_TOP_BOTTOM)
+            img = self._image(state, deck_labels, focus, knob_labels, pad_colors,
+                              knob_targets, knob_engaged).transpose(Image.FLIP_TOP_BOTTOM)
             if self._tex is not None:
                 self._tex.release()
             self._tex = self.ctx.texture((PANEL_W, PANEL_H), 4, img.tobytes())
