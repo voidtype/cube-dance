@@ -74,6 +74,7 @@ class VirtualF1:
         self._rect = (0.0, 0.0, 0.0, 0.0)  # screen px: x0, y0, w, h
         self._scale = 1.0
         self._drag = None  # (kind, index, start_val, start_iy)
+        self._pad_down = None  # (col, row) of a currently-held pad
         self._font = _font(15)
         self._small = _font(11)
         self._layout()
@@ -138,6 +139,7 @@ class VirtualF1:
             c = min(3, max(0, int((ix - px0) / ((px1 - px0) / 4))))  # column = deck
             r = min(3, max(0, int((iy - py0) / ((py1 - py0) / 4))))  # row = trigger
             state.press_pad(c, r)  # app fires this deck's trigger (quantised if QUANT)
+            self._pad_down = (c, r)  # remember it so on_release can let a hold trigger go
             self._dirty = True
             return True
         sx0, sy0, sx1, sy1 = self.stop_rect  # bottom row = channel select
@@ -164,8 +166,11 @@ class VirtualF1:
         self._dirty = True
         return True
 
-    def on_release(self) -> None:
+    def on_release(self, state: ControlState | None = None) -> None:
         self._drag = None
+        if self._pad_down is not None and state is not None:
+            state.release_pad(*self._pad_down)  # let go a hold trigger
+        self._pad_down = None
 
     def _hit_encoder(self, ix: float, iy: float) -> bool:
         dx0, dy0, _dx1, dy1 = self.display

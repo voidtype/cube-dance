@@ -67,13 +67,14 @@ class VisualEngine:
         self.trigger_order: list[str] = [t.label for t in trs]
         self._apply_knobs()
 
-    def fire(self, label: str, strength: float = 1.0) -> None:
+    def fire(self, label: str, strength: float = 1.0):
         tr = self.triggers.get(label)
         if tr is None:
-            return
+            return None
         el = tr.make(self.model, float(strength), tuple(c / 255.0 for c in tr.color))
         if el is not None:
             self.transients.append(el)
+        return el  # so a hold trigger's owner can .release() it later
 
     def _apply_knobs(self) -> None:
         p = dict(_FALLBACK)

@@ -24,8 +24,9 @@ class ControlState:
     focus_deck: int = 0  # selected channel/deck (bottom-row button or fader touch)
     pads: list[bool] = field(default_factory=lambda: [False] * 16)
     pad_glow: list[float] = field(default_factory=lambda: [0.0] * 16)  # UI glow per pad
-    # Pad hits queue (col, row) presses for the app to fire as preset triggers.
+    # Pad hits queue (col, row) presses/releases for the app to fire as preset triggers.
     pad_queue: list[tuple[int, int]] = field(default_factory=list)
+    pad_release: list[tuple[int, int]] = field(default_factory=list)  # for hold triggers
 
     def step_encoder(self, delta: int) -> None:
         self.p = (self.p + int(delta)) % 100
@@ -39,3 +40,6 @@ class ControlState:
         i = row * 4 + col
         if 0 <= i < 16:
             self.pad_glow[i] = 1.0
+
+    def release_pad(self, col: int, row: int) -> None:
+        self.pad_release.append((col, row))

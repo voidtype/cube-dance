@@ -52,6 +52,11 @@ a VJ mixer, then perform on top with per-channel pad triggers and per-preset kno
 - **Distinct pad triggers per program.** Each preset defines its own four pad triggers from a
   varied vocabulary — coloured stabs, **shockwaves**, **comets**, **lightning**, **wipes**,
   **confetti**, risers, sparkles — so every channel's pads do something genuinely different.
+  Triggers are either **fire** (one-shot) or **hold** (sustain while the pad is held — e.g.
+  hold-to-strobe on `strobe`/`siren`, hold-to-swell on `deep`).
+
+See [`docs/effect-ideas.md`](docs/effect-ideas.md) for the design brainstorm of 20 more 3-D
+effects (cellular automata, fractals, structure-aware truss effects, …) with a self-critique.
 - **Knob soft-takeover.** Each channel keeps its own knob values; switching channels never
   jumps a param. A knob re-takes control only once you turn it *through* the channel's stored
   value (the panel shows a blue pick-up dot and ghosts the needle until it engages) — so it

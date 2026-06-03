@@ -99,6 +99,7 @@ class CubeWindow(mglw.WindowConfig):
         self._pending_fires: list = []  # quantised pad triggers awaiting the next beat
         self._pending_age = 0.0
         self._last_beat = 0.0
+        self._held_pads: dict = {}  # (col,row) -> sustained element for hold triggers
         self._knob_engaged = [False] * len(self.controls.knobs)  # soft-takeover per knob
         self._knob_ref = list(self.controls.knobs)
         if type(self).audio_file is not None:
@@ -301,11 +302,24 @@ class CubeWindow(mglw.WindowConfig):
             label = mx.trigger_label(col, row)
             if label is None:
                 continue
-            if quant:
+            if mx.trigger_hold(col, label):  # hold trigger: spawn now, keep a handle
+                el = mx.fire(col, label, 1.0)
+                if el is not None:
+                    self._held_pads[(col, row)] = el
+            elif quant:
                 self._pending_fires.append((col, label))
                 self._pending_age = 0.0
             else:
                 mx.fire(col, label, 1.0)
+        while c.pad_release:  # let go held triggers
+            key = c.pad_release.pop(0)
+            el = self._held_pads.pop(key, None)
+            if el is not None:
+                el.release()
+        for (col, row) in self._held_pads:  # keep held pads lit
+            i = row * 4 + col
+            if 0 <= i < 16:
+                c.pad_glow[i] = 1.0
         if self._pending_fires:
             self._pending_age += dt
             if boundary or self._pending_age > 0.6:
@@ -484,7 +498,7 @@ class CubeWindow(mglw.WindowConfig):
 
     def on_mouse_release_event(self, x: int, y: int, button: int) -> None:
         if self.show_controls:
-            self.f1.on_release()
+            self.f1.on_release(self.controls)
             return
         self._buttons.discard(button)
 

@@ -128,6 +128,34 @@ def test_mixer_routes_triggers_and_knobs_per_deck():
     assert mx.knob_vals(0)[0] == mx.decks[0].knob_spec[0].default
 
 
+def test_held_glow_sustains_then_releases():
+    from cube_dance.visuals.engine.elements import HeldGlow
+
+    g = HeldGlow(MODEL, (1.0, 1.0, 1.0), region="all", attack=0.04, release=0.1)
+
+    class C:
+        dt = 1 / 30
+
+    out = np.zeros((MODEL.n, 3), np.float32)
+    for _ in range(30):
+        out[:] = 0.0
+        g.apply(C(), out)
+    assert out.max() > 0.5 and not g.done  # sustained while held
+    g.release()
+    for _ in range(90):
+        out[:] = 0.0
+        g.apply(C(), out)
+    assert g.done  # fades out and finishes after release
+
+
+def test_mixer_hold_trigger_flag_and_fire_returns_element():
+    mx = DeckMixer(MODEL, n_buckets=8)  # decks default deep/punchy/minimal/strobe
+    assert mx.trigger_hold(0, "swell") is True  # deep's swell is a hold trigger
+    assert mx.trigger_hold(0, "comet") is False  # deep's comet is one-shot
+    el = mx.fire(0, "swell", 1.0)
+    assert el is not None and hasattr(el, "release")
+
+
 def test_blackout_kills_output():
     mx = DeckMixer(MODEL, n_buckets=8)
     mx.volumes = [0.9, 0, 0, 0]

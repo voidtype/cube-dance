@@ -57,6 +57,10 @@ class MidiInput:
                 s.press_pad(n % 4, n // 4)
             else:
                 s.toggle(BUTTONS[n % len(BUTTONS)])
+        elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
+            n = msg.note
+            if 0 <= n < 16:  # pad released -> let go any hold trigger
+                s.release_pad(n % 4, n // 4)
 
     def close(self) -> None:  # pragma: no cover - needs hardware
         self._stop = True

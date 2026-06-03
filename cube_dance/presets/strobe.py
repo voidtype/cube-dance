@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from ..visuals.engine.element import Knob, Trigger
 from ..visuals.engine.elements import (
-    Confetti, HatSparkle, KickPulse, Lightning, Shockwave, SpectrumBeams, StrobeBurst,
+    Confetti, HatSparkle, HeldStrobe, KickPulse, Lightning, Shockwave, SpectrumBeams,
 )
 
 KNOBS = [
@@ -20,7 +20,7 @@ KNOBS = [
 
 TRIGGERS = [
     Trigger("bolt", (255, 255, 255), lambda m, s, c: Lightning(m, c, strikes=5, gain=1.7, dur=0.3)),
-    Trigger("white", (200, 220, 255), lambda m, s, c: StrobeBurst(m, c, gain=1.6, flashes=8, interval=0.05)),
+    Trigger("white", (200, 220, 255), lambda m, s, c: HeldStrobe(m, c, interval=0.05, gain=1.5), hold=True),
     Trigger("confetti", (255, 80, 80), lambda m, s, c: Confetti(m, count=110, release=0.5)),
     Trigger("shock", (40, 120, 255), lambda m, s, c: Shockwave(m, c, dur=0.45, gain=1.6 * s)),
 ]

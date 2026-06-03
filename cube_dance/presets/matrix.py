@@ -30,4 +30,4 @@ TRIGGERS = [
 def build(engine) -> None:
     m = engine.model
     engine.add(Pulse(m, hue=0.34, sat=0.85, base=0.02, gain=0.12, react="energy"))
-    engine.add(DigitalRain(m, hue_base=0.34, sat=0.9, drops=6, trail=0.22))
+    engine.add(DigitalRain(m, hue_base=0.34, sat=0.95, density=0.4))

@@ -362,6 +362,52 @@ class Confetti(Element):
         out[self.idx] += self.cols * v
 
 
+class HeldGlow(Element):
+    """A solid colour over a region while the pad is HELD; fades out on release."""
+
+    def __init__(self, model, color, region: str = "all", attack: float = 0.06, release: float = 0.4):
+        self.idx = _region_idx(model, region)
+        self.color = np.asarray(color, np.float32)
+        self.attack, self.release_s = attack, release
+        self._held = True
+        self._v = 0.0
+
+    def release(self) -> None:
+        self._held = False
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        target = 1.0 if self._held else 0.0
+        tau = self.attack if self._held else self.release_s
+        if ctx.dt > 0:
+            self._v += (target - self._v) * (1.0 - math.exp(-ctx.dt / max(tau, 1e-3)))
+        if not self._held and self._v < 0.01:
+            self.done = True
+            return
+        blend_into(out, self.idx, self.color * self._v, "add")
+
+
+class HeldStrobe(Element):
+    """Hard on/off flashing over a region while HELD; stops on release."""
+
+    def __init__(self, model, color, interval: float = 0.06, region: str = "all", gain: float = 1.2):
+        self.idx = _region_idx(model, region)
+        self.color = np.asarray(color, np.float32) * gain
+        self.interval = interval
+        self._held = True
+        self._t = 0.0
+
+    def release(self) -> None:
+        self._held = False
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        if not self._held:
+            self.done = True
+            return
+        self._t += ctx.dt
+        if (self._t % self.interval) / self.interval < 0.5:
+            blend_into(out, self.idx, self.color, "add")
+
+
 class PlasmaField(Element):
     """Smooth flowing colour field over the whole cube (psychedelic oil-slick).
 
@@ -418,36 +464,63 @@ class HeatField(Element):
 
 
 class DigitalRain(Element):
-    """Matrix-style rain: bright heads fall down the cube, trailing upward.
+    """Matrix-style digital rain: sparse, random columns of falling glyphs.
 
-    Discrete green streams (the hue knob recolours them); driven by treble. The
-    'fall' (space) knob sets the speed. Sparse and downward -- a digital look.
+    Like real Matrix rain — only *some* columns fall at any time, each with a
+    random start, fall speed and trail length; the leading glyph is bright
+    (white-green) and the trail fades upward; columns retire at the bottom and
+    new ones spawn at random. Treble adds density, the 'fall' knob scales speed,
+    the hue knob recolours the streams.
     """
 
     blend = "add"
+    _rng = np.random.default_rng()
 
-    def __init__(self, model, hue_base: float = 0.34, sat: float = 0.9,
-                 drops: int = 5, trail: float = 0.22) -> None:
-        h = (model.positions[:, 1] + model.cfg.half) / model.cfg.side_m
-        self.h = np.clip(h, 0.0, 1.0).astype(np.float32)
+    def __init__(self, model, hue_base: float = 0.34, sat: float = 0.95,
+                 density: float = 0.38, cell: float = 0.28) -> None:
         P = model.positions
-        col = (np.round(P[:, 0] * 3).astype(int) * 31 + np.round(P[:, 2] * 3).astype(int) * 7)
-        self.off = ((col % 17) / 17.0).astype(np.float32)  # per-column phase offset
-        self.hue_base, self.sat, self.drops, self.trail, self.n = hue_base, sat, drops, trail, model.n
+        half = float(model.cfg.half)
+        self.hy = np.clip((P[:, 1] + half) / model.cfg.side_m, 0.0, 1.0).astype(np.float32)
+        key = (np.round(P[:, 0] / cell).astype(np.int64) * 9973
+               + np.round(P[:, 2] / cell).astype(np.int64))  # quantise (x,z) -> columns
+        _, self.col = np.unique(key, return_inverse=True)
+        self.col = self.col.astype(np.int64)
+        self.ncol = int(self.col.max()) + 1
+        self.hue_base, self.sat, self.density = hue_base, sat, density
+        self.head = np.full(self.ncol, 2.0, np.float32)  # >1.5 = inactive column
+        self.speed = np.zeros(self.ncol, np.float32)
+        self.length = np.full(self.ncol, 0.3, np.float32)
 
     def apply(self, ctx: Context, out: np.ndarray) -> None:
-        t = ctx.t
-        speed = 0.30 + 0.6 * ctx.size
+        dt = ctx.dt
         tr = float(getattr(ctx.features, "treble", 0.0) or 0.0)
-        bright = np.zeros(self.n, np.float32)
-        K = self.drops
-        for k in range(K):
-            head = 1.0 - ((t * speed + self.off + k / float(K)) % 1.0)  # falls 1 -> 0
-            d = self.h - head  # >0 above the head = trail
-            bright = np.maximum(bright, np.where((d >= 0) & (d < self.trail), 1.0 - d / self.trail, 0.0))
-        val = bright * (0.45 + 0.8 * tr + 0.4 * ctx.energy)
-        hue = np.float32((self.hue_base + ctx.evo_hue) % 1.0)
-        out += hsv_to_rgb(hue, np.float32(ctx.sat(self.sat)), val.astype(np.float32))
+        smult = 0.6 + 1.2 * ctx.size  # 'fall' knob -> speed
+        active = self.head < 1.5
+        self.head[active] -= self.speed[active] * smult * dt
+        self.head[active & (self.head < -self.length)] = 2.0  # fell past the bottom -> retire
+
+        # spawn toward a target active fraction (treble = denser), a few per frame -> randomness
+        want = int(self.ncol * np.clip(self.density * (0.4 + 1.0 * tr), 0.0, 0.85))
+        idle = np.where(self.head >= 1.5)[0]
+        deficit = want - (self.ncol - len(idle))
+        if deficit > 0 and len(idle) > 0:
+            k = min(len(idle), deficit, max(1, self.ncol // 18))
+            pick = self._rng.choice(idle, size=k, replace=False)
+            self.head[pick] = (1.0 + self._rng.random(k) * 0.25).astype(np.float32)
+            self.speed[pick] = (0.4 + self._rng.random(k) * 1.3).astype(np.float32)
+            self.length[pick] = (0.18 + self._rng.random(k) * 0.5).astype(np.float32)
+
+        ch = self.head[self.col]
+        cl = np.maximum(self.length[self.col], 1e-3)
+        d = self.hy - ch  # the trail extends upward (above the falling head)
+        lit = (ch < 1.5) & (d >= 0.0) & (d < cl)
+        trail = np.where(lit, 1.0 - d / cl, 0.0).astype(np.float32)
+        val = trail * (0.45 + 0.8 * tr + 0.3 * ctx.energy)
+        out += hsv_to_rgb(np.float32((self.hue_base + ctx.evo_hue) % 1.0),
+                          np.float32(ctx.sat(self.sat)), val)
+        head_hi = lit & (d < 0.05)  # bright white-ish leading glyph
+        if head_hi.any():
+            out[head_hi] += (0.7 * trail[head_hi])[:, None]
 
 
 class SirenStrobe(Element):

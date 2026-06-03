@@ -37,11 +37,16 @@ class Trigger:
     ``make(model, strength, color)`` returns a transient :class:`Element` that the
     engine composites until it reports ``done``. The factory is arbitrary preset
     code, so a trigger can do anything that draws into the buffer.
+
+    If ``hold`` is set, the pad is a **hold** trigger: pressing spawns a sustained
+    element that stays active while the pad is held and ends (``.release()``) when
+    it is let go. Otherwise it is a one-shot **fire**.
     """
 
     label: str
     color: tuple[int, int, int]
     make: Callable[..., "Element"]
+    hold: bool = False
 
 
 def blend_into(out: np.ndarray, idx, rgb, mode: str = "add") -> None:
@@ -82,3 +87,6 @@ class Element:
 
     def apply(self, ctx, out: np.ndarray) -> None:  # pragma: no cover - interface
         raise NotImplementedError
+
+    def release(self) -> None:
+        """Called when a hold-trigger pad is let go. No-op for one-shot elements."""

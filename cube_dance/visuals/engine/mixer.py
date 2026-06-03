@@ -57,9 +57,14 @@ class DeckMixer:
         self.preset_index[i] = order.index(name) if name in order else 0
 
     # --- Performance surface accessors (for the F1 panel + app) --------------
-    def fire(self, deck: int, label: str, strength: float = 1.0) -> None:
+    def fire(self, deck: int, label: str, strength: float = 1.0):
         if 0 <= deck < self.n_decks:
-            self.decks[deck].fire(label, strength)
+            return self.decks[deck].fire(label, strength)
+        return None
+
+    def trigger_hold(self, deck: int, label: str) -> bool:
+        tr = self.decks[deck].triggers.get(label) if 0 <= deck < self.n_decks else None
+        return bool(tr and tr.hold)
 
     def trigger_cells(self, deck: int):
         """Up to 4 (label, (r,g,b)) for a deck's pad column (top to bottom)."""
