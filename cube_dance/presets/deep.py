@@ -1,15 +1,14 @@
 """`deep` preset — smooth, evolving body with a slow sweep and gentle kicks.
 
-Pads (per deck): a warm stab, a colour wash, a slow riser (build), and a soft
-sparkle. Knobs: brightness / colour / evolve / width.
+Pads (smooth/cool): a long swell, a slow comet, a soft upward wipe, a corner bloom.
 """
 
 from __future__ import annotations
 
 from ..visuals.engine.element import Knob, Trigger
 from ..visuals.engine.elements import (
-    AmbientWash, BassCorners, ColorStab, HatSparkle, KickPulse, Pulse,
-    RiserSweep, SparkBurst, SpectrumBeams, Sweep,
+    AmbientWash, BassCorners, ColorStab, Comet, HatSparkle, KickPulse, Pulse,
+    SpectrumBeams, Sweep, Wipe,
 )
 
 KNOBS = [
@@ -20,10 +19,10 @@ KNOBS = [
 ]
 
 TRIGGERS = [
-    Trigger("stab", (255, 170, 60), lambda m, s, c: ColorStab(m, c, gain=s, release=0.35)),
-    Trigger("wash", (80, 150, 255), lambda m, s, c: ColorStab(m, c, gain=0.7 * s, release=0.9)),
-    Trigger("build", (255, 90, 40), lambda m, s, c: RiserSweep(m, c, dur=1.6, gain=0.9 * s)),
-    Trigger("glis", (120, 255, 180), lambda m, s, c: SparkBurst(m, c, count=30, release=0.7)),
+    Trigger("swell", (80, 150, 255), lambda m, s, c: ColorStab(m, c, gain=0.8 * s, release=0.9)),
+    Trigger("comet", (120, 255, 220), lambda m, s, c: Comet(m, c, dur=1.3, turns=1.0, gain=1.1 * s)),
+    Trigger("wipe", (150, 120, 255), lambda m, s, c: Wipe(m, c, axis=1, dur=1.0, gain=0.9 * s)),
+    Trigger("bloom", (255, 170, 60), lambda m, s, c: ColorStab(m, c, gain=s, release=0.5, region="corners")),
 ]
 
 

@@ -7,7 +7,7 @@ glow white (the intersection of the two spirals). Orbit it in the viewer; the
 from __future__ import annotations
 
 from ..visuals.engine.element import Knob, Trigger
-from ..visuals.engine.elements import ColorStab, Pulse, RiserSweep, SparkBurst, Spiral
+from ..visuals.engine.elements import ColorStab, Comet, Pulse, Shockwave, SparkBurst, Spiral
 
 KNOBS = [
     Knob("bright", "intensity", 0.7),
@@ -18,8 +18,8 @@ KNOBS = [
 
 TRIGGERS = [
     Trigger("flash", (255, 255, 255), lambda m, s, c: ColorStab(m, c, gain=s, release=0.25)),
-    Trigger("bloom", (120, 200, 255), lambda m, s, c: ColorStab(m, c, gain=s, release=0.5, region="corners")),
-    Trigger("rise", (255, 150, 40), lambda m, s, c: RiserSweep(m, c, dur=1.2, gain=0.9 * s)),
+    Trigger("shock", (120, 200, 255), lambda m, s, c: Shockwave(m, c, dur=0.7, gain=1.3 * s)),
+    Trigger("comet", (255, 150, 40), lambda m, s, c: Comet(m, c, dur=1.0, turns=1.5, gain=1.2 * s)),
     Trigger("glint", (200, 255, 220), lambda m, s, c: SparkBurst(m, c, count=26, release=0.6)),
 ]
 

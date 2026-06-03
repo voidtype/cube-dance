@@ -42,12 +42,16 @@ a VJ mixer, then perform on top with per-channel pad triggers and per-preset kno
 
 - **Faders = channel volumes.** Channels 1–4 default to `deep`, `punchy`, `minimal`,
   `strobe` (only channel 1 up at launch). Push a fader to fade its preset in.
-- **Nine presets to load on any channel.** The four mixer-friendly ones above, plus five
+- **Ten presets to load on any channel.** The four mixer-friendly ones above, plus six
   wilder, stylistically distinct ones: **`inferno`** (a flickering fire, hot at the base),
   **`matrix`** (green digital rain falling down the cube), **`plasma`** (a smooth flowing
-  psychedelic colour field), **`siren`** (hard red/blue half-cube alarm strobe), and
-  **`spiral`** (a 3-D double helix that grows 0→100% via the `density` knob, lighting the
-  cube where it intersects the wireframe, with the two helices' crossings glowing white).
+  psychedelic colour field), **`siren`** (hard red/blue half-cube alarm strobe), **`spiral`**
+  (a 3-D double helix that grows 0→100% via the `density` knob, with the helices' crossings
+  glowing white), and **`vortex`** (a black hole: hard stark spiral arms rotating around an
+  empty core, random orientation each launch).
+- **Distinct pad triggers per program.** Each preset defines its own four pad triggers from a
+  varied vocabulary — coloured stabs, **shockwaves**, **comets**, **lightning**, **wipes**,
+  **confetti**, risers, sparkles — so every channel's pads do something genuinely different.
 - **Knob soft-takeover.** Each channel keeps its own knob values; switching channels never
   jumps a param. A knob re-takes control only once you turn it *through* the channel's stored
   value (the panel shows a blue pick-up dot and ghosts the needle until it engages) — so it
@@ -272,8 +276,8 @@ cube_dance/
   audio/            file decode + live input (ring buffer), streaming analyzer + AGC,
                     event detection, transport — all behind one window_at(t, win) contract
   visuals/          VU + placeholder + params; engine/ (elements, evolution, deck mixer)
-  presets/          Python presets: build(engine) + KNOBS/TRIGGERS (9: deep, punchy,
-                    minimal, strobe, inferno, matrix, plasma, siren, spiral)
+  presets/          Python presets: build(engine) + KNOBS/TRIGGERS (10: deep, punchy,
+                    minimal, strobe, inferno, matrix, plasma, siren, spiral, vortex)
   control/          F1 control state, control->param mapping, basic MIDI input
   render/virtual_f1.py   interactive on-screen F1 panel (knobs/faders/buttons/display/pads)
   recording.py      live-session capture -> shareable MP4 (ffmpeg)

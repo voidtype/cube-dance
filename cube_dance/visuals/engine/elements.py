@@ -247,6 +247,121 @@ class SparkBurst(Element):
         out[self.idx] += self.color * v
 
 
+class Shockwave(Element):
+    """A hard bright shell expanding outward from the cube centre (a blast ring)."""
+
+    def __init__(self, model, color, dur: float = 0.65, gain: float = 1.5, thickness: float = 0.1):
+        P = model.positions
+        self.rho = np.sqrt((P ** 2).sum(axis=1)).astype(np.float32)
+        self.rmax = float(self.rho.max()) or 1.0
+        self.color = np.asarray(color, np.float32) * gain
+        self.dur, self.th = dur, thickness
+        self._t = 0.0
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        self._t += ctx.dt
+        if self._t >= self.dur:
+            self.done = True
+            return
+        p = self._t / self.dur
+        d = np.abs(self.rho - p * self.rmax * 1.05)
+        band = np.clip(1.0 - d / (self.th * self.rmax), 0.0, 1.0) * (1.0 - p)
+        out += band[:, None] * self.color[None, :]
+
+
+class Comet(Element):
+    """A bright head racing around the cube (about the vertical axis) with a trail."""
+
+    def __init__(self, model, color, dur: float = 0.9, gain: float = 1.4,
+                 turns: float = 1.5, width: float = 0.09):
+        P = model.positions
+        self.ang = ((np.arctan2(P[:, 2], P[:, 0]) / (2 * np.pi)) % 1.0).astype(np.float32)
+        self.color = np.asarray(color, np.float32) * gain
+        self.dur, self.turns, self.width = dur, turns, width
+        self._t = 0.0
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        self._t += ctx.dt
+        if self._t >= self.dur:
+            self.done = True
+            return
+        p = self._t / self.dur
+        head = (p * self.turns) % 1.0
+        d = np.abs((self.ang - head + 0.5) % 1.0 - 0.5)
+        band = np.exp(-(d / self.width) ** 2) * (1.0 - 0.6 * p)
+        out += band[:, None] * self.color[None, :]
+
+
+class Lightning(Element):
+    """Hard white-ish strikes on random edge subsets, re-striking a few times."""
+
+    _rng = np.random.default_rng()
+
+    def __init__(self, model, color, gain: float = 1.7, strikes: int = 4, dur: float = 0.28):
+        self.edge = np.where(model.edge_mask)[0]
+        self.color = np.asarray(color, np.float32) * gain
+        self.dur, self.strikes = dur, strikes
+        self._t = 0.0
+        self._i = -1
+        self._mask = self.edge
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        self._t += ctx.dt
+        if self._t >= self.dur:
+            self.done = True
+            return
+        seg = self.dur / self.strikes
+        i = int(self._t / seg)
+        if i != self._i:  # new strike -> fresh random edges
+            self._i = i
+            k = int(self._rng.integers(max(1, len(self.edge) // 8), max(2, len(self.edge) // 3)))
+            self._mask = self._rng.choice(self.edge, size=k, replace=False)
+        out[self._mask] += self.color * max(0.0, 1.0 - (self._t - i * seg) / seg)
+
+
+class Wipe(Element):
+    """A hard light plane sweeping across an axis (stark leading edge)."""
+
+    def __init__(self, model, color, axis: int = 0, dur: float = 0.7, gain: float = 1.3,
+                 width: float = 0.12):
+        P = model.positions
+        half = model.cfg.half
+        self.c = np.clip((P[:, axis] + half) / model.cfg.side_m, 0.0, 1.0).astype(np.float32)
+        self.color = np.asarray(color, np.float32) * gain
+        self.dur, self.width = dur, width
+        self._t = 0.0
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        self._t += ctx.dt
+        if self._t >= self.dur:
+            self.done = True
+            return
+        p = self._t / self.dur
+        d = p - self.c
+        band = np.where((d >= 0.0) & (d < self.width), 1.0, 0.0).astype(np.float32)
+        out += band[:, None] * self.color[None, :] * (1.0 - 0.25 * p)
+
+
+class Confetti(Element):
+    """A burst of MULTI-coloured sparkles (each pixel a random hue), decaying."""
+
+    _rng = np.random.default_rng()
+
+    def __init__(self, model, color=None, count: int = 80, release: float = 0.6, sat: float = 0.9):
+        self.idx = self._rng.choice(model.n, size=min(count, model.n), replace=False)
+        hues = self._rng.random(len(self.idx)).astype(np.float32)
+        self.cols = hsv_to_rgb(hues, np.float32(sat), np.ones(len(self.idx), np.float32)).astype(np.float32)
+        self.env = EnvFollower(release)
+        self.env.trigger(1.0)
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        v = self.env.step(ctx.dt)
+        if v <= 0.01:
+            self.done = True
+            return
+        out[self.idx] += self.cols * v
+
+
 class PlasmaField(Element):
     """Smooth flowing colour field over the whole cube (psychedelic oil-slick).
 
@@ -431,6 +546,49 @@ class Spiral(Element):
             out += b[:, None] * rgb_b[None, :]
             inter = (a * b) * (self.intersect * (1.0 + 2.5 * bloom))  # bright only where they cross
             out += inter[:, None]  # white intersection glow
+
+
+class Vortex(Element):
+    """A black hole: a flat spiral around the view axis with HARD STARK arms that
+    rotate around an empty dark core. Reads as a spiral from the front (arms swirl
+    in the facing plane), and its initial orientation/spin/hue are fully random.
+    """
+
+    blend = "add"
+    _rng = np.random.default_rng()
+
+    def __init__(self, model, arms: int = 2, twist: float = 2.2, hue: float = 0.0,
+                 sat: float = 1.0, base_speed: float = 0.3, axis: int = 2,
+                 duty: float = 0.16, core: float = 0.12) -> None:
+        P = model.positions
+        if axis == 0:
+            u, v, w = P[:, 2], P[:, 1], P[:, 0]
+        elif axis == 1:
+            u, v, w = P[:, 0], P[:, 2], P[:, 1]
+        else:
+            u, v, w = P[:, 0], P[:, 1], P[:, 2]  # spiral in the X/Y front plane
+        self.theta = np.arctan2(v, u).astype(np.float32)
+        rho = np.sqrt(u * u + v * v)
+        self.rho = (rho / (float(rho.max()) or 1.0)).astype(np.float32)
+        self.w = (w / float(model.cfg.half)).astype(np.float32)
+        self.arms, self.twist, self.hue, self.sat = arms, twist, hue, sat
+        self.base_speed, self.duty, self.core = base_speed, duty, core
+        # completely random initial condition: orientation, spin direction, colour
+        self._phase = float(self._rng.uniform(0.0, 2.0 * np.pi))
+        self._dir = float(self._rng.choice([-1.0, 1.0]))
+        self._hue0 = float(self._rng.random())
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        self._phase += self._dir * self.base_speed * (0.5 + 1.6 * ctx.energy) * ctx.dt * 2.0 * np.pi
+        bass = float(getattr(ctx.features, "bass", 0.0) or 0.0)
+        twist = self.twist * (0.4 + 1.2 * ctx.size)  # 'swirl' knob -> arm tightness
+        arm = self.arms * self.theta + twist * 2.0 * np.pi * self.rho + self._phase + 0.5 * self.w
+        f = (arm / (2.0 * np.pi)) % 1.0
+        band = (f < self.duty * (1.0 + 0.6 * bass)).astype(np.float32)  # HARD stark arms
+        core = np.clip((self.rho - self.core) / max(self.core, 1e-3), 0.0, 1.0)  # dark core
+        val = band * core
+        hue = (self.hue + self._hue0 + ctx.evo_hue) % 1.0
+        out += hsv_to_rgb(hue, ctx.sat(self.sat), val.astype(np.float32))
 
 
 class AmbientWash(Element):

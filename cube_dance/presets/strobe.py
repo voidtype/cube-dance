@@ -1,14 +1,14 @@
 """`strobe` preset — hard and percussive: whole-cube white kick flashes + dense
 hat sparkle over a low-saturation spectrum. Mix in on drops.
 
-Pads are all about impact: white burst, coloured strobe, beam strobe, big riser.
+Pads (chaos): jagged lightning, a white strobe, multicolour confetti, a shockwave.
 """
 
 from __future__ import annotations
 
 from ..visuals.engine.element import Knob, Trigger
 from ..visuals.engine.elements import (
-    ColorStab, HatSparkle, KickPulse, RiserSweep, SpectrumBeams, StrobeBurst,
+    Confetti, HatSparkle, KickPulse, Lightning, Shockwave, SpectrumBeams, StrobeBurst,
 )
 
 KNOBS = [
@@ -19,10 +19,10 @@ KNOBS = [
 ]
 
 TRIGGERS = [
-    Trigger("white", (255, 255, 255), lambda m, s, c: StrobeBurst(m, c, gain=1.6, flashes=8, interval=0.05)),
-    Trigger("blast", (255, 40, 40), lambda m, s, c: ColorStab(m, c, gain=1.4 * s, release=0.12)),
-    Trigger("beams", (40, 120, 255), lambda m, s, c: StrobeBurst(m, c, gain=1.4, flashes=6, region="beams")),
-    Trigger("riser", (255, 120, 0), lambda m, s, c: RiserSweep(m, c, dur=0.9, gain=1.3 * s)),
+    Trigger("bolt", (255, 255, 255), lambda m, s, c: Lightning(m, c, strikes=5, gain=1.7, dur=0.3)),
+    Trigger("white", (200, 220, 255), lambda m, s, c: StrobeBurst(m, c, gain=1.6, flashes=8, interval=0.05)),
+    Trigger("confetti", (255, 80, 80), lambda m, s, c: Confetti(m, count=110, release=0.5)),
+    Trigger("shock", (40, 120, 255), lambda m, s, c: Shockwave(m, c, dur=0.45, gain=1.6 * s)),
 ]
 
 
