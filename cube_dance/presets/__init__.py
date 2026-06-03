@@ -10,7 +10,13 @@ import importlib
 # Ordered list the deck mixer + browse encoder cycle through. The first four are
 # the original mixer-friendly presets (deck defaults); the next four are wilder,
 # stylistically distinct "imaginings" of what a preset can be.
-PRESET_ORDER = ("deep", "punchy", "minimal", "strobe", "inferno", "matrix", "plasma", "siren", "spiral", "vortex")
+PRESET_ORDER = (
+    # originals (deck defaults)
+    "deep", "punchy", "minimal", "strobe", "inferno", "matrix", "plasma", "siren", "spiral", "vortex",
+    # 20 new 3-D effects (see docs/effect-ideas.md)
+    "life", "reaction", "flock", "crystal", "clouds", "menger", "bulb", "slice", "sphere", "knot",
+    "icosa", "snake", "lacing", "arc", "current", "sun", "ripple", "aurora", "accretion", "dipole",
+)
 BUILTINS = PRESET_ORDER
 
 

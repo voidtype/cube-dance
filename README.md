@@ -42,21 +42,24 @@ a VJ mixer, then perform on top with per-channel pad triggers and per-preset kno
 
 - **Faders = channel volumes.** Channels 1–4 default to `deep`, `punchy`, `minimal`,
   `strobe` (only channel 1 up at launch). Push a fader to fade its preset in.
-- **Ten presets to load on any channel.** The four mixer-friendly ones above, plus six
-  wilder, stylistically distinct ones: **`inferno`** (a flickering fire, hot at the base),
-  **`matrix`** (green digital rain falling down the cube), **`plasma`** (a smooth flowing
-  psychedelic colour field), **`siren`** (hard red/blue half-cube alarm strobe), **`spiral`**
-  (a 3-D double helix that grows 0→100% via the `density` knob, with the helices' crossings
-  glowing white), and **`vortex`** (a black hole: hard stark spiral arms rotating around an
-  empty core, random orientation each launch).
+- **Thirty presets to load on any channel.** The four mixer-friendly ones above, plus six
+  wilder, stylistically distinct ones (**`inferno`** fire, **`matrix`** digital rain,
+  **`plasma`** colour field, **`siren`** alarm strobe, **`spiral`** growing double-helix,
+  **`vortex`** black hole), **plus 20 more 3-D effects** (all of `docs/effect-ideas.md`, now
+  implemented): cellular automata (**`life`**), reaction-diffusion (**`reaction`**), boids
+  (**`flock`**), DLA (**`crystal`**), fractals (**`clouds`**, **`menger`**, **`bulb`**),
+  geometric (**`slice`**, **`sphere`**, **`knot`**, **`icosa`**), structure-aware
+  (**`snake`** edge-walk, **`lacing`** corner triangles, **`arc`** edge-lightning,
+  **`current`**, **`sun`** normal-shading), and physical (**`ripple`**, **`aurora`**,
+  **`accretion`**, **`dipole`**).
 - **Distinct pad triggers per program.** Each preset defines its own four pad triggers from a
   varied vocabulary — coloured stabs, **shockwaves**, **comets**, **lightning**, **wipes**,
   **confetti**, risers, sparkles — so every channel's pads do something genuinely different.
   Triggers are either **fire** (one-shot) or **hold** (sustain while the pad is held — e.g.
   hold-to-strobe on `strobe`/`siren`, hold-to-swell on `deep`).
 
-See [`docs/effect-ideas.md`](docs/effect-ideas.md) for the design brainstorm of 20 more 3-D
-effects (cellular automata, fractals, structure-aware truss effects, …) with a self-critique.
+See [`docs/effect-ideas.md`](docs/effect-ideas.md) for the design brainstorm + self-critique
+behind those 20 effects (now all implemented in `visuals/engine/effects.py`).
 - **Knob soft-takeover.** Each channel keeps its own knob values; switching channels never
   jumps a param. A knob re-takes control only once you turn it *through* the channel's stored
   value (the panel shows a blue pick-up dot and ghosts the needle until it engages) — so it
@@ -281,8 +284,9 @@ cube_dance/
   audio/            file decode + live input (ring buffer), streaming analyzer + AGC,
                     event detection, transport — all behind one window_at(t, win) contract
   visuals/          VU + placeholder + params; engine/ (elements, evolution, deck mixer)
-  presets/          Python presets: build(engine) + KNOBS/TRIGGERS (10: deep, punchy,
-                    minimal, strobe, inferno, matrix, plasma, siren, spiral, vortex)
+  visuals/engine/effects.py  the 20 new 3-D effect elements (sims, fractals, geometric,
+                    structure-aware, physical) from docs/effect-ideas.md
+  presets/          Python presets: build(engine) + KNOBS/TRIGGERS (30 total)
   control/          F1 control state, control->param mapping, basic MIDI input
   render/virtual_f1.py   interactive on-screen F1 panel (knobs/faders/buttons/display/pads)
   recording.py      live-session capture -> shareable MP4 (ffmpeg)
