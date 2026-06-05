@@ -43,7 +43,15 @@ a VJ mixer, then perform on top with per-channel pad triggers and per-preset kno
 
 - **Faders = channel volumes.** Channels 1–4 default to `deep`, `punchy`, `minimal`,
   `strobe` (only channel 1 up at launch). Push a fader to fade its preset in.
-- **Thirty presets to load on any channel.** The four mixer-friendly ones above, plus six
+- **52 presets to load on any channel.** A second batch (`docs/effect-ideas-2.md`) adds 10
+  grounded in famous visualisations — **`scope`** (oscilloscope/Lissajous, the waveform draws
+  the shape), **`waterfall`** (falling spectrogram), **`feedback`** (MilkDrop spirals),
+  **`radial`** (Monstercat EQ), **`magneto`** (iTunes particle bloom), **`cymatics`** (Chladni
+  nodes), **`tunnel`**, **`larson`** (Knight Rider sweep), **`blinder`** (festival strobe),
+  **`panels`** (pyramid chevrons) — and 10 truss-aware: **`beambars`**, **`lacingwave`**,
+  **`impulse`**, **`facespin`**, **`barberpole`**, **`build`**, **`rings`**, **`drip`**,
+  **`diagonal`**, **`modal`**. Earlier batch:
+- The four mixer-friendly ones above, plus six
   wilder, stylistically distinct ones (**`inferno`** fire, **`matrix`** digital rain,
   **`plasma`** colour field, **`siren`** alarm strobe, **`spiral`** growing double-helix,
   **`vortex`** black hole), **plus 20 more 3-D effects** (all of `docs/effect-ideas.md`, now

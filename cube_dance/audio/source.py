@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import threading
 
+import numpy as np
+
 from .analysis import SpectrumAnalyzer
 from .events import EventDetector
 from .file import AudioFile
@@ -65,6 +67,13 @@ class AudioSource:
         window = self.audio.window_at(self.position, self.analyzer.win)
         feats = self.processor.process(window, dt)
         feats.events, feats.beat = self.events.process(window, dt)
+        w = np.asarray(window, dtype=np.float32)  # short stereo waveform for oscilloscope visuals
+        if w.ndim == 1:
+            w = w[:, None]
+        if w.shape[1] == 1:
+            w = np.repeat(w, 2, axis=1)
+        step = max(1, w.shape[0] // 192)
+        feats.wave = w[::step, :2][:192]
         return feats
 
     # --- Lifecycle / transport ----------------------------------------------

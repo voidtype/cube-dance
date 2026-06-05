@@ -18,6 +18,10 @@ PRESET_ORDER = (
     "icosa", "snake", "lacing", "arc", "current", "sun", "ripple", "aurora", "accretion", "dipole",
     # 3-D Mandelbrot cousin + 4-D projection (spectrum-navigated)
     "mandelbox", "hypercube",
+    # round 2 — famous-visualisation-inspired (docs/effect-ideas-2.md, part A)
+    "scope", "waterfall", "feedback", "radial", "magneto", "cymatics", "tunnel", "larson", "blinder", "panels",
+    # round 2 — truss-structure-aware (part B)
+    "beambars", "lacingwave", "impulse", "facespin", "barberpole", "build", "rings", "drip", "diagonal", "modal",
 )
 BUILTINS = PRESET_ORDER
 

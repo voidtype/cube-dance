@@ -29,6 +29,7 @@ class Features:
     buckets_r: Optional[np.ndarray] = None
     events: Optional[list] = None  # classified onset Events this frame (kick/hat/snare/perc)
     beat: float = 0.0  # rough beat phase 0..1
+    wave: Optional[np.ndarray] = None  # short downsampled (m, 2) stereo waveform (for scopes)
 
 
 @runtime_checkable
