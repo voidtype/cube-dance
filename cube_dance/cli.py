@@ -53,6 +53,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Visual: spectrum (preset-driven element engine), vu (Phase-1 meter), or auto.",
     )
     p.add_argument("--preset", default="deep", help="Visual preset for the element engine (e.g. deep, punchy).")
+    p.add_argument(
+        "--set", dest="show", default=None, metavar="NAME",
+        help="Run an autonomous SHOW that performs a whole night on its own (e.g. 'dustlight', the "
+             "DUSTLIGHT rave arc: dusk Arrival → Peak → Deep Trip → Sunrise). Open the F1 panel to take over.",
+    )
+    p.add_argument(
+        "--set-minutes", dest="show_minutes", type=float, default=2.5,
+        help="Compress the show's whole night into this many minutes, then loop (default 2.5).",
+    )
     p.add_argument("--record", action="store_true", help="Start recording an MP4 at launch (V toggles; stops on quit).")
     p.add_argument("--record-fps", type=int, default=30, help="Recording framerate (default 30).")
     p.add_argument("--record-dir", type=str, default="recordings", help="Output folder for recordings.")
@@ -157,8 +166,8 @@ def main(argv: list[str] | None = None) -> int:
 
     run(
         config_overrides=overrides, extra_args=extra, audio_file=audio_file, mute=ns.mute, loop=loop,
-        visual_choice=ns.visual, preset=ns.preset, record_auto=ns.record, record_fps=ns.record_fps,
-        record_dir=ns.record_dir,
+        visual_choice=ns.visual, preset=ns.preset, show=ns.show, show_minutes=ns.show_minutes,
+        record_auto=ns.record, record_fps=ns.record_fps, record_dir=ns.record_dir,
     )
     return 0
 

@@ -22,6 +22,8 @@ PRESET_ORDER = (
     "scope", "waterfall", "feedback", "radial", "magneto", "cymatics", "tunnel", "larson", "blinder", "panels",
     # round 2 — truss-structure-aware (part B)
     "beambars", "lacingwave", "impulse", "facespin", "barberpole", "build", "rings", "drip", "diagonal", "modal",
+    # DUSTLIGHT — the rave show signature presets (docs/the-rave.md)
+    "ember", "dust", "monolith", "sunrise",
 )
 BUILTINS = PRESET_ORDER
 

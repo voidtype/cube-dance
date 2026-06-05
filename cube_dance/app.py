@@ -26,6 +26,7 @@ from .render.scene import CubeScene
 from .render.virtual_f1 import VirtualF1
 from .visuals import Features, PlaceholderVisual, VuMeter
 from .visuals.engine.mixer import DeckMixer
+from .show import RaveShow, build_show
 from .visuals.params import VisualParams
 from . import presets
 
@@ -66,6 +67,8 @@ class CubeWindow(mglw.WindowConfig):
     loop: bool = False
     visual_choice: str = "auto"
     preset: str = "deep"
+    show_name: str | None = None  # autonomous show to run (e.g. "dustlight")
+    show_minutes: float = 2.5  # compress the whole night into this many minutes (loops)
     record_auto: bool = False
     record_fps: int = 30
     record_dir: str = "recordings"
@@ -119,6 +122,20 @@ class CubeWindow(mglw.WindowConfig):
             self.audio.start()
         else:
             self.visual, self.visual_name = PlaceholderVisual(), "placeholder"
+
+        # Autonomous show (--set): a director that performs a whole night by
+        # crossfading the mixer decks. Suspended while the F1 panel is open so
+        # the operator can take over, then resumes from its frozen clock.
+        self.show = None
+        self._show_time = 0.0
+        self._show_act = ""
+        if type(self).show_name and isinstance(self.visual, DeckMixer):
+            try:
+                self.show = build_show(self.visual, type(self).show_name, type(self).show_minutes)
+                print(f"Show: {type(self).show_name!r} — {len(self.show.acts)} acts over "
+                      f"{type(self).show_minutes:g} min (press C to open the F1 panel and take over)")
+            except ValueError as exc:
+                print(f"[show] {exc}")
 
         self.recorder = SessionRecorder(
             self.audio, loop=type(self).loop, fps=type(self).record_fps, outdir=type(self).record_dir
@@ -178,6 +195,9 @@ class CubeWindow(mglw.WindowConfig):
         if isinstance(self.visual, DeckMixer):
             f = int(self.controls.focus_deck) % self.visual.n_decks
             tag = f"mixer · deck {f + 1}:{self.visual.preset_name[f]}"
+        if self.show is not None:
+            steer = "  (F1: you steer)" if self.show_controls else ""
+            tag = f"♪ DUSTLIGHT · {self._show_act or self.show.act_at(self._show_time).name}{steer}"
         if getattr(self.audio, "_is_live", False):
             return f"● LIVE   {_fmt_time(self.audio.position)}   · {tag}"
         state = "PLAYING" if self.audio.playing else "PAUSED"
@@ -365,6 +385,17 @@ class CubeWindow(mglw.WindowConfig):
                 self._pattern_time += frame_time
             t = self._pattern_time
             features = Features()
+        # Autonomous show drives the mixer (deck presets/volumes/intensity). It
+        # is suspended while the F1 panel is up, so opening the panel hands the
+        # night to the operator; the clock freezes and resumes when it closes.
+        if self.show is not None and not self.show_controls:
+            if not self.paused:
+                self._show_time += frame_time
+            act = self.show.apply(self._show_time)
+            if act.name != self._show_act:
+                self._show_act = act.name
+                print(f"[show] {act.clock:>7}  {act.name} — {act.note}")
+                self._refresh_hud()
         self.visual.update(self.model, t, features)
         self._decay_pad_glow(frame_time)
         self.scene.update_colors()
@@ -543,6 +574,8 @@ def run(
     loop: bool = False,
     visual_choice: str = "auto",
     preset: str = "deep",
+    show: str | None = None,
+    show_minutes: float = 2.5,
     record_auto: bool = False,
     record_fps: int = 30,
     record_dir: str = "recordings",
@@ -554,6 +587,8 @@ def run(
     CubeWindow.loop = loop
     CubeWindow.visual_choice = visual_choice
     CubeWindow.preset = preset
+    CubeWindow.show_name = show
+    CubeWindow.show_minutes = show_minutes
     CubeWindow.record_auto = record_auto
     CubeWindow.record_fps = record_fps
     CubeWindow.record_dir = record_dir

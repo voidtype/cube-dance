@@ -520,3 +520,58 @@ class ModalResonance(Element):
         shape = np.sin(m * self.u[:, 0]) * np.sin(m * self.u[:, 1]) * np.sin(m * self.u[:, 2])
         val = (np.abs(shape) * amp * (0.5 + 0.6 * ctx.energy)).astype(np.float32)
         out += hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, ctx.sat(self.sat), val)
+
+
+# ============================ DUSTLIGHT signature ===========================
+
+class DriftMotes(Element):
+    """Warm embers / fireflies drifting up through the cube, twinkling — the bush at night."""
+
+    blend = "add"
+    _rng = np.random.default_rng()
+
+    def __init__(self, model, n=42, hue=0.08, sat=0.8, width=0.12):
+        self.pos = ((self._rng.random((n, 3)) * 2 - 1) * 0.9).astype(np.float32)
+        self.phase = (self._rng.random(n) * 6.283).astype(np.float32)
+        self.drift = ((self._rng.random((n, 2)) * 2 - 1) * 0.08).astype(np.float32)
+        self.P = _pn(model)
+        self.hue, self.sat, self.width = hue, sat, width
+
+    def apply(self, ctx, out):
+        dt = min(ctx.dt, 0.05)
+        self.pos[:, 1] += (0.12 + 0.25 * ctx.energy) * dt          # rise
+        self.pos[:, 0] += (self.drift[:, 0] + 0.05 * np.sin(ctx.t * 0.7 + self.phase)) * dt
+        self.pos[:, 2] += self.drift[:, 1] * dt
+        top = self.pos[:, 1] > 1.1                                  # recycle at the top
+        k = int(top.sum())
+        if k:
+            self.pos[top, 1] = -1.1
+            self.pos[top, 0] = (self._rng.random(k) * 2 - 1) * 0.9
+            self.pos[top, 2] = (self._rng.random(k) * 2 - 1) * 0.9
+        tw = 0.45 + 0.55 * np.sin(ctx.t * 3.0 + self.phase)         # twinkle
+        dx = self.P[:, 0, None] - self.pos[:, 0][None, :]
+        dy = self.P[:, 1, None] - self.pos[:, 1][None, :]
+        dz = self.P[:, 2, None] - self.pos[:, 2][None, :]
+        glow = (np.exp(-(dx * dx + dy * dy + dz * dz) / (self.width * self.width)) * tw[None, :]).max(1)
+        out += hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, ctx.sat(self.sat),
+                          (glow * (0.4 + 0.5 * ctx.energy)).astype(np.float32))
+
+
+class Sunrise(Element):
+    """A dawn gradient: a horizon line rises (gold below, indigo above) and blooms — the sunrise."""
+
+    blend = "add"
+
+    def __init__(self, model, sat=0.85):
+        self.hy = _hy(model)
+        self.sat = sat
+        self._t = 0.0
+
+    def apply(self, ctx, out):
+        self._t += ctx.dt * 0.05
+        sun = float(np.clip(0.15 + 0.55 * ctx.energy + 0.25 * math.sin(self._t), 0.0, 1.0))  # rising horizon
+        glow = np.exp(-((self.hy - sun) * 2.6) ** 2)                     # bright band at the line
+        warm = np.clip((sun - self.hy) * 1.5, 0, 1)                      # gold wash below
+        hue = (0.05 + 0.62 * np.clip((self.hy - sun) * 0.9 + 0.45, 0, 1)).astype(np.float32)  # gold -> indigo
+        val = np.clip(0.18 + 0.75 * glow + 0.45 * warm, 0, 1) * (0.4 + 0.7 * ctx.energy)
+        out += hsv_to_rgb(hue, ctx.sat(self.sat), val.astype(np.float32))
