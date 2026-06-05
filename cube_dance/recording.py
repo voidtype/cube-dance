@@ -115,6 +115,10 @@ class SessionRecorder:
         self._start_wall = now if now is not None else time.time()
         self._start_pos = self.audio_source.position if self.audio_source is not None else 0.0
         self._frame_index = 0
+        if self.audio_source is not None:  # tap a live input so it's captured into the clip
+            rec = getattr(self.audio_source.audio, "start_record", None)
+            if rec is not None:
+                rec()
 
     def frames_due(self, now: float) -> int:
         """How many frames to write *now* to keep the video at real-time.
@@ -168,14 +172,24 @@ class SessionRecorder:
         if not (tmp_video and os.path.exists(tmp_video)):
             return None
 
-        live = self.audio_source is not None and getattr(self.audio_source.audio, "is_live", False)
-        if self.audio_source is not None and not live and self.audio_source.audio.duration > 0:
+        # Resolve the audio to mux: the captured live input if live, else the file
+        # segment that played. Either way it's an (m, channels) array + a sample rate.
+        seg = None
+        sr = 0
+        audio = self.audio_source.audio if self.audio_source is not None else None
+        if audio is not None and getattr(audio, "is_live", False) and hasattr(audio, "stop_record"):
+            cap = audio.stop_record()
+            if cap is not None and len(cap) > 0:
+                seg, sr = cap, int(audio.sr)
+        elif audio is not None and getattr(audio, "duration", 0) > 0:
+            seg, sr = audio_segment(audio, self._start_pos, video_dur, self.loop), int(audio.sr)
+
+        if seg is not None and sr:
             try:
                 import soundfile as sf
 
-                seg = audio_segment(self.audio_source.audio, self._start_pos, video_dur, self.loop)
                 tmp_wav = final + ".audio.wav"
-                sf.write(tmp_wav, seg, self.audio_source.audio.sr)
+                sf.write(tmp_wav, seg, sr)
                 ff = find_ffmpeg()
                 subprocess.run(
                     [ff, "-y", "-i", tmp_video, "-i", tmp_wav, "-c:v", "copy",

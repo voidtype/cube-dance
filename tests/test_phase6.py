@@ -48,6 +48,19 @@ def test_front_pad_when_underfilled():
     assert np.allclose(w[-5:], 3.0) and np.allclose(w[:-5], 0.0)
 
 
+def test_live_input_records_captured_audio():
+    live = LiveAudioInput(sr=1000, buffer_seconds=0.5)
+    live.start_record()
+    live._write(np.full((100, 2), 0.3, np.float32))
+    live._write(np.full((50, 2), 0.5, np.float32))
+    seg = live.stop_record()
+    assert seg.shape == (150, 2)
+    assert np.allclose(seg[:100], 0.3) and np.allclose(seg[100:], 0.5)
+    # after stop, nothing further is captured
+    live._write(np.ones((10, 2), np.float32))
+    assert live.stop_record().shape[0] == 0
+
+
 def test_audiosource_live_mode():
     live = LiveAudioInput(sr=44100, buffer_seconds=1.0)
     src = AudioSource(live, mute=True)

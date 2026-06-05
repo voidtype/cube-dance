@@ -52,6 +52,7 @@ class LiveAudioInput:
         self.duration = float(buffer_seconds)  # rolling window length (no real length)
         self.active = False
         self.error: str | None = None
+        self._rec: list | None = None  # while recording: accumulates every captured block
 
     @staticmethod
     def _query_default_sr(device) -> int:
@@ -123,6 +124,8 @@ class LiveAudioInput:
                 self._buf[w:] = x[:first]
                 self._buf[: n - first] = x[first:]
             self._w = (w + n) % self.cap
+            if self._rec is not None:  # tap the full stream while recording
+                self._rec.append(x.copy())
 
     # --- Windowed access (same contract as AudioFile) ------------------------
     def window_at(self, t: float, win: int) -> np.ndarray:
@@ -145,3 +148,16 @@ class LiveAudioInput:
     def level_at(self, t: float, win: int = 2048) -> float:
         w = self.window_at(t, win)
         return float(min(1.0, np.sqrt(np.mean(w.mean(axis=1) ** 2))))
+
+    # --- Recording tap (for capturing the live input into a video) -----------
+    def start_record(self) -> None:
+        """Begin accumulating every captured block (for muxing into a recording)."""
+        with self._lock:
+            self._rec = []
+
+    def stop_record(self) -> np.ndarray:
+        """Stop accumulating and return the captured ``(m, 2)`` samples."""
+        with self._lock:
+            chunks = self._rec or []
+            self._rec = None
+        return np.concatenate(chunks, axis=0) if chunks else np.zeros((0, self.channels), np.float32)

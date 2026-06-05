@@ -32,7 +32,8 @@ uv run cube-dance --live --input-gain 1.5              # boost a quiet line
   can't seek a live feed), and it never "ends".
 - On macOS the first run may ask for **microphone permission**; a virtual loopback (e.g.
   *Background Music*) or an interface input (e.g. *Volt*) captures the music without a mic.
-- Recording (`V`) in live mode is **video-only** for now (no file to mux).
+- Recording (`V`) in live mode now **captures the live input audio** and muxes it into
+  the clip (the recorder taps the input stream while recording).
 
 ## Status: Phase 5 — the F1 as a performance instrument
 
