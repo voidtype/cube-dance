@@ -36,15 +36,17 @@ def _fmt_time(seconds: float) -> str:
     return f"{seconds // 60}:{seconds % 60:02d}"
 
 
-def _control_lines(mode: str, paused: bool, audio_line: str | None = None) -> list[str]:
+def _control_lines(mode: str, paused: bool, audio_line: str | None = None,
+                   mouse_capture: bool = False) -> list[str]:
     common = [
-        "Tab  switch nav mode    H  hide help    C  controls",
+        "Tab  switch nav mode    M  free-look    H  hide help    C  controls",
         "R  reset view    V  record    Esc  quit",
     ]
     if mode == "orbit":
         head = ["NAV: ORBIT (3D-editor)", "Left-drag orbit | Shift/right-drag pan | Scroll zoom"]
     else:
-        head = ["NAV: FLY (FPS)", "WASD move | mouse look | Space/E up | Ctrl/Q down | Shift fast | Scroll speed"]
+        look = "mouse look (M to free cursor)" if mouse_capture else "drag to look (M for free-look)"
+        head = ["NAV: FLY (FPS)", f"WASD move | {look} | Space/E up | Ctrl/Q down | Shift fast | Scroll speed"]
     if audio_line is not None:
         head.append(audio_line)
     elif paused:
@@ -150,10 +152,10 @@ class CubeWindow(mglw.WindowConfig):
         self.fly = FlyCamera(fovy_deg=fovy)
         self.fly.set_from_orbit(self.orbit)
         self.mode = "fly"  # WASD by default
-        try:
-            self.wnd.mouse_exclusivity = True  # capture mouse for fly-look
-        except Exception:
-            pass
+        # Never grab the cursor on launch — drag-to-look is the default in fly
+        # mode. Free-look (cursor capture) is opt-in via the M key.
+        self._mouse_capture = False
+        self._apply_mouse_capture()
 
         w, h = self.wnd.buffer_size
         self._set_aspect(w, h)
@@ -172,7 +174,7 @@ class CubeWindow(mglw.WindowConfig):
 
         self._refresh_hud()
         print(f"Cube Dance — visual: {self.visual_name}")
-        print("\n".join(_control_lines(self.mode, self.paused, self._audio_line())))
+        print("\n".join(_control_lines(self.mode, self.paused, self._audio_line(), self._mouse_capture)))
         print(f"Cube model: {self.model.n} LED pixels "
               f"({int(self.model.edge_mask.sum())} edge, {int(self.model.corner_mask.sum())} corner)")
 
@@ -214,7 +216,7 @@ class CubeWindow(mglw.WindowConfig):
     def _refresh_hud(self) -> None:
         rec = self._rec_line()
         if self.show_help:
-            lines = _control_lines(self.mode, self.paused, self._audio_line())
+            lines = _control_lines(self.mode, self.paused, self._audio_line(), self._mouse_capture)
         else:
             lines = []  # help hidden, but still surface the REC indicator
         if rec:
@@ -237,21 +239,29 @@ class CubeWindow(mglw.WindowConfig):
                 print(f"[rec] recording -> {self.recorder._final}")
         self._refresh_hud()
 
+    def _apply_mouse_capture(self) -> None:
+        """Capture (hide/lock) the cursor only when the user opted into free-look
+        (M) AND is fly-looking with no panel up. Off otherwise, so the app never
+        steals the mouse — you keep a normal cursor and drag to look around."""
+        want = self._mouse_capture and self.mode == "fly" and not self.show_controls
+        try:
+            self.wnd.mouse_exclusivity = bool(want)
+        except Exception:
+            pass
+
+    def _toggle_mouse_capture(self) -> None:
+        self._mouse_capture = not self._mouse_capture
+        self._apply_mouse_capture()
+        self._refresh_hud()
+
     def _toggle_mode(self) -> None:
         if self.mode == "orbit":
             self.fly.set_from_orbit(self.orbit)
             self.mode = "fly"
-            try:
-                self.wnd.mouse_exclusivity = True
-            except Exception:
-                pass
         else:
             self.orbit.set_from_eye_forward(self.fly.position, self.fly.forward())
             self.mode = "orbit"
-            try:
-                self.wnd.mouse_exclusivity = False
-            except Exception:
-                pass
+        self._apply_mouse_capture()
         self._refresh_hud()
 
     def _reset_pickup(self) -> None:
@@ -358,15 +368,7 @@ class CubeWindow(mglw.WindowConfig):
         self.show_controls = not self.show_controls
         if self.show_controls:
             self.f1.mark_dirty()
-            try:
-                self.wnd.mouse_exclusivity = False  # release the cursor to drive the panel
-            except Exception:
-                pass
-        elif self.mode == "fly":
-            try:
-                self.wnd.mouse_exclusivity = True  # recapture for fly-look
-            except Exception:
-                pass
+        self._apply_mouse_capture()  # release while the panel is up; restore after
 
     # --- Render loop ---------------------------------------------------------
     def on_render(self, render_time: float, frame_time: float) -> None:
@@ -489,6 +491,8 @@ class CubeWindow(mglw.WindowConfig):
                 self.wnd.close()
             elif key == keys.TAB:
                 self._toggle_mode()
+            elif key == keys.M:
+                self._toggle_mouse_capture()
             elif key == keys.H:
                 self.show_help = not self.show_help
                 self._refresh_hud()
