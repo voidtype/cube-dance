@@ -156,6 +156,19 @@ def test_mixer_hold_trigger_flag_and_fire_returns_element():
     assert el is not None and hasattr(el, "release")
 
 
+def test_encoder_wraps_modulo_preset_count():
+    from cube_dance.control import ControlState
+
+    n = len(presets.PRESET_ORDER)
+    s = ControlState()
+    s.p_mod = n  # the app sets this to the preset count
+    s.p = 0
+    s.step_encoder(-1)
+    assert s.p == n - 1  # scrolling down through 0 -> the LAST preset (not 9)
+    s.step_encoder(1)
+    assert s.p == 0  # and back up to the first
+
+
 def test_blackout_kills_output():
     mx = DeckMixer(MODEL, n_buckets=8)
     mx.volumes = [0.9, 0, 0, 0]

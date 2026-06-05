@@ -248,6 +248,7 @@ class CubeWindow(mglw.WindowConfig):
         c = self.controls
         order = list(presets.PRESET_ORDER)
         n = len(order)
+        c.p_mod = n  # encoder wraps modulo the preset count (clean wrap in both directions)
         mx.volumes = list(c.faders)
         focus = int(c.focus_deck) % mx.n_decks
 
@@ -330,7 +331,7 @@ class CubeWindow(mglw.WindowConfig):
     def _bump_focus_preset(self) -> None:
         """Keyboard `N`: advance the selected deck's preset (same as the encoder)."""
         if isinstance(self.visual, DeckMixer):
-            self.controls.p = self.controls.p + 1
+            self.controls.p = (self.controls.p + 1) % len(presets.PRESET_ORDER)
             self.f1.mark_dirty()
 
     def _toggle_controls(self) -> None:

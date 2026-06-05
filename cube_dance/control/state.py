@@ -21,6 +21,7 @@ class ControlState:
     faders: list[float] = field(default_factory=lambda: [0.85, 0.0, 0.0, 0.0])
     buttons: dict[str, bool] = field(default_factory=lambda: {b: False for b in BUTTONS})
     p: int = 0  # 2-digit display value (Phase 5: the focused deck's preset index)
+    p_mod: int = 100  # encoder wrap (the app sets this to the preset count so it wraps cleanly)
     focus_deck: int = 0  # selected channel/deck (bottom-row button or fader touch)
     pads: list[bool] = field(default_factory=lambda: [False] * 16)
     pad_glow: list[float] = field(default_factory=lambda: [0.0] * 16)  # UI glow per pad
@@ -29,7 +30,7 @@ class ControlState:
     pad_release: list[tuple[int, int]] = field(default_factory=list)  # for hold triggers
 
     def step_encoder(self, delta: int) -> None:
-        self.p = (self.p + int(delta)) % 100
+        self.p = (self.p + int(delta)) % max(1, self.p_mod)
 
     def toggle(self, name: str) -> None:
         if name in self.buttons:

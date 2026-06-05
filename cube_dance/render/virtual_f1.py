@@ -162,7 +162,7 @@ class VirtualF1:
             state.faders[i] = float(np.clip((bot - iy) / (bot - top), 0.0, 1.0))
         elif kind == "encoder":  # drag up to advance the preset
             steps = int(round((start_iy - iy) / 12.0))
-            state.p = (int(start_val) + steps) % 100
+            state.p = (int(start_val) + steps) % max(1, state.p_mod)
         self._dirty = True
         return True
 
