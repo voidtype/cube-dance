@@ -365,13 +365,13 @@ class PlatonicSolid(Element):
 # --- D. Structure-aware (edges, corners, normals) ---------------------------
 
 class EdgeSnake(Element):
-    """A light that walks the cube's edge graph, turning onto a connected edge at
-    each corner (a Tron light-cycle on the truss) and leaving a fading trail.
+    """A dot that traces the truss lines at a CONSTANT rate, turning onto a connected
+    edge at each corner — a pen drawing the cube.
 
-    Uses the real adjacency: each edge's two ends map to one of the 8 cube corners
-    (by sign of position), and three edges meet at every corner — so when the head
-    reaches a corner it picks one of the *other* edges there and carries on. The
-    corner's own LED cluster lights as it passes, so it flows through the joint.
+    The head moves through *world space* at a fixed speed along each edge's polyline
+    (plus the short bridge through the shared corner point), and only the few LEDs
+    near the head light, with a fading trail. So it draws the lines smoothly: no
+    corner flood, and the corner gap is crossed at the same speed (no teleport).
     """
 
     blend = "add"
@@ -381,55 +381,58 @@ class EdgeSnake(Element):
     def _corner(pos) -> int:
         return int(pos[0] > 0) * 4 + int(pos[1] > 0) * 2 + int(pos[2] > 0)
 
-    def __init__(self, model, hue: float = 0.33, sat: float = 0.95, head: float = 0.13,
-                 speed: float = 1.1, release: float = 0.85):
+    def __init__(self, model, hue: float = 0.33, sat: float = 0.95, radius: float = 0.09,
+                 speed: float = 1.3, release: float = 0.7):
+        self.pos = model.positions.astype(np.float32)
+        half = float(model.cfg.half)
+        corner_pos = {cid: np.array([(half if (cid >> b) & 1 else -half) for b in (2, 1, 0)], np.float32)
+                      for cid in range(8)}
         eidx = np.where(model.edge_mask)[0]
         eid = model.element_id[eidx]
-        self.edges = []  # per edge: led idx (sorted by param), params, corner at each end
-        for e in np.unique(eid):
-            sel = eidx[eid == e]
-            order = np.argsort(model.param[sel])
-            sel = sel[order]
-            par = model.param[sel].astype(np.float32)
-            c0 = self._corner(model.positions[sel[0]])
-            c1 = self._corner(model.positions[sel[-1]])
-            self.edges.append({"idx": sel, "par": par, "c": (c0, c1)})
-        # corner -> list of (edge, end) meeting there
+        self.edges = []  # per edge: world polyline (corner..LEDs..corner) + arc lengths + corners
         self.by_corner: dict[int, list] = {}
-        for ei, ed in enumerate(self.edges):
-            for end in (0, 1):
-                self.by_corner.setdefault(ed["c"][end], []).append((ei, end))
-        # corner cluster LEDs grouped by corner (to bridge the joint as the snake passes)
-        ci = np.where(model.corner_mask)[0]
-        cids = np.array([self._corner(p) for p in model.positions[ci]])
-        self.corner_leds = {c: ci[cids == c] for c in range(8)}
-        self.hue, self.sat, self.head, self.speed, self.release = hue, sat, head, speed, release
+        for ei, e in enumerate(np.unique(eid)):
+            sel = eidx[eid == e]
+            sel = sel[np.argsort(model.param[sel])]
+            led = model.positions[sel].astype(np.float32)
+            c0, c1 = self._corner(led[0]), self._corner(led[-1])
+            aug = np.vstack([corner_pos[c0], led, corner_pos[c1]]).astype(np.float32)  # bridge corners
+            cum = np.concatenate([[0.0], np.cumsum(np.sqrt(((aug[1:] - aug[:-1]) ** 2).sum(1)))]).astype(np.float32)
+            self.edges.append({"aug": aug, "cum": cum, "total": float(cum[-1]), "c": (c0, c1)})
+            self.by_corner.setdefault(c0, []).append((ei, 0))
+            self.by_corner.setdefault(c1, []).append((ei, 1))
+        self.hue, self.sat, self.radius, self.speed, self.release = hue, sat, radius, speed, release
         self.bright = np.zeros(model.n, np.float32)
-        self.cur, self.hp, self.dir = 0, 0.0, 1.0
+        self.cur, self.entry, self.a = 0, 0, 0.0  # edge, which end we entered from, arc travelled
 
-    def _turn(self, end: int) -> None:
-        corner = self.edges[self.cur]["c"][end]
-        self.bright[self.corner_leds.get(corner, [])] = 1.0  # flow through the joint
-        nbrs = [x for x in self.by_corner.get(corner, []) if x != (self.cur, end)]
+    def _head(self) -> np.ndarray:
+        ed = self.edges[self.cur]
+        arc = self.a if self.entry == 0 else ed["total"] - self.a
+        aug, cum = ed["aug"], ed["cum"]
+        return np.array([np.interp(arc, cum, aug[:, k]) for k in range(3)], np.float32)
+
+    def _turn(self) -> None:
+        exit_end = 1 - self.entry
+        corner = self.edges[self.cur]["c"][exit_end]
+        nbrs = [x for x in self.by_corner.get(corner, []) if x != (self.cur, exit_end)]
         if not nbrs:
-            self.dir = -self.dir
+            self.entry = exit_end  # dead end -> reverse back along this edge
             return
-        ej, endj = nbrs[int(self._rng.integers(len(nbrs)))]
-        self.cur = ej
-        self.hp, self.dir = (0.0, 1.0) if endj == 0 else (1.0, -1.0)
+        self.cur, self.entry = nbrs[int(self._rng.integers(len(nbrs)))]
 
     def apply(self, ctx: Context, out: np.ndarray) -> None:
         if ctx.dt > 0:
             self.bright *= math.exp(-ctx.dt / self.release)
-        self.hp += self.dir * self.speed * (0.4 + 1.1 * ctx.energy) * ctx.dt
-        if self.hp > 1.0:
-            self.hp = 1.0
-            self._turn(1)
-        elif self.hp < 0.0:
-            self.hp = 0.0
-            self._turn(0)
-        ed = self.edges[self.cur]
-        self.bright[ed["idx"][np.abs(ed["par"] - self.hp) < self.head]] = 1.0
+        self.a += self.speed * (0.4 + 1.0 * ctx.energy) * ctx.dt
+        for _ in range(8):  # carry across corner(s) at constant speed
+            tot = self.edges[self.cur]["total"]
+            if self.a < tot:
+                break
+            self.a -= tot
+            self._turn()
+        h = self._head()
+        d2 = ((self.pos - h) ** 2).sum(1)
+        self.bright = np.maximum(self.bright, np.exp(-d2 / (self.radius * self.radius)).astype(np.float32))
         lit = self.bright > 0.01
         rgb = np.asarray(hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, ctx.sat(self.sat), 1.0), np.float32)
         out[lit] += self.bright[lit][:, None] * rgb[None, :]
