@@ -451,6 +451,7 @@ class GravityDrip(Element):
         self.cols = np.unique(self.col)
         self.hue, self.sat = hue, sat
         self.dy = np.full(len(self.cols), 2.0, np.float32)  # drop height per column (>1 inactive)
+        self.dy[: min(4, len(self.cols))] = np.linspace(1.0, 0.5, min(4, len(self.cols)), dtype=np.float32)
         self.vy = np.zeros(len(self.cols), np.float32)
         self.pool = 0.0
         self._cidx = {c: i for i, c in enumerate(self.cols)}
