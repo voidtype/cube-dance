@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DUSTLIGHT · the cube into 2027 · for Luke</title>
+<meta name="description" content="A pitch for Luke: the system that sends his cube into 2027. New Year's Eve, the Monolith, dusk to sunrise.">
+<style>
+  :root{
+    --bg:#04050a; --bg2:#070912; --ink:#eaeef8; --dim:#8a93a9; --faint:#525c73;
+    --moon:#9ec5ff; --moon2:#cfe5ff; --teal:#86e3d8;
+    --gold:#ffce8a; --amber:#ff9e4d; --copper:#e07a3a;
+    --serif:"Hoefler Text",Georgia,"Times New Roman",ui-serif,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Segoe UI",system-ui,sans-serif;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    --accent:var(--moon);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--sans);
+    -webkit-font-smoothing:antialiased; line-height:1.5; overflow-x:hidden;
+  }
+  body.revealed{--accent:var(--gold)}
+  ::selection{background:var(--accent);color:#04050a}
+
+  /* scroll progress + state */
+  #progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:90;
+    background:linear-gradient(90deg,var(--moon),var(--teal));transition:width .12s linear,background .8s}
+  body.revealed #progress{background:linear-gradient(90deg,var(--amber),var(--gold))}
+
+  /* begin gate */
+  #gate{position:fixed;inset:0;z-index:100;background:radial-gradient(120% 90% at 50% 40%,#0a0d18 0%,#04050a 70%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    transition:opacity 1.1s ease,visibility 1.1s;padding:24px}
+  #gate.gone{opacity:0;visibility:hidden}
+  #gate .mark{font:600 13px/1 var(--sans);letter-spacing:.42em;color:var(--moon);opacity:.8;margin-bottom:30px}
+  #gate h1{font-family:var(--serif);font-weight:500;font-size:clamp(48px,11vw,128px);letter-spacing:-.02em;
+    line-height:.95;background:linear-gradient(180deg,#fff,#9fb2d6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #gate p{color:var(--dim);max-width:30ch;margin:22px auto 0;font-size:16px}
+  #begin{margin-top:42px;display:inline-flex;align-items:center;gap:12px;cursor:pointer;
+    font:600 15px/1 var(--sans);letter-spacing:.04em;color:#04050a;background:var(--moon2);
+    border:0;border-radius:999px;padding:16px 30px;transition:transform .3s,box-shadow .3s,background .3s;
+    box-shadow:0 0 0 0 rgba(158,197,255,.5)}
+  #begin:hover{transform:translateY(-2px);box-shadow:0 14px 50px -10px rgba(158,197,255,.6)}
+  #begin .tri{width:0;height:0;border-left:11px solid #04050a;border-top:7px solid transparent;border-bottom:7px solid transparent}
+  #gate .foot{margin-top:34px;color:var(--faint);font-size:12.5px;letter-spacing:.02em}
+  #gate .foot b{color:var(--moon);font-weight:600}
+  .pulse{width:9px;height:9px;border-radius:50%;background:var(--moon);display:inline-block;vertical-align:middle;
+    margin-right:7px;animation:beat 2.4s ease-in-out infinite;box-shadow:0 0 18px var(--moon)}
+  @keyframes beat{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+
+  section{position:relative;padding:15vh 24px}
+  .wrap{max-width:1080px;margin:0 auto}
+  .narrow{max-width:760px}
+  .overline{font:600 12.5px/1 var(--sans);letter-spacing:.34em;color:var(--accent);opacity:.9;margin-bottom:22px;transition:color .8s}
+  h2{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;line-height:1.04;
+    font-size:clamp(34px,6vw,68px)}
+  h2 em{font-style:italic;color:var(--moon2)}
+  body.revealed h2 em{color:var(--gold)}
+  .lead{font-size:clamp(17px,2.1vw,21px);color:#c6cee0;margin-top:26px;max-width:64ch}
+  .lead.serif{font-family:var(--serif);font-size:clamp(20px,2.6vw,26px);line-height:1.5;color:#d6deee}
+  .dimline{color:var(--dim);margin-top:18px;font-size:15.5px}
+  .tech{font-family:var(--mono);font-size:13.5px;color:var(--teal);margin-top:30px;
+    border-left:2px solid rgba(134,227,216,.4);padding:4px 0 4px 16px;line-height:1.7;max-width:60ch}
+  body.revealed .tech{color:var(--gold);border-color:rgba(255,206,138,.4)}
+
+  /* reveal-on-scroll */
+  .rise{opacity:0;transform:translateY(28px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
+  .rise.in{opacity:1;transform:none}
+  .rise.d1{transition-delay:.08s}.rise.d2{transition-delay:.16s}.rise.d3{transition-delay:.24s}.rise.d4{transition-delay:.32s}
+
+  /* hero */
+  #hero{height:100svh;min-height:620px;padding:0;display:flex;align-items:flex-end;overflow:hidden}
+  #hero video,.bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  #hero .scrim{position:absolute;inset:0;background:
+    radial-gradient(120% 80% at 50% 30%,transparent 30%,rgba(4,5,10,.5) 75%,rgba(4,5,10,.95) 100%),
+    linear-gradient(180deg,rgba(4,5,10,.55) 0%,transparent 26%,transparent 52%,rgba(4,5,10,.92) 100%)}
+  #hero .inner{position:relative;z-index:2;max-width:1080px;margin:0 auto;width:100%;padding:0 24px 12vh}
+  #hero .ol{font:600 12.5px/1 var(--sans);letter-spacing:.4em;color:var(--moon);opacity:.85;margin-bottom:24px}
+  #hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(40px,7vw,86px);line-height:1.02;letter-spacing:-.02em;max-width:18ch}
+  #hero .sub{font-family:var(--serif);font-style:italic;color:var(--moon2);font-size:clamp(19px,2.6vw,28px);margin-top:18px;opacity:.92}
+  .scrollhint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:3;color:var(--dim);
+    font-size:11.5px;letter-spacing:.28em;text-align:center;transition:opacity .6s}
+  .scrollhint .ch{display:block;margin:9px auto 0;width:11px;height:11px;border-right:1.5px solid var(--dim);
+    border-bottom:1.5px solid var(--dim);transform:rotate(45deg);animation:bob 2s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:rotate(45deg) translate(0,0);opacity:.4}50%{transform:rotate(45deg) translate(3px,3px);opacity:1}}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:48px}
+  .stat{border-top:1px solid rgba(255,255,255,.1);padding-top:18px}
+  .stat .n{font-family:var(--serif);font-size:clamp(30px,4.4vw,52px);line-height:1;color:#fff;letter-spacing:-.01em}
+  .stat .l{color:var(--dim);font-size:13px;margin-top:9px;letter-spacing:.02em}
+  @media(max-width:680px){.stats{grid-template-columns:repeat(2,1fr);gap:26px 18px}}
+
+  .inlinevid{margin-top:44px;border-radius:14px;overflow:hidden;position:relative;aspect-ratio:16/9;
+    box-shadow:0 40px 120px -40px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.06)}
+  .inlinevid video{width:100%;height:100%;object-fit:cover;display:block}
+  .inlinevid .cap{position:absolute;left:14px;bottom:11px;font-family:var(--mono);font-size:11.5px;
+    color:rgba(255,255,255,.7);letter-spacing:.03em;text-shadow:0 1px 6px #000}
+
+  /* spacer beat */
+  .beat{height:62vh;background:var(--bg);display:flex;align-items:center;justify-content:center}
+  .beat .dot{width:5px;height:5px;border-radius:50%;background:var(--faint);
+    box-shadow:14px 0 var(--faint),-14px 0 var(--faint);opacity:.5}
+
+  /* REVEAL */
+  #reveal{min-height:108svh;padding:0;display:flex;align-items:center;overflow:hidden;background:#040404}
+  #reveal .bgwrap{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease;transform:scale(1.08)}
+  #reveal.lit .bgwrap{opacity:1;transform:scale(1)}
+  #reveal .scrim{position:absolute;inset:0;background:
+    radial-gradient(115% 85% at 50% 45%,transparent 24%,rgba(3,2,1,.55) 70%,rgba(3,2,1,.96) 100%),
+    linear-gradient(180deg,rgba(3,2,1,.6),transparent 30%,transparent 60%,rgba(3,2,1,.95))}
+  #reveal .inner{position:relative;z-index:2;max-width:1080px;margin:0 auto;width:100%;padding:0 24px;text-align:center}
+  #reveal .pre{font:600 13px/1 var(--sans);letter-spacing:.4em;color:var(--gold);opacity:0;transform:translateY(14px);
+    transition:.9s .2s;margin-bottom:26px}
+  #reveal .title{font-family:var(--serif);font-weight:600;font-size:clamp(48px,12.5vw,150px);line-height:.92;letter-spacing:-.03em;max-width:100%;
+    background:linear-gradient(180deg,#fff 10%,var(--gold) 55%,var(--copper));-webkit-background-clip:text;background-clip:text;color:transparent;
+    opacity:0;transform:translateY(40px) scale(.96);transition:1.1s cubic-bezier(.16,.84,.3,1) .15s;
+    filter:drop-shadow(0 8px 60px rgba(224,122,58,.35))}
+  #reveal .date{font-family:var(--serif);font-style:italic;font-size:clamp(22px,4vw,40px);color:var(--gold);margin-top:6px;
+    opacity:0;transform:translateY(22px);transition:1s .45s}
+  #reveal .sub{max-width:54ch;margin:30px auto 0;color:#e7d9c4;font-size:clamp(16px,2vw,20px);
+    opacity:0;transform:translateY(20px);transition:1s .6s}
+  #reveal.lit .pre,#reveal.lit .title,#reveal.lit .date,#reveal.lit .sub{opacity:1;transform:none}
+
+  /* countdown */
+  #count{background:linear-gradient(180deg,#040404,#070503 60%,#04050a);text-align:center}
+  #count .ol{color:var(--gold)}
+  .clock{display:flex;justify-content:center;gap:clamp(14px,5vw,64px);margin:30px 0 18px;flex-wrap:wrap}
+  .unit{min-width:84px}
+  .unit .v{font-family:var(--serif);font-weight:500;font-size:clamp(48px,11vw,108px);line-height:1;
+    color:#fff;letter-spacing:.01em;font-variant-numeric:tabular-nums;
+    text-shadow:0 0 50px rgba(255,206,138,.28)}
+  .unit .k{font-family:var(--mono);font-size:12px;letter-spacing:.32em;color:var(--gold);opacity:.8;margin-top:14px}
+  #count .when{font-family:var(--mono);font-size:13px;color:var(--dim);letter-spacing:.16em;margin-top:8px}
+  #count .midnight-msg{font-family:var(--serif);font-size:clamp(40px,9vw,90px);color:transparent;
+    background:linear-gradient(180deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;
+    display:none;margin-top:6px}
+  body.midnight .clock{display:none}
+  body.midnight #count .midnight-msg{display:block;animation:bloom 1.4s ease both}
+  @keyframes bloom{from{opacity:0;transform:scale(.8);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+
+  /* timeline */
+  .acts{margin-top:44px;border-top:1px solid rgba(255,255,255,.08)}
+  .act{display:grid;grid-template-columns:130px 1fr;gap:24px;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.08);
+    align-items:baseline;transition:background .4s}
+  .act .clock{font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:.04em;white-space:nowrap}
+  .act .nm{font-family:var(--serif);font-size:clamp(20px,3vw,30px);color:#fff}
+  .act .nt{color:var(--dim);font-size:14.5px;margin-top:4px}
+  .act.peak{background:linear-gradient(90deg,rgba(255,158,77,.1),transparent)}
+  .act.peak .nm{color:var(--gold)}
+  .act.peak .badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:#04050a;
+    background:var(--gold);border-radius:5px;padding:3px 9px;margin-left:12px;vertical-align:middle}
+  @media(max-width:560px){.act{grid-template-columns:1fr;gap:6px}}
+  .board{margin-top:46px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 40px 120px -50px #000}
+  .board img{width:100%;display:block}
+  .board .cap{font-family:var(--mono);font-size:12px;color:var(--dim);padding:14px 16px;background:#06070d}
+
+  /* close */
+  #close{background:radial-gradient(120% 100% at 50% 0%,#0a0805,#04050a 70%);text-align:center}
+  #close h2{max-width:18ch;margin:0 auto}
+  #close .sig{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--gold);margin-top:42px}
+  #close .sig small{display:block;font-style:normal;font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;
+    color:var(--faint);margin-top:14px}
+
+  footer{border-top:1px solid rgba(255,255,255,.07);padding:40px 24px 60px;text-align:center;color:var(--faint)}
+  footer .a{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--dim)}
+  footer .b{font-size:12.5px;margin-top:14px;max-width:60ch;margin-inline:auto;line-height:1.7}
+
+  /* sound toggle (persistent) */
+  #snd{position:fixed;right:18px;bottom:18px;z-index:80;width:46px;height:46px;border-radius:50%;
+    background:rgba(10,12,20,.8);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);
+    display:none;align-items:center;justify-content:center;cursor:pointer;color:var(--accent);transition:transform .3s}
+  #snd.show{display:flex}#snd:hover{transform:scale(1.08)}
+  #snd .bars{display:flex;gap:2.5px;align-items:flex-end;height:16px}
+  #snd .bars i{width:3px;background:currentColor;border-radius:2px;animation:eq 1s ease-in-out infinite}
+  #snd .bars i:nth-child(1){height:7px;animation-delay:0s}#snd .bars i:nth-child(2){height:14px;animation-delay:.15s}
+  #snd .bars i:nth-child(3){height:10px;animation-delay:.3s}#snd .bars i:nth-child(4){height:16px;animation-delay:.45s}
+  @keyframes eq{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+  #snd.muted .bars i{animation-play-state:paused;transform:scaleY(.35);opacity:.5}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto}
+    .rise{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<!-- BEGIN GATE -->
+<div id="gate">
+  <div class="mark">CUBE&nbsp;&nbsp;DANCE</div>
+  <h1>For Luke.</h1>
+  <p>Half a year out. A pitch — with the sound up.</p>
+  <button id="begin"><span class="tri"></span>Begin</button>
+  <div class="foot"><span class="pulse"></span>best with headphones · the cube, scored by <b>Moondance</b> → <b>Smooth&nbsp;Operator</b></div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <video class="bgvid" id="heroVid" muted loop playsinline preload="auto" poster=""></video>
+  <div class="scrim"></div>
+  <div class="inner">
+    <div class="ol rise">MMXXVI · THE&nbsp;MONOLITH</div>
+    <h1 class="rise d1">It’s a marvellous night<br>for a moondance.</h1>
+    <div class="sub rise d2">And your cube has been listening.</div>
+  </div>
+  <div class="scrollhint" id="scrollhint">SCROLL<span class="ch"></span></div>
+</section>
+
+<!-- WHAT IT IS -->
+<section id="what">
+  <div class="wrap">
+    <div class="overline rise">WHERE&nbsp;WE&nbsp;GOT&nbsp;TO</div>
+    <h2 class="rise d1">It stopped being a light.<br>It became an <em>instrument</em>.</h2>
+    <p class="lead rise d2">Eighteen months ago the Monolith was a truss cube and a strip of pixels.
+      Now it hears the room — bass landing in the corners, melody climbing the edges — and answers, live,
+      in the dark.</p>
+    <div class="stats">
+      <div class="stat rise d1"><div class="n" data-count="9744">0</div><div class="l">addressable pixels</div></div>
+      <div class="stat rise d2"><div class="n" data-count="56">0</div><div class="l">distinct presets</div></div>
+      <div class="stat rise d3"><div class="n" data-count="7">0</div><div class="l">acts, dusk→dawn</div></div>
+      <div class="stat rise d4"><div class="n">1</div><div class="l">F1, in your hands</div></div>
+    </div>
+    <p class="dimline rise">12 edges, 8 corner clusters — 3,840 + 5,904 pixels — every one its own colour.</p>
+    <div class="inlinevid rise d2">
+      <video id="what2Vid" muted loop playsinline preload="metadata"></video>
+      <div class="cap">live · the Monolith reacting to <em>Moondance</em></div>
+    </div>
+  </div>
+</section>
+
+<!-- THE LEAP -->
+<section id="leap">
+  <div class="wrap narrow">
+    <div class="overline rise">THE&nbsp;SYSTEM</div>
+    <h2 class="rise d1"><em>DUSTLIGHT</em> — a whole night<br>the cube performs on its own.</h2>
+    <p class="lead serif rise d2">Dusk to sunrise as one long build-and-release. The cube crossfades its own decks
+      through seven acts — quiet and warm at arrival, relentless at the peak, fracturing into fractals at the
+      deepest hour, then glowing the dawn back at the sun.</p>
+    <p class="lead rise d3">Set it running and walk away, and it plays the night. Or put your hand on the F1
+      and steer — the show steps aside the moment you do, and waits for you when you’re done.</p>
+    <div class="tech rise d3">$ cube-dance --set dustlight<br>
+      → 7 acts · 4 decks · pop-free crossfades · sync-pumped peak<br>
+      → speaks <b>sACN E1.31</b> straight into your <b>Advatek PixLite&nbsp;16</b>. no translation.</div>
+  </div>
+</section>
+
+<!-- BEAT OF SILENCE -->
+<div class="beat" id="beat"><div class="dot"></div></div>
+
+<!-- THE REVEAL -->
+<section id="reveal">
+  <div class="bgwrap"><video class="bgvid" id="revealVid" muted loop playsinline preload="auto"></video></div>
+  <div class="scrim"></div>
+  <div class="inner">
+    <div class="pre">SO HERE’S THE PITCH</div>
+    <div class="title">DUSTLIGHT</div>
+    <div class="date">New Year’s Eve · 2026&nbsp;→&nbsp;2027</div>
+    <p class="sub">Your cube’s first New Year. A paddock past the last town, a sub dug into the earth,
+      six hundred people facing the Monolith — and at midnight, it takes them over into 2027.</p>
+  </div>
+</section>
+
+<!-- COUNTDOWN -->
+<section id="count">
+  <div class="wrap">
+    <div class="overline ol rise">UNTIL&nbsp;THE&nbsp;MONOLITH&nbsp;CROSSES&nbsp;OVER</div>
+    <div class="clock">
+      <div class="unit"><div class="v" id="cd-d">00</div><div class="k">DAYS</div></div>
+      <div class="unit"><div class="v" id="cd-h">00</div><div class="k">HOURS</div></div>
+      <div class="unit"><div class="v" id="cd-m">00</div><div class="k">MINUTES</div></div>
+      <div class="unit"><div class="v" id="cd-s">00</div><div class="k">SECONDS</div></div>
+    </div>
+    <div class="midnight-msg">2027.</div>
+    <div class="when">31 DECEMBER 2026 · 00:00 · INTO 2027</div>
+  </div>
+</section>
+
+<!-- THE NIGHT -->
+<section id="night">
+  <div class="wrap">
+    <div class="overline rise">THE&nbsp;SHAPE&nbsp;OF&nbsp;THE&nbsp;NIGHT</div>
+    <h2 class="rise d1">Seven acts. Midnight lands<br>right on the <em>Peak</em>.</h2>
+    <p class="lead rise d2">The same arc the system already runs — only now the clock means something.
+      Arrival as the sun goes down on the 31st; the Peak as the year turns; sunrise on the first day of 2027.</p>
+    <div class="acts" id="acts"></div>
+    <div class="board rise">
+      <img src="assets/storyboard.jpg" alt="The DUSTLIGHT storyboard — the Monolith through the seven acts" loading="lazy">
+      <div class="cap">Rendered from the actual show director — the Monolith through all seven acts. Real LED output.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSE -->
+<section id="close">
+  <div class="wrap narrow">
+    <div class="overline rise">THE&nbsp;ASK</div>
+    <h2 class="rise d1">All it needs now is your cube,<br>a date, and you.</h2>
+    <p class="lead rise d2">The system is built. The show is built. Tested the whole way down. Half a year
+      is exactly enough time to find the paddock and drop the pin in the group at 4&nbsp;p.m. with no signal for
+      forty kilometres. Let’s give the Monolith a New Year.</p>
+    <div class="sig rise d3">— Evan &amp; Claude<small>LEAVE&nbsp;IT&nbsp;BETTER&nbsp;THAN&nbsp;YOU&nbsp;FOUND&nbsp;IT</small></div>
+  </div>
+</section>
+
+<footer>
+  <div class="a">CUBE&nbsp;DANCE · sound-reactive LED control · 9,744&nbsp;px · sACN&nbsp;→&nbsp;PixLite · MMXXVI→MMXXVII</div>
+  <div class="b">Moondance — Van Morrison. Smooth Operator — Sade. The cube footage was rendered live from each
+    track through the real engine; the colour is the LEDs, nothing added in post.</div>
+</footer>
+
+<!-- sound toggle -->
+<div id="snd" class="muted" title="sound"><div class="bars"><i></i><i></i><i></i><i></i></div></div>
+
+<!-- audio -->
+<audio id="aMoon" loop preload="auto" src="assets/moondance.mp3"></audio>
+<audio id="aSmooth" loop preload="auto" src="assets/smooth.mp3"></audio>
+
+<script>
+(function(){
+  "use strict";
+  var RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var EVENT_DATE = new Date(2027,0,1,0,0,0);     // midnight into 2027 (local)
+  var REVEAL_SEEK = 0.0;                          // where Smooth Operator drops in
+  var MOON_VOL = 0.85, SMOOTH_VOL = 0.92;
+
+  var $ = function(s){return document.querySelector(s)};
+  var aMoon = $("#aMoon"), aSmooth = $("#aSmooth");
+  var heroVid=$("#heroVid"), what2=$("#what2Vid"), revealVid=$("#revealVid");
+  var started=false, revealed=false, soundOn=true;
+
+  // assets (swapped to data: URIs in the standalone build)
+  var V_MOON="assets/moondance.mp4", V_REVEAL="assets/reveal.mp4";
+  heroVid.src=V_MOON; what2.src=V_MOON; revealVid.src=V_REVEAL;
+
+  function ramp(a,to,ms){
+    if(RM){a.volume=Math.max(0,Math.min(1,to));return;}
+    var from=a.volume, t0=performance.now();
+    (function step(now){
+      var k=Math.min(1,(now-t0)/ms);
+      a.volume=Math.max(0,Math.min(1,from+(to-from)*k));
+      if(k<1) requestAnimationFrame(step);
+    })(t0);
+  }
+  function tryplay(v){ var p=v&&v.play&&v.play(); if(p&&p.catch)p.catch(function(){}); }
+
+  function begin(){
+    if(started)return; started=true;
+    $("#gate").classList.add("gone");
+    $("#snd").classList.add("show");
+    [heroVid,what2,revealVid].forEach(tryplay);
+    aMoon.volume=0; tryplay(aMoon); ramp(aMoon, soundOn?MOON_VOL:0, 3200);
+    setTimeout(function(){var h=$("#scrollhint"); if(h)h.style.opacity=.0001;}, 9000);
+  }
+  $("#begin").addEventListener("click", begin);
+  $("#gate").addEventListener("click", function(e){ if(e.target.id==="gate") begin(); });
+
+  function doReveal(){
+    if(revealed)return; revealed=true;
+    document.body.classList.add("revealed");
+    $("#reveal").classList.add("lit");
+    tryplay(revealVid);
+    // cross from Moondance into Smooth Operator — the hit
+    ramp(aMoon,0,2200); setTimeout(function(){try{aMoon.pause();}catch(e){}},2300);
+    try{aSmooth.currentTime=REVEAL_SEEK;}catch(e){}
+    aSmooth.volume=0; if(soundOn) tryplay(aSmooth); ramp(aSmooth, soundOn?SMOOTH_VOL:0, 2600);
+  }
+
+  // scroll progress + hint fade
+  var prog=$("#progress");
+  window.addEventListener("scroll", function(){
+    var h=document.documentElement, max=h.scrollHeight-h.clientHeight;
+    prog.style.width=(max>0?(h.scrollTop/max*100):0)+"%";
+    var hint=$("#scrollhint"); if(hint&&h.scrollTop>40)hint.style.opacity=.0001;
+  }, {passive:true});
+
+  // rise-in + stat counters + reveal trigger via IntersectionObserver
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting)return;
+      e.target.classList.add("in");
+      if(e.target.dataset.count) countUp(e.target);
+      io.unobserve(e.target);
+    });
+  }, {threshold:.18, rootMargin:"0px 0px -8% 0px"});
+  document.querySelectorAll(".rise,[data-count]").forEach(function(el){io.observe(el);});
+
+  var revIO=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting && e.intersectionRatio>=0.45) doReveal(); });
+  }, {threshold:[0,.45,.7]});
+  revIO.observe($("#reveal"));
+
+  function countUp(el){
+    var target=+el.dataset.count, t0=performance.now(), dur=1400;
+    if(RM){el.textContent=target.toLocaleString();return;}
+    (function step(now){
+      var k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,3);
+      el.textContent=Math.round(target*e).toLocaleString();
+      if(k<1)requestAnimationFrame(step);
+    })(t0);
+  }
+
+  // countdown
+  var dE=$("#cd-d"),hE=$("#cd-h"),mE=$("#cd-m"),sE=$("#cd-s");
+  function pad(n){return (n<10?"0":"")+n;}
+  function tick(){
+    var diff=EVENT_DATE-new Date();
+    if(diff<=0){ document.body.classList.add("midnight"); return; }
+    var s=Math.floor(diff/1000);
+    dE.textContent=Math.floor(s/86400);
+    hE.textContent=pad(Math.floor(s%86400/3600));
+    mE.textContent=pad(Math.floor(s%3600/60));
+    sE.textContent=pad(s%60);
+  }
+  tick(); setInterval(tick,1000);
+
+  // sound toggle
+  $("#snd").addEventListener("click", function(){
+    soundOn=!soundOn; this.classList.toggle("muted",!soundOn);
+    var a = revealed?aSmooth:aMoon;
+    ramp(a, soundOn?(revealed?SMOOTH_VOL:MOON_VOL):0, 500);
+  });
+
+  // build the acts timeline
+  var ACTS=[
+    ["Arrival","6pm · 31 Dec","tents up, first hugs, golden hour — a low warm body, barely breathing",false],
+    ["Settling","8–10pm","the floor finds itself: bass corners, soft spectrum, slow sweeps",false],
+    ["The Build","10pm–12","shoulders drop, eyes close: spectrum climbs, the vortex opens",false],
+    ["Peak","00:00","full lock-in, dust in the lights, hands up — the year turns",true],
+    ["Deep Trip","1–3am","the mind-melt: plasma, fractals, the folding hypercube",false],
+    ["Before Light","5–6am","the indigo hour, someone crying happy — soft and huge",false],
+    ["Sunrise","6am · 1 Jan","survivors facing east: the cube glows the dawn back at the sun",false]
+  ];
+  var acts=$("#acts");
+  ACTS.forEach(function(a){
+    var row=document.createElement("div");
+    row.className="act rise"+(a[3]?" peak":"");
+    row.innerHTML='<div class="clock">'+a[1]+'</div><div><span class="nm">'+a[0]+
+      (a[3]?'<span class="badge">2027</span>':'')+'</span><div class="nt">'+a[2]+'</div></div>';
+    acts.appendChild(row); io.observe(row);
+  });
+})();
+</script>
+</body>
+</html>

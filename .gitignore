@@ -23,6 +23,15 @@ assets/audio/*.aiff
 # Recorded share clips
 recordings/
 
+# Showcase: large rendered media + the self-contained build (regenerate via
+# showcase/render_clip.py + build_standalone.py — see showcase/README.md)
+showcase/assets/*.mp4
+showcase/assets/*.mp3
+showcase/cube-into-2027.html
+
+# Local preview server config (machine-specific absolute paths)
+.claude/launch.json
+
 # Editor
 .idea/
 .vscode/
