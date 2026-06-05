@@ -16,6 +16,8 @@ PRESET_ORDER = (
     # 20 new 3-D effects (see docs/effect-ideas.md)
     "life", "reaction", "flock", "crystal", "clouds", "menger", "bulb", "slice", "sphere", "knot",
     "icosa", "snake", "lacing", "arc", "current", "sun", "ripple", "aurora", "accretion", "dipole",
+    # 3-D Mandelbrot cousin + 4-D projection (spectrum-navigated)
+    "mandelbox", "hypercube",
 )
 BUILTINS = PRESET_ORDER
 

@@ -228,7 +228,9 @@ class MengerSponge(Element):
 
 
 class Mandelbulb(Element):
-    """Escape-time of the Mandelbulb sampled on the cube shell, slowly rotating."""
+    """Escape-time of the Mandelbulb sampled on the cube shell. The spectrum
+    *navigates* it: bass drives the power (the bulb's shape), energy zooms, mids
+    rotate -- so the music morphs and flies through the fractal."""
 
     blend = "add"
 
@@ -237,19 +239,24 @@ class Mandelbulb(Element):
         self.power, self.hue, self.sat, self.iters = power, hue, sat, iters
 
     def apply(self, ctx: Context, out: np.ndarray) -> None:
-        a = ctx.t * 0.2
+        f = ctx.features
+        bass = float(getattr(f, "bass", 0.0) or 0.0)
+        mid = float(getattr(f, "mid", 0.0) or 0.0)
+        power = self.power + 4.0 * bass            # navigate the bulb's shape with bass
+        zoom = 0.95 + 0.35 * ctx.energy            # zoom with energy
+        a = ctx.t * 0.2 * (0.4 + mid)              # rotate with mids
         ca, sa = math.cos(a), math.sin(a)
-        cx = self.c0[:, 0] * ca + self.c0[:, 2] * sa
-        cz = -self.c0[:, 0] * sa + self.c0[:, 2] * ca
-        cy = self.c0[:, 1]
+        cx = (self.c0[:, 0] * ca + self.c0[:, 2] * sa) * zoom
+        cz = (-self.c0[:, 0] * sa + self.c0[:, 2] * ca) * zoom
+        cy = self.c0[:, 1] * zoom
         zx, zy, zz = cx.copy(), cy.copy(), cz.copy()
         esc = np.zeros(len(cx), np.float32)
         with np.errstate(over="ignore", invalid="ignore"):
             for i in range(self.iters):
                 r = np.sqrt(zx * zx + zy * zy + zz * zz) + 1e-9
-                theta = np.arccos(np.clip(zz / r, -1, 1)) * self.power
-                phi = np.arctan2(zy, zx) * self.power
-                rp = np.minimum(r, 1.8) ** self.power  # clamp to avoid overflow (escaped anyway)
+                theta = np.arccos(np.clip(zz / r, -1, 1)) * power
+                phi = np.arctan2(zy, zx) * power
+                rp = np.minimum(r, 1.8) ** power  # clamp to avoid overflow (escaped anyway)
                 st = np.sin(theta)
                 zx = rp * st * np.cos(phi) + cx
                 zy = rp * st * np.sin(phi) + cy
@@ -631,3 +638,94 @@ class DipoleField(Element):
         val = np.clip(1.0 - np.abs(bands) * 1.2, 0, 1) * np.exp(-r * 0.5)
         out += hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, ctx.sat(self.sat),
                           val.astype(np.float32) * (0.5 + 0.6 * ctx.energy))
+
+
+# --- F. 3-D Mandelbrot cousins + 4-D projections (spectrum-navigated) --------
+
+class Mandelbox(Element):
+    """Escape-time of the Mandelbox (box-fold + sphere-fold) sampled on the cube
+    shell. The full spectrum *navigates* it: bass drives the fold scale, treble
+    the min-radius, energy the zoom, mids the rotation — so the music flies through.
+    """
+
+    blend = "add"
+
+    def __init__(self, model, hue: float = 0.62, sat: float = 0.9, iters: int = 7, R: float = 6.0):
+        self.c0 = (_pn(model) * 1.5).astype(np.float32)
+        self.hue, self.sat, self.iters, self.R = hue, sat, iters, R
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        f = ctx.features
+        bass = float(getattr(f, "bass", 0.0) or 0.0)
+        mid = float(getattr(f, "mid", 0.0) or 0.0)
+        tre = float(getattr(f, "treble", 0.0) or 0.0)
+        scale = 1.9 + 0.7 * math.sin(ctx.t * 0.07) + 0.7 * bass   # navigate with bass
+        minr2 = (0.25 + 0.45 * tre) ** 2                          # navigate with treble
+        a = ctx.t * 0.15 * (0.4 + mid)
+        ca, sa = math.cos(a), math.sin(a)
+        zoom = 0.9 + 0.4 * ctx.energy
+        cx = (self.c0[:, 0] * ca + self.c0[:, 2] * sa) * zoom
+        cz = (-self.c0[:, 0] * sa + self.c0[:, 2] * ca) * zoom
+        cy = self.c0[:, 1] * zoom
+        x, y, z = cx.copy(), cy.copy(), cz.copy()
+        esc = np.zeros(len(x), np.float32)
+        with np.errstate(over="ignore", invalid="ignore"):
+            for i in range(self.iters):
+                x = np.clip(x, -1, 1) * 2 - x  # box fold
+                y = np.clip(y, -1, 1) * 2 - y
+                z = np.clip(z, -1, 1) * 2 - z
+                r2 = x * x + y * y + z * z
+                m = np.where(r2 < minr2, 1.0 / minr2,
+                             np.where(r2 < 1.0, 1.0 / np.maximum(r2, 1e-6), 1.0)).astype(np.float32)  # sphere fold
+                x = np.clip(x * m * scale + cx, -1e4, 1e4)
+                y = np.clip(y * m * scale + cy, -1e4, 1e4)
+                z = np.clip(z * m * scale + cz, -1e4, 1e4)
+                newly = (esc == 0) & (x * x + y * y + z * z > self.R * self.R)
+                esc[newly] = i + 1
+        val = np.where(esc == 0, 0.0, 1.0 - esc / self.iters).astype(np.float32)
+        out += hsv_to_rgb((self.hue + 0.4 * val + ctx.evo_hue) % 1.0, ctx.sat(self.sat),
+                          val * (0.5 + 0.5 * ctx.energy))
+
+
+class Tesseract(Element):
+    """A 4-D hypercube (tesseract) rotating in 4-D and projected 4-D->3-D, its
+    edges lit by proximity — a hypercube morphing inside the truss cube. The 4-D
+    rotation planes (XW, YW, ZW) are driven by the audio so the music tumbles it.
+    """
+
+    blend = "add"
+
+    def __init__(self, model, scale: float = 1.05, hue: float = 0.6, sat: float = 0.9, width: float = 0.2):
+        V = np.array([[(1.0 if (k >> b) & 1 else -1.0) for b in range(4)] for k in range(16)], np.float32)
+        edges = [(i, j) for i in range(16) for j in range(i + 1, 16) if np.abs(V[i] - V[j]).sum() == 2.0]
+        pts = [V[a] * (1 - fr) + V[b] * fr for a, b in edges for fr in np.linspace(0, 1, 7)]
+        self.V4 = np.asarray(pts, np.float32)  # points along the 32 hyper-edges
+        self.P = _pn(model)
+        self.scale, self.hue, self.sat, self.width = scale, hue, sat, width
+
+    @staticmethod
+    def _rot(p, i, j, a):
+        ca, sa = math.cos(a), math.sin(a)
+        pi = p[:, i] * ca - p[:, j] * sa
+        pj = p[:, i] * sa + p[:, j] * ca
+        p = p.copy()
+        p[:, i] = pi
+        p[:, j] = pj
+        return p
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        t, f = ctx.t, ctx.features
+        bass = float(getattr(f, "bass", 0.0) or 0.0)
+        tre = float(getattr(f, "treble", 0.0) or 0.0)
+        p = self._rot(self.V4, 0, 3, t * 0.30 * (0.4 + bass))  # XW (the 4-D tumble)
+        p = self._rot(p, 1, 3, t * 0.23 * (0.4 + tre))         # YW
+        p = self._rot(p, 2, 3, t * 0.17)                       # ZW
+        p = self._rot(p, 0, 1, t * 0.20)                       # XY (ordinary 3-D spin)
+        s = 2.6 / (2.6 - p[:, 3])  # perspective projection 4-D -> 3-D
+        px, py, pz = p[:, 0] * s * self.scale, p[:, 1] * s * self.scale, p[:, 2] * s * self.scale
+        dx = self.P[:, 0, None] - px[None, :]
+        dy = self.P[:, 1, None] - py[None, :]
+        dz = self.P[:, 2, None] - pz[None, :]
+        w = self.width * (0.7 + ctx.size)
+        band = np.exp(-(dx * dx + dy * dy + dz * dz).min(1) / (w * w)).astype(np.float32)
+        out += hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, ctx.sat(self.sat), band * (0.55 + 0.5 * ctx.energy))
