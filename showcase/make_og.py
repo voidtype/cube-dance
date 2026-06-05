@@ -1,6 +1,6 @@
 """Compose the social/link-preview (Open Graph) image for the pitch site.
 
-A gold reveal frame of the cube, darkened, with the DUSTLIGHT mark — so when the
+A gold reveal frame of the cube, darkened, with the event mark — so when the
 link is shared it shows a card worth clicking. 1200x630.
 
     uv run python showcase/make_og.py
@@ -51,7 +51,13 @@ def main() -> int:
     bg = Image.composite(ov, bg, mask.point(lambda v: int(v * 0.55)))
 
     d = ImageDraw.Draw(bg)
-    f_title = _font(150, "Hoefler Text.ttc", "Georgia.ttf", "Times New Roman.ttf")
+    TITLE = "THE WATAGANS"
+    _ts = 150
+    while _ts > 72:
+        f_title = _font(_ts, "Hoefler Text.ttc", "Georgia.ttf", "Times New Roman.ttf")
+        if d.textlength(TITLE, font=f_title) <= W - 160:
+            break
+        _ts -= 4
     f_over = _font(30, "Helvetica.ttc", "Arial.ttf")
     f_sub = _font(34, "Hoefler Text.ttc", "Georgia.ttf")
 
@@ -66,12 +72,12 @@ def main() -> int:
             w = d.textlength(text, font=font)
             d.text(((W - w) / 2, cy), text, font=font, fill=fill)
 
-    centre("THE CUBE INTO", f_over, 150, (210, 180, 140), spacing=10)
+    centre("NEW YEAR’S EVE", f_over, 150, (210, 180, 140), spacing=10)
     # title with a soft shadow
-    tw = d.textlength("DUSTLIGHT", font=f_title)
-    d.text(((W - tw) / 2 + 3, 196 + 3), "DUSTLIGHT", font=f_title, fill=(20, 8, 0))
-    d.text(((W - tw) / 2, 196), "DUSTLIGHT", font=f_title, fill=(255, 206, 138))
-    centre("New Year’s Eve   ·   into 2027   ·   for Luke", f_sub, 392, (235, 217, 196))
+    tw = d.textlength(TITLE, font=f_title)
+    d.text(((W - tw) / 2 + 3, 196 + 3), TITLE, font=f_title, fill=(20, 8, 0))
+    d.text(((W - tw) / 2, 196), TITLE, font=f_title, fill=(255, 206, 138))
+    centre("the Stumpy site · the Watagans · for Luke", f_sub, 392, (235, 217, 196))
 
     out = ASSETS / "og-image.jpg"
     bg.save(out, quality=88)

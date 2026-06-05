@@ -1,5 +1,12 @@
 # DUSTLIGHT — a rave built around the cube
 
+> ⚠️ **Invented concept, not a real plan.** "DUSTLIGHT", "the Monolith", the location,
+> the crowd and the named people below are fiction I wrote as a creative exercise —
+> never real, never anything Luke proposed. The *real* event is Luke's New Year's Eve
+> doof at the **Stumpy** site in the **Watagans**; the real cube, software, visuals and
+> output path (sACN → his Advatek PixLite 16) are real. This file is kept only as a
+> mood reference for the `show.py` set (which still uses `dustlight` as an internal name).
+
 > *A bush doof where the 2.6 m truss cube is the fire everyone gathers around — a Monolith
 > that breathes with the night and bursts into the dawn. This is the concept, and the **visual
 > score** the cube performs from dusk to sunrise.*

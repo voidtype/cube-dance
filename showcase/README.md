@@ -1,12 +1,16 @@
-# `showcase/` — *the cube into 2027*
+# `showcase/` — *the cube, for New Year's at Stumpy*
 
-A scroll-driven pitch page made for **Luke**: the system that sends his cube into
-2027, scored by **Moondance** (the journey) and revealed with **Smooth Operator**
-(the hit), with a live countdown to midnight on New Year's Eve.
+A scroll-driven page made for **Luke**: the cube + the Cube Dance software, ready
+for the real **New Year's Eve doof at the Stumpy site in the Watagans**. Scored by
+**Moondance** then revealed with **Smooth Operator**, with a live countdown to
+midnight on NYE (2026 → 2027).
 
-The narrative ties the whole project together: **DUSTLIGHT** — the dusk-to-sunrise
-show the cube already performs (`cube_dance/show.py`) — given a real date,
-**NYE 2026 → 2027**, where the *Peak* act lands exactly at midnight.
+It leans on the software's real whole-night auto-set (`cube_dance/show.py`, a
+dusk-to-sunrise 7-act sequence) and the real output path Luke confirmed —
+**sACN E1.31 → his Advatek PixLite 16**. The song choices and the page's framing
+are a showcase; the cube footage and the tech are real. (Earlier drafts wrapped
+this in an invented "DUSTLIGHT / the Monolith" concept — that was fiction and has
+been removed; `show.py` still uses `dustlight` as an internal set name.)
 
 ## What's here
 
