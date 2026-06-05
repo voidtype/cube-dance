@@ -358,23 +358,74 @@ class PlatonicSolid(Element):
 # --- D. Structure-aware (edges, corners, normals) ---------------------------
 
 class EdgeSnake(Element):
-    """A light travels along the cube's edges leaving a fading trail (a Tron snake)."""
+    """A light that walks the cube's edge graph, turning onto a connected edge at
+    each corner (a Tron light-cycle on the truss) and leaving a fading trail.
+
+    Uses the real adjacency: each edge's two ends map to one of the 8 cube corners
+    (by sign of position), and three edges meet at every corner — so when the head
+    reaches a corner it picks one of the *other* edges there and carries on. The
+    corner's own LED cluster lights as it passes, so it flows through the joint.
+    """
 
     blend = "add"
+    _rng = np.random.default_rng()
 
-    def __init__(self, model, hue: float = 0.33, sat: float = 0.95, length: float = 0.07, speed: float = 0.25):
-        self.seq = _edge_sequence(model)
-        self.m = len(self.seq)
-        self.along = (np.arange(self.m) / max(self.m, 1)).astype(np.float32)
-        self.hue, self.sat, self.length, self.speed = hue, sat, length, speed
-        self._head = 0.0
+    @staticmethod
+    def _corner(pos) -> int:
+        return int(pos[0] > 0) * 4 + int(pos[1] > 0) * 2 + int(pos[2] > 0)
+
+    def __init__(self, model, hue: float = 0.33, sat: float = 0.95, head: float = 0.13,
+                 speed: float = 1.1, release: float = 0.85):
+        eidx = np.where(model.edge_mask)[0]
+        eid = model.element_id[eidx]
+        self.edges = []  # per edge: led idx (sorted by param), params, corner at each end
+        for e in np.unique(eid):
+            sel = eidx[eid == e]
+            order = np.argsort(model.param[sel])
+            sel = sel[order]
+            par = model.param[sel].astype(np.float32)
+            c0 = self._corner(model.positions[sel[0]])
+            c1 = self._corner(model.positions[sel[-1]])
+            self.edges.append({"idx": sel, "par": par, "c": (c0, c1)})
+        # corner -> list of (edge, end) meeting there
+        self.by_corner: dict[int, list] = {}
+        for ei, ed in enumerate(self.edges):
+            for end in (0, 1):
+                self.by_corner.setdefault(ed["c"][end], []).append((ei, end))
+        # corner cluster LEDs grouped by corner (to bridge the joint as the snake passes)
+        ci = np.where(model.corner_mask)[0]
+        cids = np.array([self._corner(p) for p in model.positions[ci]])
+        self.corner_leds = {c: ci[cids == c] for c in range(8)}
+        self.hue, self.sat, self.head, self.speed, self.release = hue, sat, head, speed, release
+        self.bright = np.zeros(model.n, np.float32)
+        self.cur, self.hp, self.dir = 0, 0.0, 1.0
+
+    def _turn(self, end: int) -> None:
+        corner = self.edges[self.cur]["c"][end]
+        self.bright[self.corner_leds.get(corner, [])] = 1.0  # flow through the joint
+        nbrs = [x for x in self.by_corner.get(corner, []) if x != (self.cur, end)]
+        if not nbrs:
+            self.dir = -self.dir
+            return
+        ej, endj = nbrs[int(self._rng.integers(len(nbrs)))]
+        self.cur = ej
+        self.hp, self.dir = (0.0, 1.0) if endj == 0 else (1.0, -1.0)
 
     def apply(self, ctx: Context, out: np.ndarray) -> None:
-        self._head = (self._head + self.speed * (0.4 + 1.4 * ctx.energy) * ctx.dt) % 1.0
-        d = (self.along - self._head) % 1.0
-        val = np.where(d < self.length, 1.0 - d / self.length, 0.0).astype(np.float32)
+        if ctx.dt > 0:
+            self.bright *= math.exp(-ctx.dt / self.release)
+        self.hp += self.dir * self.speed * (0.4 + 1.1 * ctx.energy) * ctx.dt
+        if self.hp > 1.0:
+            self.hp = 1.0
+            self._turn(1)
+        elif self.hp < 0.0:
+            self.hp = 0.0
+            self._turn(0)
+        ed = self.edges[self.cur]
+        self.bright[ed["idx"][np.abs(ed["par"] - self.hp) < self.head]] = 1.0
+        lit = self.bright > 0.01
         rgb = np.asarray(hsv_to_rgb((self.hue + ctx.evo_hue) % 1.0, ctx.sat(self.sat), 1.0), np.float32)
-        out[self.seq] += val[:, None] * rgb[None, :]
+        out[lit] += self.bright[lit][:, None] * rgb[None, :]
 
 
 class TriangleLacing(Element):
