@@ -1,8 +1,9 @@
-"""A tasteful terminal countdown to midnight — the Monolith into 2027.
+"""A tasteful terminal countdown to midnight — the cube into 2027.
 
 Counts down to New Year's Eve (default 2027-01-01 00:00 local) in big gold
-block digits, and names the DUSTLIGHT act the cube would be performing at that
-moment of the night. A small companion to showcase/cube-into-2027.html.
+block digits, then a final 10 … 1 in the last ten seconds, and names the act
+the cube's whole-night set would be in at the bells. A companion to the
+showcase site (the real NYE doof at Stumpy, in the Watagans).
 
     uv run python tools/countdown.py            # live, Ctrl-C to quit
     uv run python tools/countdown.py --once      # print one frame and exit
@@ -14,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import math
 import os
 import sys
 import time
@@ -45,7 +47,7 @@ _GLYPH = {
     " ": ["     ", "     ", "     ", "     ", "     "],
 }
 
-# DUSTLIGHT acts as a fraction of the night (dusk≈18:00 -> sunrise≈07:00),
+# the show's seven acts as a fraction of the night (dusk≈18:00 -> sunrise≈07:00),
 # so we can name the act the cube is in at the countdown's target moment.
 _ACTS = [
     (18.0, "Arrival", "a low warm body, barely breathing"),
@@ -85,16 +87,22 @@ def frame(target: dt.datetime, now: dt.datetime, width: int = 80) -> str:
     pad = lambda s: s.center(width)
 
     out.append("")
-    out.append(pad(f"{GOLD}{BOLD}D U S T L I G H T{RST}"))
-    out.append(pad(f"{DIM}the Monolith crosses into 2027{RST}"))
+    out.append(pad(f"{GOLD}{BOLD}N E W   Y E A R ' S   E V E{RST}"))
+    out.append(pad(f"{DIM}the cube crosses into 2027 · Stumpy, the Watagans{RST}"))
     out.append("")
 
-    if secs <= 0:
+    rem = diff.total_seconds()
+    if rem <= 0:
         for line in big("2027", GOLD):
             out.append(pad(line))
         out.append("")
         out.append(pad(f"{AMBER}{BOLD}Happy New Year, Luke.{RST}"))
         out.append(pad(f"{DIM}— and the cube hits its Peak right now —{RST}"))
+    elif rem <= 10:
+        for line in big(str(math.ceil(rem)), GOLD):   # the final ten: 10 … 1
+            out.append(pad(line))
+        out.append("")
+        out.append(pad(f"{AMBER}{BOLD}…  i n t o   2 0 2 7  …{RST}"))
     else:
         days = secs // 86400
         clock = f"{days:02d}:{secs % 86400 // 3600:02d}:{secs % 3600 // 60:02d}:{secs % 60:02d}"
@@ -112,7 +120,7 @@ def frame(target: dt.datetime, now: dt.datetime, width: int = 80) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description="Countdown to the Monolith's New Year.")
+    p = argparse.ArgumentParser(description="Countdown to the cube's New Year.")
     p.add_argument("--target", default="2027-01-01T00:00", help="ISO datetime (local). Default midnight into 2027.")
     p.add_argument("--once", action="store_true", help="Print one frame and exit.")
     p.add_argument("--for", dest="run_for", type=float, default=None, help="Run for ~N seconds then exit (failsafe).")
