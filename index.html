@@ -154,6 +154,16 @@
   body.midnight .clock{display:none}
   body.midnight #count .midnight-msg{display:block;animation:bloom 1.4s ease both}
   @keyframes bloom{from{opacity:0;transform:scale(.8);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+  /* the final ten seconds: a big 10 -> 1 count, then the bloom */
+  #finalnum{display:none;font-family:var(--serif);font-weight:500;line-height:.9;
+    font-size:clamp(150px,42vw,440px);color:transparent;font-variant-numeric:tabular-nums;
+    background:linear-gradient(180deg,#fff 28%,var(--gold) 68%,var(--amber));
+    -webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 90px rgba(255,170,80,.45))}
+  body.final .clock,body.final #count .when,body.final #count .overline,body.final #count .midnight-msg{display:none}
+  body.final #finalnum{display:block}
+  body.midnight #finalnum{display:none}
+  #finalnum.pop{animation:pop 1s cubic-bezier(.16,.84,.3,1)}
+  @keyframes pop{0%{transform:scale(.5);opacity:0}26%{opacity:1}100%{transform:scale(1);opacity:.95}}
 
   /* timeline */
   .acts{margin-top:44px;border-top:1px solid rgba(255,255,255,.08)}
@@ -288,6 +298,7 @@
       <div class="unit"><div class="v" id="cd-m">00</div><div class="k">MINUTES</div></div>
       <div class="unit"><div class="v" id="cd-s">00</div><div class="k">SECONDS</div></div>
     </div>
+    <div id="finalnum"></div>
     <div class="midnight-msg">2027.</div>
     <div class="when">31 DECEMBER 2026 · 00:00 · INTO 2027</div>
   </div>
@@ -337,7 +348,9 @@
 (function(){
   "use strict";
   var RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var EVENT_DATE = new Date(2027,0,1,0,0,0);     // midnight into 2027 (local)
+  // real target: midnight into 2027 (local). ?eta=SECONDS overrides it (to demo/test the final 10).
+  var _eta = parseFloat(new URLSearchParams(location.search).get("eta"));
+  var EVENT_DATE = isFinite(_eta) ? new Date(Date.now()+_eta*1000) : new Date(2027,0,1,0,0,0);
   var REVEAL_SEEK = 0.0;                          // where Smooth Operator drops in
   var MOON_VOL = 0.85, SMOOTH_VOL = 0.92;
 
@@ -417,19 +430,29 @@
     })(t0);
   }
 
-  // countdown
-  var dE=$("#cd-d"),hE=$("#cd-h"),mE=$("#cd-m"),sE=$("#cd-s");
+  // countdown — the long timer, then a big 10 -> 1 count in the final ten seconds, then the bloom
+  var dE=$("#cd-d"),hE=$("#cd-h"),mE=$("#cd-m"),sE=$("#cd-s"),fN=$("#finalnum");
   function pad(n){return (n<10?"0":"")+n;}
   function tick(){
     var diff=EVENT_DATE-new Date();
-    if(diff<=0){ document.body.classList.add("midnight"); return; }
+    if(diff<=0){ document.body.classList.remove("final"); document.body.classList.add("midnight"); return; }
+    var secsLeft=Math.ceil(diff/1000);
+    if(secsLeft<=10){                       // final ten seconds: 10, 9, 8 … 1
+      document.body.classList.add("final");
+      if(fN.textContent!==String(secsLeft)){
+        fN.textContent=secsLeft;
+        fN.classList.remove("pop"); void fN.offsetWidth; fN.classList.add("pop");  // replay the pop each tick
+      }
+      return;
+    }
+    document.body.classList.remove("final");
     var s=Math.floor(diff/1000);
     dE.textContent=Math.floor(s/86400);
     hE.textContent=pad(Math.floor(s%86400/3600));
     mE.textContent=pad(Math.floor(s%3600/60));
     sE.textContent=pad(s%60);
   }
-  tick(); setInterval(tick,1000);
+  tick(); setInterval(tick,250);
 
   // sound toggle
   $("#snd").addEventListener("click", function(){
