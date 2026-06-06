@@ -24,6 +24,8 @@ PRESET_ORDER = (
     "beambars", "lacingwave", "impulse", "facespin", "barberpole", "build", "rings", "drip", "diagonal", "modal",
     # DUSTLIGHT — the rave show signature presets (docs/the-rave.md)
     "ember", "dust", "monolith", "sunrise",
+    # New Year — a 10 -> 1 countdown the cube performs (the START pad), then the bells
+    "countdown",
 )
 BUILTINS = PRESET_ORDER
 

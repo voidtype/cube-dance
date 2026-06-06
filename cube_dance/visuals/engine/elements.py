@@ -677,3 +677,72 @@ class AmbientWash(Element):
         b = self.base * (0.4 + 0.6 * ctx.energy)
         hue = (self.h * 0.2 * ctx.size + ctx.evo_hue) % 1.0
         out += hsv_to_rgb(hue, ctx.sat(self.sat), np.full(self.n, b, np.float32))
+
+
+class Countdown(Element):
+    """A New Year countdown the cube performs: a glowing column drains one band
+    per second from 10 down to 1 -- cool at the top, hot near zero -- each second
+    punched by a brightening tick flash; then at zero a white blast, an expanding
+    shockwave and a celebratory rainbow bloom (the bells). Spawned by a pad
+    trigger and finishes on its own. ``dur=0`` skips straight to the celebration
+    (a manual 'GO' at the exact stroke of midnight)."""
+
+    blend = "add"
+    _rng = np.random.default_rng()
+
+    def __init__(self, model, color=(255, 210, 120), dur: float = 10.0, burst: float = 4.5,
+                 hue: float = 0.09, sat: float = 1.0, gain: float = 1.0) -> None:
+        P = model.positions
+        half, side = model.cfg.half, model.cfg.side_m
+        self.hy = np.clip((P[:, 1] + half) / side, 0.0, 1.0).astype(np.float32)
+        self.rho = np.sqrt((P ** 2).sum(axis=1)).astype(np.float32)
+        self.rmax = float(self.rho.max()) or 1.0
+        self.corner = np.where(model.corner_mask)[0]
+        self.edge = np.where(model.edge_mask)[0]
+        self.cn = self._rng.random(len(self.corner)).astype(np.float32)
+        self.n = int(model.n)
+        self.dur, self.burst = float(dur), float(burst)
+        self.hue, self.sat, self.gain = float(hue), float(sat), float(gain)
+        self._t = 0.0
+
+    def apply(self, ctx: Context, out: np.ndarray) -> None:
+        self._t += ctx.dt
+        if self._t >= self.dur + self.burst:
+            self.done = True
+            return
+        if self._t < self.dur:
+            self._count(out)
+        else:
+            self._bells(self._t - self.dur, ctx, out)
+
+    def _count(self, out: np.ndarray) -> None:
+        remaining = self.dur - self._t                       # 10 -> 0
+        level = max(1, int(math.ceil(remaining)))            # 10, 9 ... 1
+        tens = (self.dur - level) / max(self.dur - 1.0, 1.0)  # 0 at the top -> ~1 near zero
+        frac = level / self.dur                              # height of the lit column
+        # the draining column: filled below the dropping line, cool -> hot as it falls
+        lit = (self.hy < frac).astype(np.float32) * self.gain * (0.42 + 0.5 * tens)
+        out += hsv_to_rgb(0.55 - 0.5 * tens, self.sat, lit)
+        # a hot ring at the dropping line, for a clear tick-down
+        line = np.exp(-((self.hy - frac) / 0.05) ** 2) * self.gain * (0.5 + 0.5 * tens)
+        out += line[:, None] * np.array([1.0, 0.45 + 0.4 * tens, 0.18], np.float32)
+        # the per-second flash, sharper and brighter as it nears zero
+        out += math.exp(-(self._t - math.floor(self._t)) / 0.16) * self.gain * (0.35 + 0.7 * tens)
+
+    def _bells(self, bt: float, ctx: Context, out: np.ndarray) -> None:
+        if bt < 0.22:                                        # the white blast
+            out += 1.8 * (1.0 - bt / 0.22) + 0.3
+        decay = math.exp(-bt / 1.8)
+        p = min(1.0, bt / self.burst)                        # expanding shockwave ring
+        d = np.abs(self.rho - p * self.rmax * 1.12)
+        ring = np.clip(1.0 - d / (0.13 * self.rmax), 0.0, 1.0) * (1.0 - p)
+        out += (ring * 1.4 * self.gain)[:, None] * np.array([1.0, 0.85, 0.5], np.float32)
+        # a celebratory bloom over the whole cube (hue follows the colour knob)
+        bloom = (self.hue + ctx.evo_hue + self.hy * 0.5 + bt * 0.3) % 1.0
+        val = max(0.0, decay * (0.5 + 0.5 * math.sin(bt * 8.0))) * self.gain
+        out += hsv_to_rgb(bloom, self.sat, np.full(self.n, val, np.float32))
+        # corner fireworks + a sparkle across the edges
+        cv = np.clip(decay * (0.6 + 0.4 * np.sin(bt * 12.0 + self.cn * 8.0)), 0.0, 1.0).astype(np.float32)
+        out[self.corner] += hsv_to_rgb((self.hue + ctx.evo_hue + self.cn) % 1.0, self.sat, cv)
+        spk = (self._rng.random(len(self.edge)) > 0.86).astype(np.float32) * decay
+        out[self.edge] += spk[:, None] * np.array([1.0, 0.9, 0.7], np.float32)
