@@ -509,9 +509,22 @@ function setState(s) {
   if (s === 'playing') window.scrollTo(0, 0);       // land on the cube, not mid-scroll
 }
 
-async function startAudio() {                       // play Anchorite; true on success
+let preBuffer = null;
+async function predecodeAudio() {                   // decode the track DURING loading (no gesture needed
+  ensureAudio();                                    // to create a suspended context + decode)
+  for (const u of AUDIO) {
+    try { const r = await fetch(u); preBuffer = await actx.decodeAudioData(await r.arrayBuffer()); return; } catch (e) {}
+  }
+}
+async function startAudio() {                       // decode + play NOW; true on success
   for (const u of AUDIO) { try { await playURL(u); $('#hud').dataset.track = 'Anchorite'; return true; } catch (e) {} }
   return false;
+}
+async function beginAudio() {                       // on the click gesture -> INSTANT (already decoded)
+  ensureAudio();
+  if (actx.state === 'suspended') { try { await actx.resume(); } catch (e) {} }
+  if (preBuffer) { playBuffer(preBuffer); $('#hud').dataset.track = 'Anchorite'; return true; }
+  return startAudio();                              // fallback if the pre-decode never finished
 }
 
 function enterPlaying() {                           // reveal the tool — cube + audio uninterrupted
@@ -521,36 +534,39 @@ function enterPlaying() {                           // reveal the tool — cube 
 }
 
 function installStory() {
-  // reveal each line as it reaches the middle of the screen
+  const story = $('#story');
+  // reveal each line as it snaps to the middle of the screen (#story is the scroller)
   const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }),
-    { threshold: 0.55 });
-  document.querySelectorAll('#story .line, #story .cta').forEach(s => io.observe(s));
+    { root: story, threshold: 0.55 });
+  story.querySelectorAll('.line, .cta').forEach(s => io.observe(s));
   // fade the scroll hint out once they're moving
   const sh = $('#scrollhint');
-  addEventListener('scroll', () => {
+  story.addEventListener('scroll', () => {
     if (STATE !== 'listening') return;
-    sh.classList.toggle('show', scrollY < innerHeight * 0.4);
+    sh.classList.toggle('show', story.scrollTop < innerHeight * 0.4);
   }, { passive: true });
   $('#play-btn').addEventListener('click', enterPlaying);
 }
 
 async function onSoundClick() {                     // the /play/ direct-mode sound toggle
   const snd = $('#sound'); snd.textContent = '…';
-  if (await startAudio()) { snd.classList.add('on'); snd.textContent = '♪ Anchorite'; }
+  if (await beginAudio()) { snd.classList.add('on'); snd.textContent = '♪ Anchorite'; }
   else snd.textContent = '▶ sound (drag a track in)';
 }
 
 // ---------------------------------------------------------------- boot
 (async function () {
   try {
-    setState('intro');                              // the boot screen lives inside the intro
+    setState('intro');                              // shows the bare "loading" screen (input blocked)
+    const audioReady = predecodeAudio();            // decode the track in parallel with the engine
     await bootPython();
     fillPresetSelect();
     loadPreset('atlas');                            // the reference plugin (maps sound -> pixels)
     installDnD();
     installToolbar();
     buildF1();
-    requestAnimationFrame(frame);                   // the cube comes alive (calm, silent) behind the intro
+    requestAnimationFrame(frame);                   // the cube comes alive (calm, silent) behind "loading"
+    await audioReady;                               // ...and wait for the track, so the click is INSTANT
 
     if (SKIP_INTRO) {                               // /play/ -> straight into the tool
       $('#intro').classList.add('gone');            // no landing overlay in direct mode
@@ -559,19 +575,18 @@ async function onSoundClick() {                     // the /play/ direct-mode so
       snd.addEventListener('click', onSoundClick);
     } else {                                        // homepage -> the landing experience
       const intro = $('#intro');
-      intro.classList.remove('booting');
-      $('#prog').textContent = "click when you're ready";
       installStory();
-      intro.addEventListener('click', async () => {
+      intro.classList.remove('booting');            // "loading" -> "Click to begin"; only now is input live
+      intro.addEventListener('click', () => {
         if (STATE !== 'intro') return;
+        beginAudio();                               // sound starts instantly (pre-decoded buffer)
         intro.classList.add('gone');
         setState('listening');                      // -> just the cube + a scroll hint
         $('#scrollhint').classList.add('show');
-        startAudio();                               // Anchorite begins, seamlessly
       }, { once: true });
     }
   } catch (e) {
-    document.getElementById('intro')?.classList.remove('booting');
+    const lt = document.querySelector('#intro .loadtext'); if (lt) lt.textContent = 'failed to load';
     setProg('boot failed:\n' + (e && e.message ? e.message : e));
     console.error(e);
   }
