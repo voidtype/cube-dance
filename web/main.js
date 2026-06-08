@@ -9,6 +9,9 @@ import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 const PYODIDE = 'https://cdn.jsdelivr.net/pyodide/v0.29.4/full/';
+// Cache-bust the engine zip + bridge with this module's own ?v=… (set in index.html),
+// so a fresh deploy never serves a stale mix of main.js + engine to a cached browser.
+const ASSET_V = new URL(import.meta.url).search || '';
 const POS_SCALE = 5.5;     // model metres -> scene units
 const BRIGHT = 1.7;        // push hot LEDs past the bloom threshold
 
@@ -161,21 +164,22 @@ let pyodide, BRIDGE, outProxy, featProxy, feat = new Float32Array(25 + 2 * WAVE_
 // real audio is playing. Real audio takes over the moment a track starts.
 function synthFeatures(t) {
   const b = (t * 1.9) % 1;                       // ~114 bpm
-  const env = Math.exp(-b / 0.16) + 0.25;        // kick pulse + a floor (never dark)
+  const env = Math.exp(-b / 0.15) + 0.18;        // pulse with a floor (sparsity comes from the fx, not a strobe)
   const sweep = 0.5 + 0.5 * Math.sin(t * 0.25);
   const bl = new Float32Array(8), br = new Float32Array(8);
-  for (let i = 0; i < 8; i++) {
-    const v = Math.min(1, 0.3 + 0.55 * Math.abs(Math.sin(t * 0.8 + i * 0.7)) * env);
-    bl[i] = v; br[i] = v * 0.92;
+  const ctr = (0.5 + 0.5 * Math.sin(t * 0.33)) * 7;   // a spectral PEAK sweeping the buckets
+  for (let i = 0; i < 8; i++) {                  // bright near the peak, OFF far from it -> sparse
+    bl[i] = Math.min(1, Math.max(0, 1 - Math.abs(i - ctr) * 0.75) * (0.25 + 0.85 * env));
+    br[i] = Math.min(1, Math.max(0, 1 - Math.abs(i - (ctr - 1)) * 0.75) * (0.25 + 0.85 * env));
   }
-  const bass = Math.min(1, 0.4 + 0.5 * env);
+  const bass = Math.min(1, 0.12 + 0.9 * env);    // pulses toward 0 between beats -> corners breathe off
   for (let i = 0; i < WAVE_M; i++) {             // a synthetic wave so the scope lives pre-audio
     const ph = (i / WAVE_M) * Math.PI * 6 + t * 6;
-    _wL[i] = Math.sin(ph) * (0.25 + 0.5 * env);
-    _wR[i] = Math.sin(ph + 0.6) * (0.25 + 0.5 * env) * 0.9;
+    _wL[i] = Math.sin(ph) * (0.2 + 0.6 * env);
+    _wR[i] = Math.sin(ph + 0.6) * (0.2 + 0.6 * env) * 0.9;
   }
-  return { level: Math.min(1, 0.35 + 0.4 * env), bass, mid: 0.3 + 0.35 * sweep,
-    treble: 0.25 + 0.3 * (1 - sweep), bass_l: bass, bass_r: bass * 0.9,
+  return { level: Math.min(1, 0.15 + 0.55 * env), bass, mid: (0.2 + 0.4 * sweep) * env,
+    treble: (0.2 + 0.35 * (1 - sweep)) * env, bass_l: bass, bass_r: bass * 0.9,
     buckets_l: bl, buckets_r: br, beat: b, kick: b < 0.04, waveL: _wL, waveR: _wR };
 }
 const toObj = p => { const o = p.toJs({ dict_converter: Object.fromEntries }); p.destroy(); return o; };
@@ -187,10 +191,10 @@ async function bootPython() {
   setProg('loading numpy + scipy…');
   await pyodide.loadPackage(['numpy', 'scipy']);
   setProg('fetching the live cube_dance engine…');
-  const zip = await (await fetch('./cube_dance.zip')).arrayBuffer();
+  const zip = await (await fetch('./cube_dance.zip' + ASSET_V)).arrayBuffer();
   await pyodide.unpackArchive(zip, 'zip');           // -> /home/pyodide/cube_dance (on sys.path)
   setProg('starting the engine…');
-  const src = await (await fetch('./bridge.py')).text();
+  const src = await (await fetch('./bridge.py' + ASSET_V)).text();
   pyodide.FS.writeFile('bridge.py', src);
   const mod = pyodide.pyimport('bridge');
   BRIDGE = mod.BRIDGE;

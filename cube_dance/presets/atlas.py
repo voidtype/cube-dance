@@ -162,6 +162,8 @@ class Atlas(Element):
         # per run so they don't all march in lockstep.
         self.param = model.param.astype(np.float32)
         self.run_phase = ((model.element_id.astype(np.float32) * 0.1318) % 1.0).astype(np.float32)
+        self.cparamL = self.param[self.cornerL]  # 0..1 fill position within each L corner
+        self.cparamR = self.param[self.cornerR]  # ...and each R corner (the bass "meter")
 
         # Envelopes: snappy attack, smooth release — for the transient events.
         self.env_kick = EnvFollower(0.45)        # one shockwave per kick onset
@@ -171,6 +173,11 @@ class Atlas(Element):
 
         # Reusable scratch colour (avoids per-frame allocation churn).
         self._white = np.array([1.0, 0.85, 0.6], np.float32)
+        # rolling per-bucket average — an adaptive floor for the spectrum knee so
+        # steady tones sink toward off and only rising content pops.
+        self.z8 = np.zeros(8, np.float32)
+        self.avgL = np.zeros(8, np.float32)
+        self.avgR = np.zeros(8, np.float32)
 
     # tiny helper: read an 8-bucket spectrum at every LED's height (linear blend).
     def _spectrum_at_height(self, buckets) -> np.ndarray:
@@ -186,22 +193,31 @@ class Atlas(Element):
         size = max(0.15, ctx.size)   # your 'depth' knob
 
         # ===== 1) THE SPATIAL SPECTRUM — bass low, treble high, L|R across x ========
-        # Interpolate each channel's 8-bucket spectrum across HEIGHT, then pick the
-        # value for each LED's side. Hue climbs with height (red base -> violet top).
-        specL = self._spectrum_at_height(f.buckets_l)        # (N,) left spectrum by height
-        specR = self._spectrum_at_height(f.buckets_r)        # (N,) right spectrum by height
-        spec = np.where(self.isL, specL, specR).astype(np.float32)
-        spec *= 0.75 + 0.6 * ctx.energy                      # ctx.energy: lift with loudness
+        # Per bucket: subtract a slow ROLLING AVERAGE (so steady tones sink toward off
+        # and what rises above the recent norm pops), then a hard KNEE so quiet buckets
+        # clip to TRUE BLACK. The spectrum then reads as sparse lit bands with dark
+        # gaps climbing the cube — not a continuous wash.
+        bkL = np.asarray(f.buckets_l, np.float32) if f.buckets_l is not None else self.z8
+        bkR = np.asarray(f.buckets_r, np.float32) if f.buckets_r is not None else self.z8
+        self.avgL += 0.05 * (bkL - self.avgL)                # EMA over ~a second
+        self.avgR += 0.05 * (bkR - self.avgR)
+        litL = np.clip((bkL - 0.60 * self.avgL - 0.14) * 2.0, 0.0, 1.0)   # knee -> quiet/steady = off
+        litR = np.clip((bkR - 0.60 * self.avgR - 0.14) * 2.0, 0.0, 1.0)
+        spec = np.where(self.isL, self._spectrum_at_height(litL),
+                        self._spectrum_at_height(litR)).astype(np.float32)
         hue = (hue0 + 0.66 * self.hy) % 1.0                  # (N,) hue ramp up the cube
-        out += hsv_to_rgb(hue, sat, np.clip(spec * 1.25, 0.0, 1.0))   # vectorised -> (N,3)
+        out += hsv_to_rgb(hue, sat, spec)                    # vectorised -> (N,3)
 
         # ===== 2) BASS IN THE CORNERS — per channel, snappy (EnvFollower) ===========
+        # Rather than flood all 5,904 corner LEDs (60% of the cube!), bass FILLS each
+        # cluster from one end: only corner pixels whose run-position is below the bass
+        # level light. Low bass -> mostly-off corners; a kick -> full. This is what
+        # keeps genuine off pixels even under sustained sound.
         self.env_bL.trigger(float(f.bass_l)); self.env_bR.trigger(float(f.bass_r))
         vL = self.env_bL.step(ctx.dt); vR = self.env_bR.step(ctx.dt)
-        warm = (hue0 + 0.02) % 1.0
-        # blend_into() is the explicit compositor; scalar v -> a 3-vector, broadcast.
-        blend_into(out, self.cornerL, hsv_to_rgb(warm, sat, vL), "add")
-        blend_into(out, self.cornerR, hsv_to_rgb(warm, sat, vR), "add")
+        wc = np.asarray(hsv_to_rgb((hue0 + 0.02) % 1.0, sat, 1.0), np.float32)
+        out[self.cornerL[self.cparamL < vL]] += wc * vL      # fill the lower vL fraction
+        out[self.cornerR[self.cparamR < vR]] += wc * vR
 
         # ===== 3) KICKS -> a SHOCKWAVE expanding from the centre (ctx.events) ========
         for e in ctx.events("kick"):
@@ -220,7 +236,9 @@ class Atlas(Element):
             m = w.shape[0]
             idx = np.clip((self.ang * (m - 1)).astype(np.int32), 0, m - 1)   # angle->sample
             amp = np.where(self.isL, w[idx, 0], w[idx, 1])       # L on the left, R on the right
-            scope = np.clip(np.abs(amp) * 1.4 * size, 0.0, 1.0).astype(np.float32)
+            # threshold -> only the waveform's peaks light the edges (dark between),
+            # so the scope reads as moving points, not a continuous lit edge.
+            scope = np.clip((np.abs(amp) - 0.30) * 2.4 * size, 0.0, 1.0).astype(np.float32)
             ce = (hue0 + 0.5) % 1.0                              # complementary hue
             out[self.edge] += hsv_to_rgb(ce, sat, scope[self.edge])
 
@@ -242,32 +260,41 @@ class Atlas(Element):
             spk = (self._rng.random(self.edge.size) < rate).astype(np.float32)
             out[self.edge] += spk[:, None] * np.array([0.9, 0.95, 1.0], np.float32) * float(f.treble)
 
-        # ===== 7) BEAT + LEVEL + BASS -> a breathing floor, GATED so silence = black =
-        # A gentle glow on EVERY pixel — but multiplied by energy**2, so when the
-        # sound drops the whole floor collapses to true black and inactive pixels go
-        # dark (the contrast we want). On a synthetic beat energy>0 keeps it alive;
-        # there's no standalone DC term, so nothing floats off black in silence.
-        ge = ctx.energy * ctx.energy
-        breathe = ge * (lfo("sine", ctx.beat) * 0.07 + 0.05 * float(f.level) + 0.06 * float(f.bass))
-        out += breathe
+        # ===== 7) BEAT PULSE — in the CORNERS only ==================================
+        # A uniform whole-cube floor would light every pixel and kill the off-pixels,
+        # so the beat "breath" lives only in the 8 corner clusters (already a feature,
+        # not dead space). The body and edges stay free to go black.
+        beatv = lfo("sine", ctx.beat) * (0.05 + 0.25 * ctx.energy)
+        warm2 = hsv_to_rgb((hue0 + 0.04) % 1.0, sat, beatv)
+        blend_into(out, self.cornerL, warm2, "add")
+        blend_into(out, self.cornerR, warm2, "add")
 
         # ===== 8) STRUCTURE PLAY-HEAD along every edge (model.param + element_id) ====
-        # A bright dot chases along each run; phase offset per run via element_id.
+        # A TIGHT dot chases each run (narrow -> mostly-dark edges with a moving point)
+        # and fades with energy, so the edges go dark in the quiet.
         ph = (self.run_phase + t * 0.25) % 1.0
         dd = np.abs(((self.param - ph + 0.5) % 1.0) - 0.5)       # wrapped distance to the head
-        head = np.exp(-(dd / 0.045) ** 2) * 0.5                   # maths: Gaussian dot
+        head = np.exp(-(dd / 0.028) ** 2) * (0.15 + 0.7 * ctx.energy)   # narrow + energy-gated
         hc = np.asarray(hsv_to_rgb((hue0 + 0.12) % 1.0, sat, 1.0), np.float32)
         out[self.edge] += head[self.edge][:, None] * hc
 
         # ===== 9) BONUS: a Bessel "cymatic" ring if scipy is here (else a cos ring) ==
-        # j0(k*rho) draws clean concentric rings; we ride them on the treble. The
-        # numpy fallback keeps the plugin working even without scipy.
-        ring_amp = 0.10 * float(f.treble)
+        # j0(k*rho) draws clean concentric rings; we ride them on the treble and
+        # THRESHOLD so only the crests light (dark between rings). numpy fallback too.
+        ring_amp = 0.16 * float(f.treble)
         if ring_amp > 0.004:
             kr = 6.0 + 10.0 * float(f.mid)
             r = self.rho / self.rmax
             ring = _besselj0(kr * r) if _HAVE_SCIPY else np.cos(kr * r) / (1.0 + self.rho)
-            out += np.clip(ring, 0.0, 1.0)[:, None] * np.array([0.4, 0.7, 1.0], np.float32) * ring_amp
+            ring = np.clip(ring - 0.35, 0.0, 1.0)            # threshold -> crests only
+            out += ring[:, None] * np.array([0.4, 0.7, 1.0], np.float32) * ring_amp
+
+        # ===== FLOOR CUT — snap the dimmest residue to TRUE BLACK ====================
+        # Guarantees a population of genuinely-off pixels (the contrast you asked for):
+        # anything under ~0.04 goes fully dark; bright active pixels lose a negligible
+        # amount. This is what makes the cube read as lit shapes ON black.
+        out -= 0.04
+        np.maximum(out, 0.0, out)
 
 
 # --- the F1 performance surface ------------------------------------------------
