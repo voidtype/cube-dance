@@ -478,11 +478,11 @@ function frame() {
     requestAnimationFrame(frame);                     // the cube is alive on load (synthetic beat)
     $('#gate').classList.add('gone');                 // reveal the living cube immediately
     const snd = $('#sound'); snd.classList.add('show');
-    const AUDIO = ['./smooth.mp3', '../assets/smooth.mp3'];   // local web/, then the copy already on the site
+    const AUDIO = ['./anchorite.mp3', '../assets/smooth.mp3'];   // default track, then a fallback already on the site
     snd.addEventListener('click', async () => {
       snd.textContent = '…';
       for (const u of AUDIO) {
-        try { await playURL(u); snd.classList.add('on'); snd.textContent = '♪ Smooth Operator'; $('#hud').dataset.track = 'Smooth Operator'; return; }
+        try { await playURL(u); snd.classList.add('on'); snd.textContent = '♪ Anchorite'; $('#hud').dataset.track = 'Anchorite'; return; }
         catch (e) { /* try the next candidate */ }
       }
       snd.textContent = '▶ sound (drag a track in)';
