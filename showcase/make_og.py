@@ -1,4 +1,4 @@
-"""Compose the social/link-preview (Open Graph) image for the pitch site.
+"""Compose the social/link-preview (Open Graph) image for the showcase site.
 
 A gold reveal frame of the cube, darkened, with the event mark — so when the
 link is shared it shows a card worth clicking. 1200x630.
@@ -77,7 +77,7 @@ def main() -> int:
     tw = d.textlength(TITLE, font=f_title)
     d.text(((W - tw) / 2 + 3, 196 + 3), TITLE, font=f_title, fill=(20, 8, 0))
     d.text(((W - tw) / 2, 196), TITLE, font=f_title, fill=(255, 206, 138))
-    centre("the Stumpy site · the Watagans · for Luke", f_sub, 392, (235, 217, 196))
+    centre("the Stumpy site · the Watagans", f_sub, 392, (235, 217, 196))
 
     out = ASSETS / "og-image.jpg"
     bg.save(out, quality=88)

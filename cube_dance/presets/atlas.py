@@ -231,7 +231,9 @@ class Atlas(Element):
         plasma = (np.sin(self.nx * k + t * 1.3)
                   + np.sin(self.ny * k * 1.1 - t)
                   + np.sin((self.nx + self.ny) * k * 0.7 + math.sin(t * 0.5) * 2.0))
-        plasma = np.clip(0.5 + 0.18 * plasma, 0.0, 1.0) * float(f.mid) * 0.6
+        # sharpen: recenter/steepen so the TROUGHS clip to true black -> the plasma
+        # reads as bright interference filaments on black, not a flat mid-grey wash.
+        plasma = np.clip(0.42 * plasma - 0.45, 0.0, 1.0) * float(f.mid) * 0.75
         out += hsv_to_rgb((hue0 + 0.33) % 1.0, sat * 0.7, plasma)
 
         # ===== 6) TREBLE -> sparkle on random edge LEDs (rate rides ctx.density) ====
@@ -240,10 +242,13 @@ class Atlas(Element):
             spk = (self._rng.random(self.edge.size) < rate).astype(np.float32)
             out[self.edge] += spk[:, None] * np.array([0.9, 0.95, 1.0], np.float32) * float(f.treble)
 
-        # ===== 7) BEAT + LEVEL + BASS -> a breathing floor (lfo + maths) ============
-        # A gentle global glow: breathes on the beat phase (lfo), lifts with overall
-        # loudness, and gets a low-end push from the mono bass band.
-        breathe = lfo("sine", ctx.beat) * 0.09 + 0.04 * float(f.level) + 0.05 * float(f.bass)
+        # ===== 7) BEAT + LEVEL + BASS -> a breathing floor, GATED so silence = black =
+        # A gentle glow on EVERY pixel — but multiplied by energy**2, so when the
+        # sound drops the whole floor collapses to true black and inactive pixels go
+        # dark (the contrast we want). On a synthetic beat energy>0 keeps it alive;
+        # there's no standalone DC term, so nothing floats off black in silence.
+        ge = ctx.energy * ctx.energy
+        breathe = ge * (lfo("sine", ctx.beat) * 0.07 + 0.05 * float(f.level) + 0.06 * float(f.bass))
         out += breathe
 
         # ===== 8) STRUCTURE PLAY-HEAD along every edge (model.param + element_id) ====

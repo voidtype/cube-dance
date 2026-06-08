@@ -96,7 +96,7 @@ def frame(target: dt.datetime, now: dt.datetime, width: int = 80) -> str:
         for line in big("2027", GOLD):
             out.append(pad(line))
         out.append("")
-        out.append(pad(f"{AMBER}{BOLD}Happy New Year, Luke.{RST}"))
+        out.append(pad(f"{AMBER}{BOLD}Happy New Year.{RST}"))
         out.append(pad(f"{DIM}— and the cube hits its Peak right now —{RST}"))
     elif rem <= 10:
         for line in big(str(math.ceil(rem)), GOLD):   # the final ten: 10 … 1

@@ -1,9 +1,9 @@
 """Render the cube reacting to a real song, offscreen, to an H.264 mp4 (muted).
 
 Drives the actual audio-feature pipeline + DeckMixer frame by frame, renders the
-Monolith glowing in the dark (no scenery), and pipes raw frames to ffmpeg. A
+cube glowing in the dark (no scenery), and pipes raw frames to ffmpeg. A
 slow orbit around the cube gives it production polish. Used to make the clips
-embedded in the cube-into-2027 pitch page.
+embedded in the cube-into-2027 showcase page.
 
     # dial in the look (single PNG):
     uv run python showcase/render_clip.py probe moondance --at 78 --out /tmp/a.png

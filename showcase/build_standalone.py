@@ -1,4 +1,4 @@
-"""Inline showcase/index.html into one self-contained file you can just send.
+"""Inline showcase/index.html into one self-contained file you can send to anyone.
 
 Embeds the compact (web) video variants, the mp3s and the storyboard as base64
 data: URIs, so cube-into-2027.html opens offline with a double-click — no assets

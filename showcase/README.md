@@ -1,6 +1,6 @@
 # `showcase/` — *the cube, for New Year's at Stumpy*
 
-A scroll-driven page made for **Luke**: the cube + the Cube Dance software, ready
+A scroll-driven page about the cube + the Cube Dance software, ready
 for the real **New Year's Eve doof at the Stumpy site in the Watagans**. Scored by
 **Moondance** then revealed with **Smooth Operator**, with a live countdown to
 midnight on NYE (2026 → 2027).
@@ -17,9 +17,9 @@ been removed; `show.py` still uses `dustlight` as an internal set name.)
 | file | what |
 |------|------|
 | `index.html` | the page (bundle form — loads `assets/`) |
-| `cube-into-2027.html` | **the file to send Luke** — fully self-contained (assets inlined), opens with a double-click. *(generated; git-ignored)* |
+| `cube-into-2027.html` | **the single self-contained file** — assets inlined, opens with a double-click. *(generated; git-ignored)* |
 | `render_clip.py` | renders the cube reacting to a song, offscreen, to mp4 |
-| `build_standalone.py` | inlines `index.html` + assets → the single send-able file |
+| `build_standalone.py` | inlines `index.html` + assets → the single self-contained file |
 | `assets/` | the rendered clips, web audio, storyboard *(mp4/mp3 git-ignored — regenerate)* |
 
 ## The cube footage is real
@@ -48,7 +48,7 @@ ffmpeg -y -i "<Moondance.aiff>" -c:a libmp3lame -b:a 128k moondance.mp3
 ffmpeg -y -i "<SmoothOperator.aiff>" -c:a libmp3lame -b:a 128k smooth.mp3
 cd ../..
 
-# 3) build the one file to send
+# 3) build the single self-contained file
 uv run python showcase/build_standalone.py     # -> showcase/cube-into-2027.html
 ```
 
@@ -64,7 +64,7 @@ uv run python showcase/render_clip.py probe moondance --at 96 --out /tmp/m.png
 python3 -m http.server 8131 --directory showcase   # then open http://localhost:8131/
 ```
 
-## Send it
+## Share it
 
 `cube-into-2027.html` is ~27 MB and self-contained — AirDrop it, or drop it in a
 chat. It opens offline; best with the sound up. Tweak the event date in the page
