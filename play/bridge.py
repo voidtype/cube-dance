@@ -62,6 +62,18 @@ class Bridge:
     def preset_list(self):
         return list(presets.PRESET_ORDER)
 
+    def preset_source(self, name: str) -> str:
+        """The real .py source of a built-in preset, with package-relative imports
+        rewritten to absolute so the edited copy runs standalone via load_code()."""
+        import os
+        import re
+        path = os.path.join(os.path.dirname(presets.__file__), name + ".py")
+        try:
+            src = open(path).read()
+        except OSError:
+            return ""
+        return re.sub(r"(?m)^from \.\.", "from cube_dance.", src)
+
     # --- schema (knobs + trigger pads) for the on-screen controller -------
     def _schema(self, name):
         return {
