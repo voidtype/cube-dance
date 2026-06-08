@@ -33,7 +33,9 @@ from cube_dance import presets
 # feat buffer layout (JS writes these each frame; see web/main.js):
 #  0 level  1 bass  2 mid  3 treble  4 bass_l  5 bass_r  6 beat  7 kick(0/1)
 #  8 kickStrength   9..16 buckets_l[8]   17..24 buckets_r[8]
-_F = 25
+#  25 .. 25+M-1  waveform L   25+M .. 25+2M-1  waveform R   (the scope; M=_WAVE_M)
+_WAVE_M = 96  # downsampled oscilloscope samples per channel (fed by the web glue)
+_F = 25 + 2 * _WAVE_M
 
 
 class _Ev:  # the minimal onset event the engine reads (.kind / .strength)
@@ -45,7 +47,7 @@ class _Ev:  # the minimal onset event the engine reads (.kind / .strength)
 
 
 class Bridge:
-    def __init__(self, preset: str = "deep") -> None:
+    def __init__(self, preset: str = "atlas") -> None:
         self.model = build_model(CubeConfig())
         self.n = int(self.model.n)
         self.eng = VisualEngine(self.model, n_buckets=8)
@@ -156,10 +158,13 @@ class Bridge:
             bass_l=float(b[4]), bass_r=float(b[5]),
             buckets_l=np.asarray(b[9:17], np.float32), buckets_r=np.asarray(b[17:25], np.float32),
             events=evs, beat=float(b[6]),
+            # (m,2) stereo waveform for scope effects — atlas's oscilloscope reads this.
+            wave=np.stack([np.asarray(b[25:25 + _WAVE_M], np.float32),
+                           np.asarray(b[25 + _WAVE_M:25 + 2 * _WAVE_M], np.float32)], axis=1),
         )
         self.out[:] = 0.0
         self.eng.render(self.model, float(t), feats, self.out)
         np.clip(self.out, 0.0, 1.0, self.out)
 
 
-BRIDGE = Bridge("deep")
+BRIDGE = Bridge("atlas")
