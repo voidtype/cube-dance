@@ -182,6 +182,22 @@ function synthFeatures(t) {
     treble: (0.2 + 0.35 * (1 - sweep)) * env, bass_l: bass, bass_r: bass * 0.9,
     buckets_l: bl, buckets_r: br, beat: b, kick: b < 0.04, waveL: _wL, waveR: _wR };
 }
+
+// The INTRO idle: a calm, silent, slowly-drifting glow (no beat) — a clearly-lit
+// cube that reads as one wireframe, just serene rather than dancing.
+function idleFeatures(t) {
+  const bl = new Float32Array(8), br = new Float32Array(8);
+  const ctr = (0.5 + 0.5 * Math.sin(t * 0.12)) * 7;       // a very slow spectral drift
+  for (let i = 0; i < 8; i++) {
+    bl[i] = Math.max(0, 1 - Math.abs(i - ctr) * 0.62) * 0.8;
+    br[i] = Math.max(0, 1 - Math.abs(i - (ctr - 0.7)) * 0.62) * 0.72;
+  }
+  for (let i = 0; i < WAVE_M; i++) { _wL[i] = Math.sin(i * 0.25 + t * 1.1) * 0.18; _wR[i] = _wL[i] * 0.9; }
+  return { level: 0.3, bass: 0.42, mid: 0.22, treble: 0.12, bass_l: 0.42, bass_r: 0.38,
+    buckets_l: bl, buckets_r: br, beat: 0, kick: false, waveL: _wL, waveR: _wR };
+}
+
+let STATE = 'boot';   // boot -> intro -> listening -> playing  (drives the landing experience)
 const toObj = p => { const o = p.toJs({ dict_converter: Object.fromEntries }); p.destroy(); return o; };
 
 async function bootPython() {
@@ -455,7 +471,7 @@ function frame() {
   const now = performance.now(), t = (now - t0) / 1000;
   // 1. features -> Python's feature buffer (zero-copy view). Synthetic beat keeps
   //    the cube alive until a real track is playing.
-  const m = audioPlaying ? analyse() : synthFeatures(t);
+  const m = (STATE === 'intro') ? idleFeatures(t) : (audioPlaying ? analyse() : synthFeatures(t));
   feat[0]=m.level; feat[1]=m.bass; feat[2]=m.mid; feat[3]=m.treble; feat[4]=m.bass_l; feat[5]=m.bass_r;
   feat[6]=m.beat; feat[7]=m.kick?1:0; feat[8]=m.kick?Math.min(1,m.bass*1.5+0.4):0;
   feat.set(m.buckets_l, 9); feat.set(m.buckets_r, 17);
@@ -480,30 +496,82 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
+// ---------------------------------------------------------------- experience flow
+// /play/ (or #play) skips the landing and drops straight into the tool.
+const SKIP_INTRO = /\/play\/?$/.test(location.pathname) || location.hash === '#play';
+const AUDIO = ['./anchorite.mp3', '../assets/smooth.mp3'];   // default track, then a site fallback
+
+function setState(s) {
+  STATE = s;
+  document.body.classList.remove('s-intro', 's-listening', 's-playing');
+  document.body.classList.add('s-' + s);
+  controls.enabled = (s === 'playing');             // orbit only in the tool; spin (autoRotate) always
+  if (s === 'playing') window.scrollTo(0, 0);       // land on the cube, not mid-scroll
+}
+
+async function startAudio() {                       // play Anchorite; true on success
+  for (const u of AUDIO) { try { await playURL(u); $('#hud').dataset.track = 'Anchorite'; return true; } catch (e) {} }
+  return false;
+}
+
+function enterPlaying() {                           // reveal the tool — cube + audio uninterrupted
+  setState('playing');
+  $('#panel').classList.add('show');
+  $('#f1').classList.add('show'); $('#btn-f1').classList.add('active');
+}
+
+function installStory() {
+  // reveal each line as it reaches the middle of the screen
+  const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }),
+    { threshold: 0.55 });
+  document.querySelectorAll('#story .line, #story .cta').forEach(s => io.observe(s));
+  // fade the scroll hint out once they're moving
+  const sh = $('#scrollhint');
+  addEventListener('scroll', () => {
+    if (STATE !== 'listening') return;
+    sh.classList.toggle('show', scrollY < innerHeight * 0.4);
+  }, { passive: true });
+  $('#play-btn').addEventListener('click', enterPlaying);
+}
+
+async function onSoundClick() {                     // the /play/ direct-mode sound toggle
+  const snd = $('#sound'); snd.textContent = '…';
+  if (await startAudio()) { snd.classList.add('on'); snd.textContent = '♪ Anchorite'; }
+  else snd.textContent = '▶ sound (drag a track in)';
+}
+
 // ---------------------------------------------------------------- boot
 (async function () {
   try {
+    setState('intro');                              // the boot screen lives inside the intro
     await bootPython();
     fillPresetSelect();
-    loadPreset('atlas');                              // the reference plugin (maps sound -> pixels)
+    loadPreset('atlas');                            // the reference plugin (maps sound -> pixels)
     installDnD();
     installToolbar();
     buildF1();
-    $('#panel').classList.add('show');
-    $('#f1').classList.add('show'); $('#btn-f1').classList.add('active');
-    requestAnimationFrame(frame);                     // the cube is alive on load (synthetic beat)
-    $('#gate').classList.add('gone');                 // reveal the living cube immediately
-    const snd = $('#sound'); snd.classList.add('show');
-    const AUDIO = ['./anchorite.mp3', '../assets/smooth.mp3'];   // default track, then a fallback already on the site
-    snd.addEventListener('click', async () => {
-      snd.textContent = '…';
-      for (const u of AUDIO) {
-        try { await playURL(u); snd.classList.add('on'); snd.textContent = '♪ Anchorite'; $('#hud').dataset.track = 'Anchorite'; return; }
-        catch (e) { /* try the next candidate */ }
-      }
-      snd.textContent = '▶ sound (drag a track in)';
-    });
+    requestAnimationFrame(frame);                   // the cube comes alive (calm, silent) behind the intro
+
+    if (SKIP_INTRO) {                               // /play/ -> straight into the tool
+      $('#intro').classList.add('gone');            // no landing overlay in direct mode
+      enterPlaying();
+      const snd = $('#sound'); snd.classList.add('show');
+      snd.addEventListener('click', onSoundClick);
+    } else {                                        // homepage -> the landing experience
+      const intro = $('#intro');
+      intro.classList.remove('booting');
+      $('#prog').textContent = "click when you're ready";
+      installStory();
+      intro.addEventListener('click', async () => {
+        if (STATE !== 'intro') return;
+        intro.classList.add('gone');
+        setState('listening');                      // -> just the cube + a scroll hint
+        $('#scrollhint').classList.add('show');
+        startAudio();                               // Anchorite begins, seamlessly
+      }, { once: true });
+    }
   } catch (e) {
+    document.getElementById('intro')?.classList.remove('booting');
     setProg('boot failed:\n' + (e && e.message ? e.message : e));
     console.error(e);
   }

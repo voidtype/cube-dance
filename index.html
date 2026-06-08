@@ -2,484 +2,238 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cube Dance · New Year's at Stumpy</title>
-<meta name="description" content="The cube, ready for the New Year's Eve doof at the Stumpy site in the Watagans. Sound-reactive, dusk to sunrise — best with the sound up.">
-<!-- unlisted: reachable by direct link, but kept out of search indexes -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#04050a">
+<title>Cube Dance</title>
+<meta name="description" content="A 2.6 m LED truss cube with a custom, sound-aware brain. Press play.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="The cube — New Year's in the Watagans">
-<meta property="og:description" content="Sound-reactive LED control for the Stumpy NYE doof. The real cube, the real engine — best with the sound up.">
-<meta property="og:url" content="https://voidtype.github.io/cube-dance/">
+<meta property="og:title" content="Cube Dance">
+<meta property="og:description" content="The cube has a new brain. Press play.">
 <meta property="og:image" content="https://voidtype.github.io/cube-dance/assets/og-image.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The cube — New Year's in the Watagans">
-<meta name="twitter:description" content="The cube, ready for the Stumpy NYE doof.">
-<meta name="twitter:image" content="https://voidtype.github.io/cube-dance/assets/og-image.jpg">
+<meta name="theme-color" content="#05060a">
+<style>html{scroll-behavior:smooth}</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"
+  }
+}
+</script>
 <style>
-  :root{
-    --bg:#04050a; --bg2:#070912; --ink:#eaeef8; --dim:#8a93a9; --faint:#525c73;
-    --moon:#9ec5ff; --moon2:#cfe5ff; --teal:#86e3d8;
-    --gold:#ffce8a; --amber:#ff9e4d; --copper:#e07a3a;
-    --serif:"Hoefler Text",Georgia,"Times New Roman",ui-serif,serif;
-    --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Segoe UI",system-ui,sans-serif;
-    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
-    --accent:var(--moon);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    background:var(--bg); color:var(--ink); font-family:var(--sans);
-    -webkit-font-smoothing:antialiased; line-height:1.5; overflow-x:hidden;
-  }
-  body.revealed{--accent:var(--gold)}
-  ::selection{background:var(--accent);color:#04050a}
+  :root{ --gold:#ffce8a; --moon:#9ec5ff; --ink:#e9edf6; --dim:#8a93a9; --panel:rgba(10,12,20,.82); }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#05060a;color:var(--ink);
+    font:13px/1.5 -apple-system,"Helvetica Neue",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{overflow:hidden}                 /* intro & playing: locked. listening: scrolls (below) */
+  body.s-listening{overflow:visible}
+  canvas{display:block;position:fixed;inset:0;z-index:0}   /* the live cube, always behind */
+  #drop-hint{position:fixed;inset:0;z-index:30;pointer-events:none;border:2px dashed transparent;transition:.2s}
+  body.drag #drop-hint{border-color:var(--gold);background:rgba(255,206,138,.06)}
 
-  /* scroll progress + state */
-  #progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:90;
-    background:linear-gradient(90deg,var(--moon),var(--teal));transition:width .12s linear,background .8s}
-  body.revealed #progress{background:linear-gradient(90deg,var(--amber),var(--gold))}
-
-  /* begin gate */
-  #gate{position:fixed;inset:0;z-index:100;background:radial-gradient(120% 90% at 50% 40%,#0a0d18 0%,#04050a 70%);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
-    transition:opacity 1.1s ease,visibility 1.1s;padding:24px}
+  /* loading / start gate */
+  #gate{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;background:radial-gradient(120% 90% at 50% 40%,#0a0d18,#05060a 70%);transition:opacity .6s,visibility .6s}
   #gate.gone{opacity:0;visibility:hidden}
-  #gate .mark{font:600 13px/1 var(--sans);letter-spacing:.42em;color:var(--moon);opacity:.8;margin-bottom:30px}
-  #gate h1{font-family:var(--serif);font-weight:500;font-size:clamp(48px,11vw,128px);letter-spacing:-.02em;
-    line-height:.95;background:linear-gradient(180deg,#fff,#9fb2d6);-webkit-background-clip:text;background-clip:text;color:transparent}
-  #gate p{color:var(--dim);max-width:30ch;margin:22px auto 0;font-size:16px}
-  #begin{margin-top:42px;display:inline-flex;align-items:center;gap:12px;cursor:pointer;
-    font:600 15px/1 var(--sans);letter-spacing:.04em;color:#04050a;background:var(--moon2);
-    border:0;border-radius:999px;padding:16px 30px;transition:transform .3s,box-shadow .3s,background .3s;
-    box-shadow:0 0 0 0 rgba(158,197,255,.5)}
-  #begin:hover{transform:translateY(-2px);box-shadow:0 14px 50px -10px rgba(158,197,255,.6)}
-  #begin .tri{width:0;height:0;border-left:11px solid #04050a;border-top:7px solid transparent;border-bottom:7px solid transparent}
-  #gate .foot{margin-top:34px;color:var(--faint);font-size:12.5px;letter-spacing:.02em}
-  #gate .foot b{color:var(--moon);font-weight:600}
-  .pulse{width:9px;height:9px;border-radius:50%;background:var(--moon);display:inline-block;vertical-align:middle;
-    margin-right:7px;animation:beat 2.4s ease-in-out infinite;box-shadow:0 0 18px var(--moon)}
-  @keyframes beat{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+  #gate h1{font:500 30px/1.1 "Hoefler Text",Georgia,serif;margin:0 0 6px;
+    background:linear-gradient(180deg,#fff,#9fb2d6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #gate .sub{color:var(--dim);max-width:42ch;margin:0 0 26px}
+  #prog{font:12px/1.6 "SF Mono",ui-monospace,Menlo,monospace;color:var(--moon);min-height:1.6em;white-space:pre}
+  #startbtn{margin-top:22px;display:none;cursor:pointer;border:0;border-radius:999px;padding:14px 28px;
+    font:600 14px/1 inherit;color:#05060a;background:var(--gold)}
+  #startbtn.ready{display:inline-block}
+  #gate .tip{margin-top:30px;color:#525c73;font-size:12px}
 
-  section{position:relative;padding:15vh 24px}
-  .wrap{max-width:1080px;margin:0 auto}
-  .narrow{max-width:760px}
-  .overline{font:600 12.5px/1 var(--sans);letter-spacing:.34em;color:var(--accent);opacity:.9;margin-bottom:22px;transition:color .8s}
-  h2{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;line-height:1.04;
-    font-size:clamp(34px,6vw,68px)}
-  h2 em{font-style:italic;color:var(--moon2)}
-  body.revealed h2 em{color:var(--gold)}
-  .lead{font-size:clamp(17px,2.1vw,21px);color:#c6cee0;margin-top:26px;max-width:64ch}
-  .lead.serif{font-family:var(--serif);font-size:clamp(20px,2.6vw,26px);line-height:1.5;color:#d6deee}
-  .dimline{color:var(--dim);margin-top:18px;font-size:15.5px}
-  .tech{font-family:var(--mono);font-size:13.5px;color:var(--teal);margin-top:30px;
-    border-left:2px solid rgba(134,227,216,.4);padding:4px 0 4px 16px;line-height:1.7;max-width:60ch}
-  body.revealed .tech{color:var(--gold);border-color:rgba(255,206,138,.4)}
+  /* controller panel */
+  #panel{position:fixed;left:14px;bottom:14px;z-index:20;width:300px;max-width:calc(100vw - 28px);
+    background:var(--panel);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:14px;
+    padding:14px;display:none}
+  #panel.show{display:block}
+  #panel .row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  #panel label{color:var(--dim);font-size:11px;letter-spacing:.04em;text-transform:uppercase;width:64px;flex:none}
+  #preset{flex:1;background:#0b0e16;color:var(--ink);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:7px 8px;font:inherit}
+  .knob{display:flex;flex-direction:column;gap:3px;flex:1}
+  .knob .k{display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim)}
+  .knob input[type=range]{width:100%;accent-color:var(--gold)}
+  #knobs{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin:4px 0 10px}
+  #pads{display:flex;flex-wrap:wrap;gap:6px}
+  .pad{flex:1 1 calc(25% - 6px);min-width:58px;cursor:pointer;border:0;border-radius:8px;padding:9px 4px;
+    font:600 11px/1 inherit;color:#05060a;text-shadow:0 1px 0 rgba(255,255,255,.25);opacity:.92}
+  .pad:active{transform:translateY(1px);filter:brightness(1.3)}
+  .pad.hold{outline:2px solid rgba(255,255,255,.55);outline-offset:-2px}
+  #meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+  #meta .name{font:500 15px/1 "Hoefler Text",Georgia,serif;color:#fff}
+  #meta .tag{font-size:10.5px;color:var(--gold);letter-spacing:.06em}
+  #err{color:#ff9b9b;font:11px/1.4 ui-monospace,monospace;white-space:pre-wrap;max-height:120px;overflow:auto;margin-top:8px;display:none}
 
-  /* reveal-on-scroll */
-  .rise{opacity:0;transform:translateY(28px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
-  .rise.in{opacity:1;transform:none}
-  .rise.d1{transition-delay:.08s}.rise.d2{transition-delay:.16s}.rise.d3{transition-delay:.24s}.rise.d4{transition-delay:.32s}
+  #hud{position:fixed;right:14px;top:12px;z-index:20;text-align:right;color:var(--dim);font:11px/1.5 ui-monospace,monospace}
+  #hud b{color:var(--moon);font-weight:600}
+  #hud .fps{color:var(--gold)}
 
-  /* hero */
-  #hero{height:100svh;min-height:620px;padding:0;display:flex;align-items:flex-end;overflow:hidden}
-  #hero video,.bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  #hero .scrim{position:absolute;inset:0;background:
-    radial-gradient(120% 80% at 50% 30%,transparent 30%,rgba(4,5,10,.5) 75%,rgba(4,5,10,.95) 100%),
-    linear-gradient(180deg,rgba(4,5,10,.55) 0%,transparent 26%,transparent 52%,rgba(4,5,10,.92) 100%)}
-  #hero .inner{position:relative;z-index:2;max-width:1080px;margin:0 auto;width:100%;padding:0 24px 12vh}
-  #hero .ol{font:600 12.5px/1 var(--sans);letter-spacing:.4em;color:var(--moon);opacity:.85;margin-bottom:24px}
-  #hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(40px,7vw,86px);line-height:1.02;letter-spacing:-.02em;max-width:18ch}
-  #hero .sub{font-family:var(--serif);font-style:italic;color:var(--moon2);font-size:clamp(19px,2.6vw,28px);margin-top:18px;opacity:.92}
-  .scrollhint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:3;color:var(--dim);
-    font-size:11.5px;letter-spacing:.28em;text-align:center;transition:opacity .6s}
-  .scrollhint .ch{display:block;margin:9px auto 0;width:11px;height:11px;border-right:1.5px solid var(--dim);
-    border-bottom:1.5px solid var(--dim);transform:rotate(45deg);animation:bob 2s ease-in-out infinite}
-  @keyframes bob{0%,100%{transform:rotate(45deg) translate(0,0);opacity:.4}50%{transform:rotate(45deg) translate(3px,3px);opacity:1}}
+  #sound{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:25;display:none;cursor:pointer;
+    border:0;border-radius:999px;padding:11px 22px;font:600 13px/1 inherit;color:#05060a;background:var(--gold);
+    box-shadow:0 8px 30px -8px rgba(255,206,138,.55)}
+  #sound.show{display:inline-block}
+  #sound:hover{filter:brightness(1.06)}
+  #sound.on{background:rgba(16,20,30,.85);color:var(--gold);border:1px solid rgba(255,206,138,.45);box-shadow:none}
 
-  /* stats */
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:48px}
-  .stat{border-top:1px solid rgba(255,255,255,.1);padding-top:18px}
-  .stat .n{font-family:var(--serif);font-size:clamp(30px,4.4vw,52px);line-height:1;color:#fff;letter-spacing:-.01em}
-  .stat .l{color:var(--dim);font-size:13px;margin-top:9px;letter-spacing:.02em}
-  @media(max-width:680px){.stats{grid-template-columns:repeat(2,1fr);gap:26px 18px}}
+  /* toolbar */
+  #toolbar{position:fixed;left:14px;top:12px;z-index:26;display:flex;gap:8px}
+  #toolbar button{cursor:pointer;background:rgba(10,12,20,.82);backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.14);border-radius:9px;color:var(--ink);padding:8px 12px;font:600 12px/1 inherit}
+  #toolbar button:hover{border-color:var(--gold);color:var(--gold)}
+  #toolbar button.active{color:var(--gold);border-color:rgba(255,206,138,.5)}
 
-  .inlinevid{margin-top:44px;border-radius:14px;overflow:hidden;position:relative;aspect-ratio:16/9;
-    box-shadow:0 40px 120px -40px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.06)}
-  .inlinevid video{width:100%;height:100%;object-fit:cover;display:block}
-  .inlinevid .cap{position:absolute;left:14px;bottom:11px;font-family:var(--mono);font-size:11.5px;
-    color:rgba(255,255,255,.7);letter-spacing:.03em;text-shadow:0 1px 6px #000}
+  /* python editor overlay */
+  #editor{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+    background:rgba(3,4,8,.62);backdrop-filter:blur(3px);padding:24px}
+  #editor.show{display:flex}
+  .ed-box{width:min(840px,96vw);max-height:90vh;display:flex;flex-direction:column;background:#0a0d16;
+    border:1px solid rgba(255,255,255,.14);border-radius:14px;overflow:hidden;box-shadow:0 40px 120px -30px #000}
+  .ed-head{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+  .ed-head .t{font:500 14px/1 "Hoefler Text",Georgia,serif;white-space:nowrap}
+  .ed-head .t b{color:var(--gold)}
+  #ed-name{flex:1;background:#070a12;border:1px solid rgba(255,255,255,.14);border-radius:7px;color:var(--ink);padding:7px 9px;font:inherit}
+  #ed-close{cursor:pointer;background:none;border:0;color:var(--dim);font-size:18px;line-height:1}
+  #ed-code{flex:1;min-height:46vh;resize:none;border:0;outline:none;padding:14px;background:#070a12;color:#cfe3ff;
+    font:12.5px/1.55 "SF Mono",ui-monospace,Menlo,monospace;tab-size:2;white-space:pre}
+  #ed-err{color:#ff9b9b;font:11px/1.45 ui-monospace,monospace;white-space:pre-wrap;max-height:130px;overflow:auto;display:none}
+  #ed-err.show{display:block;padding:10px 14px;border-top:1px solid rgba(255,155,155,.2)}
+  .ed-foot{display:flex;align-items:center;gap:8px;padding:11px 14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ed-foot button{cursor:pointer;border:0;border-radius:8px;padding:9px 14px;font:600 12.5px/1 inherit}
+  #ed-run{background:rgba(134,227,216,.18);color:var(--teal);border:1px solid rgba(134,227,216,.4)}
+  #ed-save{background:var(--gold);color:#05060a}
+  #ed-download{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid rgba(255,255,255,.16)}
+  .ed-foot .tip{color:var(--faint);font-size:11px;margin-left:auto;text-align:right}
+  #preset optgroup{color:var(--gold)}
 
-  /* spacer beat */
-  .beat{height:62vh;background:var(--bg);display:flex;align-items:center;justify-content:center}
-  .beat .dot{width:5px;height:5px;border-radius:50%;background:var(--faint);
-    box-shadow:14px 0 var(--faint),-14px 0 var(--faint);opacity:.5}
+  /* simulated Traktor F1 */
+  #f1{position:fixed;right:14px;top:0;transform-origin:top right;z-index:24;display:none;
+    background:linear-gradient(#1a1c22,#121419);border:1px solid #2c2f37;border-radius:18px;box-shadow:0 30px 90px -20px #000}
+  #f1.show{display:block}
+  #f1 .lab{position:absolute;color:#828896;font:600 12px/1 var(--sans);letter-spacing:.03em;text-align:center;pointer-events:none;text-transform:uppercase;overflow:hidden;white-space:nowrap}
+  .f1-knob{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 32%,#42464f,#191b20);border:1px solid #2c2f37;cursor:ns-resize}
+  .f1-knob .ind{position:absolute;left:calc(50% - 1px);top:7%;width:2px;height:44%;background:var(--gold);transform-origin:bottom center;border-radius:1px}
+  .f1-fader{position:absolute;background:#0a0b0e;border:1px solid #2a2d34;border-radius:3px;cursor:ns-resize}
+  .f1-fthumb{position:absolute;left:-5px;right:-5px;height:15px;background:linear-gradient(#5e636f,#33363d);border:1px solid #1c1e25;border-radius:3px;pointer-events:none}
+  .f1-pad{position:absolute;border-radius:8px;cursor:pointer;border:1px solid rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;
+    color:#05060a;font:700 15px/1.05 var(--sans);text-align:center;text-shadow:0 1px 0 rgba(255,255,255,.3);user-select:none;overflow:hidden;padding:3px}
+  .f1-pad:active,.f1-pad.hit{filter:brightness(1.8) saturate(1.2)}
+  .f1-btn{position:absolute;border-radius:6px;background:#23262d;border:1px solid #313540;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    color:#9aa0ac;font:700 11px/1 var(--sans);letter-spacing:.02em;user-select:none;overflow:hidden}
+  .f1-disp{position:absolute;background:#1a0605;border:1px solid #3a1110;border-radius:4px;display:flex;align-items:center;justify-content:center;
+    color:#ff4232;font:700 22px/1 "SF Mono",ui-monospace,monospace;text-shadow:0 0 9px rgba(255,66,50,.75)}
+  .f1-enc{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 32%,#42464f,#191b20);border:1px solid #2c2f37;cursor:ns-resize}
+  .f1-stop{position:absolute;border-radius:4px;background:#2a1a0c;border:1px solid #cf6a1e;cursor:pointer}
+  .f1-stop:active{background:#cf6a1e}
 
-  /* REVEAL */
-  #reveal{min-height:108svh;padding:0;display:flex;align-items:center;overflow:hidden;background:#040404}
-  #reveal .bgwrap{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease;transform:scale(1.08)}
-  #reveal.lit .bgwrap{opacity:1;transform:scale(1)}
-  #reveal .scrim{position:absolute;inset:0;background:
-    radial-gradient(115% 85% at 50% 45%,transparent 24%,rgba(3,2,1,.55) 70%,rgba(3,2,1,.96) 100%),
-    linear-gradient(180deg,rgba(3,2,1,.6),transparent 30%,transparent 60%,rgba(3,2,1,.95))}
-  #reveal .inner{position:relative;z-index:2;max-width:1080px;margin:0 auto;width:100%;padding:0 24px;text-align:center}
-  #reveal .pre{font:600 13px/1 var(--sans);letter-spacing:.4em;color:var(--gold);opacity:0;transform:translateY(14px);
-    transition:.9s .2s;margin-bottom:26px}
-  #reveal .title{font-family:var(--serif);font-weight:600;font-size:clamp(48px,12.5vw,150px);line-height:.92;letter-spacing:-.03em;max-width:100%;
-    background:linear-gradient(180deg,#fff 10%,var(--gold) 55%,var(--copper));-webkit-background-clip:text;background-clip:text;color:transparent;
-    opacity:0;transform:translateY(40px) scale(.96);transition:1.1s cubic-bezier(.16,.84,.3,1) .15s;
-    filter:drop-shadow(0 8px 60px rgba(224,122,58,.35))}
-  #reveal .date{font-family:var(--serif);font-style:italic;font-size:clamp(22px,4vw,40px);color:var(--gold);margin-top:6px;
-    opacity:0;transform:translateY(22px);transition:1s .45s}
-  #reveal .sub{max-width:54ch;margin:30px auto 0;color:#e7d9c4;font-size:clamp(16px,2vw,20px);
-    opacity:0;transform:translateY(20px);transition:1s .6s}
-  #reveal.lit .pre,#reveal.lit .title,#reveal.lit .date,#reveal.lit .sub{opacity:1;transform:none}
+  /* ===== landing experience: intro -> scroll narrative -> play ===== */
+  /* the tool chrome only appears once you hit Play */
+  body:not(.s-playing) #toolbar,
+  body:not(.s-playing) #hud,
+  body:not(.s-playing) #panel,
+  body:not(.s-playing) #f1{display:none !important}
 
-  /* countdown */
-  #count{background:linear-gradient(180deg,#040404,#070503 60%,#04050a);text-align:center}
-  #count .ol{color:var(--gold)}
-  .clock{display:flex;justify-content:center;gap:clamp(14px,5vw,64px);margin:30px 0 18px;flex-wrap:wrap}
-  .unit{min-width:84px}
-  .unit .v{font-family:var(--serif);font-weight:500;font-size:clamp(48px,11vw,108px);line-height:1;
-    color:#fff;letter-spacing:.01em;font-variant-numeric:tabular-nums;
-    text-shadow:0 0 50px rgba(255,206,138,.28)}
-  .unit .k{font-family:var(--mono);font-size:12px;letter-spacing:.32em;color:var(--gold);opacity:.8;margin-top:14px}
-  #count .when{font-family:var(--mono);font-size:13px;color:var(--dim);letter-spacing:.16em;margin-top:8px}
-  #count .midnight-msg{font-family:var(--serif);font-size:clamp(40px,9vw,90px);color:transparent;
-    background:linear-gradient(180deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;
-    display:none;margin-top:6px}
-  body.midnight .clock{display:none}
-  body.midnight #count .midnight-msg{display:block;animation:bloom 1.4s ease both}
-  @keyframes bloom{from{opacity:0;transform:scale(.8);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
-  /* the final ten seconds: a big 10 -> 1 count, then the bloom */
-  #finalnum{display:none;font-family:var(--serif);font-weight:500;line-height:.9;
-    font-size:clamp(150px,42vw,440px);color:transparent;font-variant-numeric:tabular-nums;
-    background:linear-gradient(180deg,#fff 28%,var(--gold) 68%,var(--amber));
-    -webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 90px rgba(255,170,80,.45))}
-  body.final .clock,body.final #count .when,body.final #count .overline,body.final #count .midnight-msg{display:none}
-  body.final #finalnum{display:block}
-  body.midnight #finalnum{display:none}
-  #finalnum.pop{animation:pop 1s cubic-bezier(.16,.84,.3,1)}
-  @keyframes pop{0%{transform:scale(.5);opacity:0}26%{opacity:1}100%{transform:scale(1);opacity:.95}}
+  /* INTRO — the silent spinning cube + a single prompt */
+  #intro{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;cursor:pointer;
+    background:radial-gradient(125% 95% at 50% 45%,rgba(8,11,22,.10),rgba(5,6,10,.5) 78%);transition:opacity 1s ease,visibility 1s}
+  #intro.gone{opacity:0;visibility:hidden;pointer-events:none}
+  #intro .prompt{text-align:center;opacity:0;animation:cd-fade 1.3s ease .2s forwards;
+    font:400 clamp(21px,3.3vw,36px)/1.3 "Hoefler Text",Georgia,"Times New Roman",serif;color:#dde7fc;letter-spacing:.01em}
+  #intro.booting .prompt{color:var(--dim);animation:cd-pulse 1.8s ease-in-out infinite}
+  #intro .prompt small{display:block;margin-top:16px;font:600 11px/1 system-ui,sans-serif;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--gold);opacity:.85}
+  @keyframes cd-fade{to{opacity:1}}
+  @keyframes cd-pulse{0%,100%{opacity:.45}50%{opacity:.8}}
 
-  /* timeline */
-  .acts{margin-top:44px;border-top:1px solid rgba(255,255,255,.08)}
-  .act{display:grid;grid-template-columns:130px 1fr;gap:24px;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.08);
-    align-items:baseline;transition:background .4s}
-  .act .clock{font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:.04em;white-space:nowrap}
-  .act .nm{font-family:var(--serif);font-size:clamp(20px,3vw,30px);color:#fff}
-  .act .nt{color:var(--dim);font-size:14.5px;margin-top:4px}
-  .act.peak{background:linear-gradient(90deg,rgba(255,158,77,.1),transparent)}
-  .act.peak .nm{color:var(--gold)}
-  .act.peak .badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:#04050a;
-    background:var(--gold);border-radius:5px;padding:3px 9px;margin-left:12px;vertical-align:middle}
-  @media(max-width:560px){.act{grid-template-columns:1fr;gap:6px}}
-  .board{margin-top:46px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.08);
-    box-shadow:0 40px 120px -50px #000}
-  .board img{width:100%;display:block}
-  .board .cap{font-family:var(--mono);font-size:12px;color:var(--dim);padding:14px 16px;background:#06070d}
+  /* STORY — scroll narrative layered over the live cube */
+  #story{position:relative;z-index:10;display:none}
+  body.s-listening #story{display:block}
+  #story section{height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 7vw}
+  #story .line h2{margin:0;font:500 clamp(30px,6.4vw,72px)/1.07 "Hoefler Text",Georgia,"Times New Roman",serif;
+    color:#eef2fb;letter-spacing:-.012em;text-shadow:0 2px 46px rgba(3,5,11,.85);
+    opacity:0;transform:translateY(34px);transition:opacity 1s ease,transform 1s ease}
+  #story .line.in h2{opacity:1;transform:none}
+  #story .line h2 .soon{color:var(--gold);font-style:italic;font-size:.6em;opacity:.92;letter-spacing:0}
+  #play-btn{cursor:pointer;border:0;border-radius:999px;padding:18px 42px;display:inline-flex;align-items:center;gap:11px;
+    font:600 17px/1 system-ui,sans-serif;color:#05060a;background:var(--gold);box-shadow:0 16px 54px -12px rgba(255,206,138,.6);
+    opacity:0;transform:translateY(34px);transition:opacity 1s ease,transform 1s ease}
+  #story .cta.in #play-btn{opacity:1;transform:none}
+  #play-btn span{font-size:1.35em;line-height:0;margin-top:-2px}
+  #play-btn:hover{filter:brightness(1.07)}
 
-  /* close */
-  #close{background:radial-gradient(120% 100% at 50% 0%,#0a0805,#04050a 70%);text-align:center}
-  #close h2{max-width:18ch;margin:0 auto}
-  #close .sig{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--gold);margin-top:42px}
-  #close .sig small{display:block;font-style:normal;font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;
-    color:var(--faint);margin-top:14px}
-
-  footer{border-top:1px solid rgba(255,255,255,.07);padding:40px 24px 60px;text-align:center;color:var(--faint)}
-  footer .a{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--dim)}
-  footer .b{font-size:12.5px;margin-top:14px;max-width:60ch;margin-inline:auto;line-height:1.7}
-
-  /* sound toggle (persistent) */
-  #snd{position:fixed;right:18px;bottom:18px;z-index:80;width:46px;height:46px;border-radius:50%;
-    background:rgba(10,12,20,.8);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);
-    display:none;align-items:center;justify-content:center;cursor:pointer;color:var(--accent);transition:transform .3s}
-  #snd.show{display:flex}#snd:hover{transform:scale(1.08)}
-  #snd .bars{display:flex;gap:2.5px;align-items:flex-end;height:16px}
-  #snd .bars i{width:3px;background:currentColor;border-radius:2px;animation:eq 1s ease-in-out infinite}
-  #snd .bars i:nth-child(1){height:7px;animation-delay:0s}#snd .bars i:nth-child(2){height:14px;animation-delay:.15s}
-  #snd .bars i:nth-child(3){height:10px;animation-delay:.3s}#snd .bars i:nth-child(4){height:16px;animation-delay:.45s}
-  @keyframes eq{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
-  #snd.muted .bars i{animation-play-state:paused;transform:scaleY(.35);opacity:.5}
-
-  @media(prefers-reduced-motion:reduce){
-    *{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto}
-    .rise{opacity:1;transform:none}
-  }
+  /* a subtle scroll hint while listening */
+  #scrollhint{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:15;display:none;opacity:0;
+    color:var(--dim);font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.26em;text-transform:uppercase;
+    pointer-events:none;transition:opacity .7s}
+  body.s-listening #scrollhint{display:block}
+  #scrollhint.show{opacity:.75}
+  #scrollhint .ar{display:block;margin:10px auto 0;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+    transform:rotate(45deg);animation:cd-bob 1.9s ease-in-out infinite}
+  @keyframes cd-bob{0%,100%{transform:rotate(45deg) translate(0,0)}50%{transform:rotate(45deg) translate(4px,4px)}}
 </style>
 </head>
 <body>
-<div id="progress"></div>
+  <div id="drop-hint"></div>
 
-<!-- BEGIN GATE -->
-<div id="gate">
-  <div class="mark">CUBE&nbsp;&nbsp;DANCE</div>
-  <h1>The cube.</h1>
-  <p>Half a year out. The cube, ready for Stumpy — with the sound up.</p>
-  <button id="begin"><span class="tri"></span>Begin</button>
-  <div class="foot"><span class="pulse"></span>best with headphones · the cube, scored by <b>Moondance</b> → <b>Smooth&nbsp;Operator</b></div>
-</div>
+  <div id="hud"></div>
+  <button id="sound">▶ sound on · Anchorite</button>
 
-<!-- HERO -->
-<section id="hero">
-  <video class="bgvid" id="heroVid" muted loop playsinline preload="auto" poster=""></video>
-  <div class="scrim"></div>
-  <div class="inner">
-    <div class="ol rise">MMXXVI · THE&nbsp;WATAGANS</div>
-    <h1 class="rise d1">The last moon<br>of the year.</h1>
-    <div class="sub rise d2">And the cube is already listening.</div>
+  <div id="toolbar">
+    <button id="btn-controls" class="active">⚙ Controls</button>
+    <button id="btn-f1">🎛 F1</button>
+    <button id="btn-edit">&lt;/&gt; Edit Python</button>
   </div>
-  <div class="scrollhint" id="scrollhint">SCROLL<span class="ch"></span></div>
-</section>
+  <div id="f1"></div>
 
-<!-- WHAT IT IS -->
-<section id="what">
-  <div class="wrap">
-    <div class="overline rise">WHERE&nbsp;WE&nbsp;GOT&nbsp;TO</div>
-    <h2 class="rise d1">It stopped being a light.<br>It became an <em>instrument</em>.</h2>
-    <p class="lead rise d2">Not long ago the cube was just a truss frame and a strip of pixels.
-      Now it hears the room — bass landing in the corners, melody climbing the edges — and answers, live,
-      in the dark.</p>
-    <div class="stats">
-      <div class="stat rise d1"><div class="n" data-count="9744">0</div><div class="l">addressable pixels</div></div>
-      <div class="stat rise d2"><div class="n" data-count="56">0</div><div class="l">distinct presets</div></div>
-      <div class="stat rise d3"><div class="n" data-count="7">0</div><div class="l">acts, dusk→dawn</div></div>
-      <div class="stat rise d4"><div class="n">1</div><div class="l">F1, in hand</div></div>
-    </div>
-    <p class="dimline rise">12 edges, 8 corner clusters — 3,840 + 5,904 pixels — every one its own colour.</p>
-    <div class="inlinevid rise d2">
-      <video id="what2Vid" muted loop playsinline preload="metadata"></video>
-      <div class="cap">live · the cube reacting to <em>Moondance</em></div>
+  <!-- python editor overlay -->
+  <div id="editor">
+    <div class="ed-box">
+      <div class="ed-head">
+        <span class="t">Editing <b id="ed-base">—</b></span>
+        <input id="ed-name" placeholder="save as… (new effect name)">
+        <button id="ed-close" title="close">✕</button>
+      </div>
+      <textarea id="ed-code" spellcheck="false" autocomplete="off"></textarea>
+      <div id="ed-err"></div>
+      <div class="ed-foot">
+        <button id="ed-run">▶ Run</button>
+        <button id="ed-save">💾 Save as new</button>
+        <button id="ed-download">⬇ Download .py</button>
+        <span class="tip">Run to preview · Save adds it to the list · Download to send it</span>
+      </div>
     </div>
   </div>
-</section>
 
-<!-- THE LEAP -->
-<section id="leap">
-  <div class="wrap narrow">
-    <div class="overline rise">THE&nbsp;SYSTEM</div>
-    <h2 class="rise d1">A whole night<br>the cube performs <em>on its own</em>.</h2>
-    <p class="lead serif rise d2">Dusk to sunrise as one long build-and-release. The cube crossfades its own decks
-      through seven acts — quiet and warm at arrival, relentless at the peak, fracturing into fractals at the
-      deepest hour, then glowing the dawn back at the sun.</p>
-    <p class="lead rise d3">Set it running and walk away, and it plays the night. Or put a hand on the F1
-      and steer — the show steps aside the moment you do, and waits until you’re done.</p>
-    <div class="tech rise d3">→ 9,744 px · 56 presets · 4 decks · a whole-night auto-set<br>
-      → speaks <b>sACN E1.31</b> straight into the <b>Advatek PixLite&nbsp;16</b>. no MadMapper, no translation.</div>
+  <!-- controller -->
+  <div id="panel">
+    <div id="meta"><span class="name" id="curname">—</span><span class="tag" id="curtag"></span></div>
+    <div class="row"><label>effect</label><select id="preset"></select></div>
+    <div id="knobs"></div>
+    <div id="pads"></div>
+    <div id="err"></div>
   </div>
-</section>
 
-<!-- BEAT OF SILENCE -->
-<div class="beat" id="beat"><div class="dot"></div></div>
-
-<!-- THE REVEAL -->
-<section id="reveal">
-  <div class="bgwrap"><video class="bgvid" id="revealVid" muted loop playsinline preload="auto"></video></div>
-  <div class="scrim"></div>
-  <div class="inner">
-    <div class="pre">SO — NEW YEAR’S EVE</div>
-    <div class="title">THE WATAGANS</div>
-    <div class="date">the Stumpy site · 2026&nbsp;→&nbsp;2027</div>
-    <p class="sub">The cube’s first New Year — out at Stumpy, deep in the Watagans, sound-reactive
-      till sunrise. At midnight it takes the bush over into 2027.</p>
+  <!-- INTRO: the silent spinning cube + one prompt (doubles as the boot screen) -->
+  <div id="intro" class="booting">
+    <div class="prompt"><span id="prog">warming up the cube…</span><small class="introsub">click to begin · sound on</small></div>
   </div>
-</section>
 
-<!-- COUNTDOWN -->
-<section id="count">
-  <div class="wrap">
-    <div class="overline ol rise">UNTIL&nbsp;MIDNIGHT&nbsp;AT&nbsp;STUMPY</div>
-    <div class="clock">
-      <div class="unit"><div class="v" id="cd-d">00</div><div class="k">DAYS</div></div>
-      <div class="unit"><div class="v" id="cd-h">00</div><div class="k">HOURS</div></div>
-      <div class="unit"><div class="v" id="cd-m">00</div><div class="k">MINUTES</div></div>
-      <div class="unit"><div class="v" id="cd-s">00</div><div class="k">SECONDS</div></div>
-    </div>
-    <div id="finalnum"></div>
-    <div class="midnight-msg">2027.</div>
-    <div class="when">31 DECEMBER 2026 · 00:00 · INTO 2027</div>
-  </div>
-</section>
+  <!-- STORY: scroll narrative, layered over the live cube -->
+  <main id="story">
+    <section class="lead"></section>
+    <section class="line"><h2>This New Year&rsquo;s</h2></section>
+    <section class="line"><h2>The cube has a new brain</h2></section>
+    <section class="line"><h2>Custom-written software</h2></section>
+    <section class="line"><h2>Cube- and sound-aware<br>from the ground up</h2></section>
+    <section class="line"><h2>Fully programmable</h2></section>
+    <section class="line"><h2>Vibe-codable <span class="soon">(soon)</span></h2></section>
+    <section class="line"><h2>Now it&rsquo;s your chance to play</h2></section>
+    <section class="cta"><button id="play-btn">Play <span>&rsaquo;</span></button></section>
+  </main>
+  <div id="scrollhint">scroll<span class="ar"></span></div>
 
-<!-- THE NIGHT -->
-<section id="night">
-  <div class="wrap">
-    <div class="overline rise">THE&nbsp;SHAPE&nbsp;OF&nbsp;THE&nbsp;NIGHT</div>
-    <h2 class="rise d1">Seven acts. Midnight lands<br>right on the <em>Peak</em>.</h2>
-    <p class="lead rise d2">The same arc the system already runs — only now the clock means something.
-      Arrival as the sun goes down on the 31st; the Peak as the year turns; sunrise on the first day of 2027.</p>
-    <div class="acts" id="acts"></div>
-    <div class="board rise">
-      <img src="assets/storyboard.jpg" alt="The cube through the seven acts of the night" loading="lazy">
-      <div class="cap">Rendered from the actual show director — the cube through all seven acts.</div>
-    </div>
-  </div>
-</section>
-
-<!-- CLOSE -->
-<section id="close">
-  <div class="wrap narrow">
-    <div class="overline rise">SEE&nbsp;YOU&nbsp;THERE</div>
-    <h2 class="rise d1">It’s built. The cube’s<br>ready for Stumpy.</h2>
-    <p class="lead rise d2">The system’s done and tested the whole way down. The PixLite details land after
-      the 14th, then it talks straight to the rig — no MadMapper, no translation. Six months out, and the cube’s
-      ready for the Watagans. (The doof still needs a name — <em>Eat Sleep Cube Repeat</em>’s winning the vote.)</p>
-    <div class="sig rise d3">— Evan &amp; Claude<small>STUMPY · THE&nbsp;WATAGANS · NEW&nbsp;YEAR’S&nbsp;EVE</small></div>
-  </div>
-</section>
-
-<footer>
-  <div class="a">CUBE&nbsp;DANCE · sound-reactive LED control · 9,744&nbsp;px · sACN&nbsp;→&nbsp;PixLite · MMXXVI→MMXXVII</div>
-  <div class="b">Moondance — Van Morrison. Smooth Operator — Sade. The cube footage was rendered live from each
-    track through the real engine; the colour is the LEDs, nothing added in post.</div>
-</footer>
-
-<!-- sound toggle -->
-<div id="snd" class="muted" title="sound"><div class="bars"><i></i><i></i><i></i><i></i></div></div>
-
-<!-- audio -->
-<audio id="aMoon" loop preload="auto" src="assets/moondance.mp3"></audio>
-<audio id="aSmooth" loop preload="auto" src="assets/smooth.mp3"></audio>
-
-<script>
-(function(){
-  "use strict";
-  var RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // real target: midnight into 2027 (local). ?eta=SECONDS overrides it (to demo/test the final 10).
-  var _eta = parseFloat(new URLSearchParams(location.search).get("eta"));
-  var EVENT_DATE = isFinite(_eta) ? new Date(Date.now()+_eta*1000) : new Date(2027,0,1,0,0,0);
-  var REVEAL_SEEK = 0.0;                          // where Smooth Operator drops in
-  var MOON_VOL = 0.85, SMOOTH_VOL = 0.92;
-
-  var $ = function(s){return document.querySelector(s)};
-  var aMoon = $("#aMoon"), aSmooth = $("#aSmooth");
-  var heroVid=$("#heroVid"), what2=$("#what2Vid"), revealVid=$("#revealVid");
-  var started=false, revealed=false, soundOn=true;
-
-  // assets (swapped to data: URIs in the standalone build)
-  var V_MOON="assets/moondance.mp4", V_REVEAL="assets/reveal.mp4";
-  heroVid.src=V_MOON; what2.src=V_MOON; revealVid.src=V_REVEAL;
-
-  function ramp(a,to,ms){
-    if(RM){a.volume=Math.max(0,Math.min(1,to));return;}
-    var from=a.volume, t0=performance.now();
-    (function step(now){
-      var k=Math.min(1,(now-t0)/ms);
-      a.volume=Math.max(0,Math.min(1,from+(to-from)*k));
-      if(k<1) requestAnimationFrame(step);
-    })(t0);
-  }
-  function tryplay(v){ var p=v&&v.play&&v.play(); if(p&&p.catch)p.catch(function(){}); }
-
-  function begin(){
-    if(started)return; started=true;
-    $("#gate").classList.add("gone");
-    $("#snd").classList.add("show");
-    [heroVid,what2,revealVid].forEach(tryplay);
-    aMoon.volume=0; tryplay(aMoon); ramp(aMoon, soundOn?MOON_VOL:0, 3200);
-    setTimeout(function(){var h=$("#scrollhint"); if(h)h.style.opacity=.0001;}, 9000);
-  }
-  $("#begin").addEventListener("click", begin);
-  $("#gate").addEventListener("click", function(e){ if(e.target.id==="gate") begin(); });
-
-  function doReveal(){
-    if(revealed)return; revealed=true;
-    document.body.classList.add("revealed");
-    $("#reveal").classList.add("lit");
-    tryplay(revealVid);
-    // cross from Moondance into Smooth Operator — the hit
-    ramp(aMoon,0,2200); setTimeout(function(){try{aMoon.pause();}catch(e){}},2300);
-    try{aSmooth.currentTime=REVEAL_SEEK;}catch(e){}
-    aSmooth.volume=0; if(soundOn) tryplay(aSmooth); ramp(aSmooth, soundOn?SMOOTH_VOL:0, 2600);
-  }
-
-  // scroll progress + hint fade
-  var prog=$("#progress");
-  window.addEventListener("scroll", function(){
-    var h=document.documentElement, max=h.scrollHeight-h.clientHeight;
-    prog.style.width=(max>0?(h.scrollTop/max*100):0)+"%";
-    var hint=$("#scrollhint"); if(hint&&h.scrollTop>40)hint.style.opacity=.0001;
-  }, {passive:true});
-
-  // rise-in + stat counters + reveal trigger via IntersectionObserver
-  var io=new IntersectionObserver(function(es){
-    es.forEach(function(e){
-      if(!e.isIntersecting)return;
-      e.target.classList.add("in");
-      if(e.target.dataset.count) countUp(e.target);
-      io.unobserve(e.target);
-    });
-  }, {threshold:.18, rootMargin:"0px 0px -8% 0px"});
-  document.querySelectorAll(".rise,[data-count]").forEach(function(el){io.observe(el);});
-
-  var revIO=new IntersectionObserver(function(es){
-    es.forEach(function(e){ if(e.isIntersecting && e.intersectionRatio>=0.45) doReveal(); });
-  }, {threshold:[0,.45,.7]});
-  revIO.observe($("#reveal"));
-
-  function countUp(el){
-    var target=+el.dataset.count, t0=performance.now(), dur=1400;
-    if(RM){el.textContent=target.toLocaleString();return;}
-    (function step(now){
-      var k=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-k,3);
-      el.textContent=Math.round(target*e).toLocaleString();
-      if(k<1)requestAnimationFrame(step);
-    })(t0);
-  }
-
-  // countdown — the long timer, then a big 10 -> 1 count in the final ten seconds, then the bloom
-  var dE=$("#cd-d"),hE=$("#cd-h"),mE=$("#cd-m"),sE=$("#cd-s"),fN=$("#finalnum");
-  function pad(n){return (n<10?"0":"")+n;}
-  function tick(){
-    var diff=EVENT_DATE-new Date();
-    if(diff<=0){ document.body.classList.remove("final"); document.body.classList.add("midnight"); return; }
-    var secsLeft=Math.ceil(diff/1000);
-    if(secsLeft<=10){                       // final ten seconds: 10, 9, 8 … 1
-      document.body.classList.add("final");
-      if(fN.textContent!==String(secsLeft)){
-        fN.textContent=secsLeft;
-        fN.classList.remove("pop"); void fN.offsetWidth; fN.classList.add("pop");  // replay the pop each tick
-      }
-      return;
-    }
-    document.body.classList.remove("final");
-    var s=Math.floor(diff/1000);
-    dE.textContent=Math.floor(s/86400);
-    hE.textContent=pad(Math.floor(s%86400/3600));
-    mE.textContent=pad(Math.floor(s%3600/60));
-    sE.textContent=pad(s%60);
-  }
-  tick(); setInterval(tick,250);
-
-  // sound toggle
-  $("#snd").addEventListener("click", function(){
-    soundOn=!soundOn; this.classList.toggle("muted",!soundOn);
-    var a = revealed?aSmooth:aMoon;
-    ramp(a, soundOn?(revealed?SMOOTH_VOL:MOON_VOL):0, 500);
-  });
-
-  // build the acts timeline
-  var ACTS=[
-    ["Arrival","dusk · 31 Dec","a low warm body, barely breathing — embers, soft spectrum",false],
-    ["Settling","early","bass settling into the corners, slow sweeps up the edges",false],
-    ["The Build","late","spectrum climbing, the black-hole vortex opening",false],
-    ["Peak","midnight","full energy — strobes, sync-pumped, the year turns",true],
-    ["Deep Trip","small hours","plasma, fractals, the folding hypercube",false],
-    ["Before Light","before light","soft and huge — aurora, clouds, ripples",false],
-    ["Sunrise","sunrise · 1 Jan","the cube glows the dawn back at the sky",false]
-  ];
-  var acts=$("#acts");
-  ACTS.forEach(function(a){
-    var row=document.createElement("div");
-    row.className="act rise"+(a[3]?" peak":"");
-    row.innerHTML='<div class="clock">'+a[1]+'</div><div><span class="nm">'+a[0]+
-      (a[3]?'<span class="badge">2027</span>':'')+'</span><div class="nt">'+a[2]+'</div></div>';
-    acts.appendChild(row); io.observe(row);
-  });
-})();
-</script>
+  <script type="module" src="./main.js?v=20260609"></script>
 </body>
 </html>
