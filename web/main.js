@@ -218,15 +218,46 @@ function buildControls(schema) {
     pw.appendChild(b);
   });
 }
-function loadPreset(name) { buildControls(toObj(BRIDGE.load(name))); }
+// effect state + the saved-effects ("your effects") library
+let cur = { name: '', source: '', isUser: false };
+let BUILTIN = [];
+const userFx = {};
+function opt(v) { const o = document.createElement('option'); o.value = o.textContent = v; return o; }
+function uniqueName(base) {
+  base = (base || 'effect').replace(/\s*\(edit\)$/, '').trim() || 'effect';
+  const taken = n => BUILTIN.includes(n) || (n in userFx);
+  if (!taken(base)) return base;
+  let i = 2; while (taken(base + ' ' + i)) i++; return base + ' ' + i;
+}
+function refreshList() {
+  const sel = $('#preset'), val = sel.value; sel.innerHTML = '';
+  BUILTIN.forEach(n => sel.appendChild(opt(n)));
+  const names = Object.keys(userFx);
+  if (names.length) {
+    const g = document.createElement('optgroup'); g.label = '— your effects —';
+    names.forEach(n => g.appendChild(opt(n))); sel.appendChild(g);
+  }
+  if ([...sel.options].some(o => o.value === val)) sel.value = val;
+}
+function persist() { try { localStorage.setItem('cubeUserFx', JSON.stringify(userFx)); } catch (_) {} }
+function addUserFx(name, src) { userFx[name] = src; refreshList(); persist(); }
 
+function loadPreset(name) {
+  buildControls(toObj(BRIDGE.load(name)));
+  cur = { name, source: BRIDGE.preset_source(name) || '', isUser: false };
+  $('#preset').value = name;
+}
+function loadUser(name) {
+  const src = userFx[name]; if (src == null) return;
+  buildControls(toObj(BRIDGE.load_code(src, name)));
+  cur = { name, source: src, isUser: true };
+  $('#preset').value = name;
+}
 function fillPresetSelect() {
-  const list = toObj(BRIDGE.preset_list());
-  const sel = $('#preset'); sel.innerHTML = '';
-  list.forEach(n => { const o = document.createElement('option'); o.value = o.textContent = n; sel.appendChild(o); });
-  sel.value = 'deep';
-  sel.addEventListener('change', () => loadPreset(sel.value));
-  return list;
+  BUILTIN = toObj(BRIDGE.preset_list());
+  try { Object.assign(userFx, JSON.parse(localStorage.getItem('cubeUserFx') || '{}')); } catch (_) {}
+  refreshList();
+  $('#preset').addEventListener('change', e => { const n = e.target.value; (n in userFx) ? loadUser(n) : loadPreset(n); });
 }
 
 // ---------------------------------------------------------------- drag & drop
@@ -238,12 +269,62 @@ function installDnD() {
     stop(e); const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (!f) return;
     if (/\.py$/i.test(f.name)) {
       const src = await f.text();
-      const sc = toObj(BRIDGE.load_code(src, f.name.replace(/\.py$/,'')));
+      const name = uniqueName(f.name.replace(/\.py$/i, ''));
+      const sc = toObj(BRIDGE.load_code(src, name));
       buildControls(sc);
-      if (sc.ok) $('#preset').value = '';   // a dropped effect isn't in the list
+      if (sc.ok) { addUserFx(name, src); cur = { name, source: src, isUser: true }; $('#preset').value = name; }
     } else if (/^audio\//.test(f.type) || /\.(mp3|wav|flac|ogg|m4a|aac|aiff)$/i.test(f.name)) {
       await playFile(f); $('#hud').dataset.track = f.name;
     }
+  });
+}
+
+// ---------------------------------------------------------------- toolbar + python editor
+function download(filename, text) {
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/x-python' }));
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+}
+function edErr(sc) {
+  const e = $('#ed-err'); if (sc.ok) { e.classList.remove('show'); return true; }
+  e.textContent = sc.error || 'failed'; e.classList.add('show'); return false;
+}
+function openEditor() {
+  $('#ed-base').textContent = cur.name || '—';
+  $('#ed-code').value = cur.source || '# no source available\n';
+  $('#ed-name').value = uniqueName(cur.name || 'effect');
+  $('#ed-err').classList.remove('show');
+  $('#editor').classList.add('show'); $('#ed-code').focus();
+}
+function installToolbar() {
+  $('#btn-controls').addEventListener('click', () => {
+    const p = $('#panel'), b = $('#btn-controls'), show = !p.classList.contains('show');
+    p.classList.toggle('show', show); b.classList.toggle('active', show);
+  });
+  $('#btn-edit').addEventListener('click', openEditor);
+  $('#ed-close').addEventListener('click', () => $('#editor').classList.remove('show'));
+  $('#editor').addEventListener('click', e => { if (e.target.id === 'editor') $('#editor').classList.remove('show'); });
+  $('#ed-run').addEventListener('click', () => {                       // preview the edit, no save
+    const src = $('#ed-code').value, sc = toObj(BRIDGE.load_code(src, (cur.name || 'effect') + ' (edit)'));
+    if (edErr(sc)) { buildControls(sc); cur = { name: cur.name, source: src, isUser: true }; }
+  });
+  $('#ed-save').addEventListener('click', () => {                      // save -> a new item in the list
+    const src = $('#ed-code').value, name = uniqueName(($('#ed-name').value || '').trim() || cur.name || 'effect');
+    const sc = toObj(BRIDGE.load_code(src, name));
+    if (edErr(sc)) {
+      addUserFx(name, src); buildControls(sc); cur = { name, source: src, isUser: true };
+      $('#preset').value = name; $('#editor').classList.remove('show');
+    }
+  });
+  $('#ed-download').addEventListener('click', () => {                  // download .py to send back
+    const n = (($('#ed-name').value || cur.name || 'effect').trim().replace(/[^\w.-]+/g, '_')) || 'effect';
+    download(n.endsWith('.py') ? n : n + '.py', $('#ed-code').value);
+  });
+  $('#ed-code').addEventListener('keydown', e => {                     // tab = 2 spaces; cmd/ctrl+enter = Run
+    if (e.key === 'Tab') {
+      e.preventDefault(); const t = e.target, s = t.selectionStart;
+      t.value = t.value.slice(0, s) + '  ' + t.value.slice(t.selectionEnd); t.selectionStart = t.selectionEnd = s + 2;
+    } else if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); $('#ed-run').click(); }
   });
 }
 
@@ -284,6 +365,7 @@ function frame() {
     fillPresetSelect();
     loadPreset('deep');
     installDnD();
+    installToolbar();
     $('#panel').classList.add('show');
     requestAnimationFrame(frame);                     // the cube is alive on load (synthetic beat)
     $('#gate').classList.add('gone');                 // reveal the living cube immediately

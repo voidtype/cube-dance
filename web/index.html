@@ -67,6 +67,36 @@
   #sound.show{display:inline-block}
   #sound:hover{filter:brightness(1.06)}
   #sound.on{background:rgba(16,20,30,.85);color:var(--gold);border:1px solid rgba(255,206,138,.45);box-shadow:none}
+
+  /* toolbar */
+  #toolbar{position:fixed;left:14px;top:12px;z-index:26;display:flex;gap:8px}
+  #toolbar button{cursor:pointer;background:rgba(10,12,20,.82);backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.14);border-radius:9px;color:var(--ink);padding:8px 12px;font:600 12px/1 inherit}
+  #toolbar button:hover{border-color:var(--gold);color:var(--gold)}
+  #toolbar button.active{color:var(--gold);border-color:rgba(255,206,138,.5)}
+
+  /* python editor overlay */
+  #editor{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+    background:rgba(3,4,8,.62);backdrop-filter:blur(3px);padding:24px}
+  #editor.show{display:flex}
+  .ed-box{width:min(840px,96vw);max-height:90vh;display:flex;flex-direction:column;background:#0a0d16;
+    border:1px solid rgba(255,255,255,.14);border-radius:14px;overflow:hidden;box-shadow:0 40px 120px -30px #000}
+  .ed-head{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+  .ed-head .t{font:500 14px/1 "Hoefler Text",Georgia,serif;white-space:nowrap}
+  .ed-head .t b{color:var(--gold)}
+  #ed-name{flex:1;background:#070a12;border:1px solid rgba(255,255,255,.14);border-radius:7px;color:var(--ink);padding:7px 9px;font:inherit}
+  #ed-close{cursor:pointer;background:none;border:0;color:var(--dim);font-size:18px;line-height:1}
+  #ed-code{flex:1;min-height:46vh;resize:none;border:0;outline:none;padding:14px;background:#070a12;color:#cfe3ff;
+    font:12.5px/1.55 "SF Mono",ui-monospace,Menlo,monospace;tab-size:2;white-space:pre}
+  #ed-err{color:#ff9b9b;font:11px/1.45 ui-monospace,monospace;white-space:pre-wrap;max-height:130px;overflow:auto;display:none}
+  #ed-err.show{display:block;padding:10px 14px;border-top:1px solid rgba(255,155,155,.2)}
+  .ed-foot{display:flex;align-items:center;gap:8px;padding:11px 14px;border-top:1px solid rgba(255,255,255,.1)}
+  .ed-foot button{cursor:pointer;border:0;border-radius:8px;padding:9px 14px;font:600 12.5px/1 inherit}
+  #ed-run{background:rgba(134,227,216,.18);color:var(--teal);border:1px solid rgba(134,227,216,.4)}
+  #ed-save{background:var(--gold);color:#05060a}
+  #ed-download{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid rgba(255,255,255,.16)}
+  .ed-foot .tip{color:var(--faint);font-size:11px;margin-left:auto;text-align:right}
+  #preset optgroup{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -74,6 +104,30 @@
 
   <div id="hud"></div>
   <button id="sound">▶ sound on · Smooth Operator</button>
+
+  <div id="toolbar">
+    <button id="btn-controls" class="active">⚙ Controls</button>
+    <button id="btn-edit">&lt;/&gt; Edit Python</button>
+  </div>
+
+  <!-- python editor overlay -->
+  <div id="editor">
+    <div class="ed-box">
+      <div class="ed-head">
+        <span class="t">Editing <b id="ed-base">—</b></span>
+        <input id="ed-name" placeholder="save as… (new effect name)">
+        <button id="ed-close" title="close">✕</button>
+      </div>
+      <textarea id="ed-code" spellcheck="false" autocomplete="off"></textarea>
+      <div id="ed-err"></div>
+      <div class="ed-foot">
+        <button id="ed-run">▶ Run</button>
+        <button id="ed-save">💾 Save as new</button>
+        <button id="ed-download">⬇ Download .py</button>
+        <span class="tip">Run to preview · Save adds it to the list · Download to send it</span>
+      </div>
+    </div>
+  </div>
 
   <!-- controller -->
   <div id="panel">
