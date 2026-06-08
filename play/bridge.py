@@ -106,7 +106,12 @@ class Bridge:
             if callable(ns.get("build")):
                 ns["build"](self.eng)
             elif "Effect" in ns:
-                self.eng.add(ns["Effect"](self.model))
+                e = ns["Effect"]
+                try:
+                    el = e(self.model)        # Element(model) — the common form
+                except TypeError:
+                    el = e()                  # …or a no-arg Element
+                self.eng.add(el)
             else:
                 return {"ok": False, "error": "drop a .py with build(engine), or an Element subclass named Effect"}
             self.eng.set_schema(ns.get("KNOBS"), ns.get("TRIGGERS"))
@@ -126,6 +131,21 @@ class Bridge:
             self.eng.fire(label)
         except Exception:  # noqa: BLE001
             pass
+
+    # --- F1 buttons -------------------------------------------------------
+    def set_flag(self, name: str, on: bool) -> None:
+        """Toggle a VisualParams flag the engine honours (mono/reverse/freeze/size_boost)."""
+        if hasattr(self.eng.vparams, name):
+            setattr(self.eng.vparams, name, bool(on))
+
+    def reset_knobs(self):
+        """BROWSE: knobs back to the preset defaults; returns the new values."""
+        self.eng.knob_vals = [kb.default for kb in self.eng.knob_spec]
+        return [float(v) for v in self.eng.knob_vals]
+
+    def clear(self) -> None:
+        """Stop row: drop any active transients."""
+        self.eng.transients = []
 
     # --- the frame --------------------------------------------------------
     def step(self, t: float) -> None:
