@@ -24,7 +24,7 @@
 }
 </script>
 <style>
-  :root{ --gold:#ffce8a; --moon:#9ec5ff; --ink:#e9edf6; --dim:#8a93a9; --panel:rgba(10,12,20,.82);
+  :root{ --gold:#ffce8a; --moon:#9ec5ff; --ink:#e9edf6; --dim:#8a93a9; --faint:#525c73; --teal:#86e3d8; --panel:rgba(10,12,20,.82);
     --display:"Space Grotesk",-apple-system,"Helvetica Neue",system-ui,sans-serif; }
   *{box-sizing:border-box}
   html,body{margin:0;background:#05060a;color:var(--ink);
@@ -183,6 +183,30 @@
   #scrollhint .ar{display:block;margin:10px auto 0;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;
     transform:rotate(45deg);animation:cd-bob 1.9s ease-in-out infinite}
   @keyframes cd-bob{0%,100%{transform:rotate(45deg) translate(0,0)}50%{transform:rotate(45deg) translate(4px,4px)}}
+
+  /* ===== mobile: touch-first — no desktop F1 hardware sim; controls = bottom sheet ===== */
+  #sheet-grip,.sheet-note{display:none}                 /* desktop: hidden */
+  body.mobile #f1,body.mobile #toolbar{display:none !important}
+  body.mobile #story .line h2{font-size:clamp(27px,7.6vw,50px);letter-spacing:-.01em}
+  body.mobile #story section{padding:0 8vw}
+  body.mobile #intro .readytext{font-size:clamp(18px,5.4vw,26px)}
+  /* the controller becomes a slide-up bottom sheet */
+  body.mobile.s-playing #panel{position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;max-width:none;
+    border-radius:18px 18px 0 0;padding:0 16px 22px;max-height:76vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    transform:translateY(calc(100% - 50px));transition:transform .4s cubic-bezier(.32,.72,0,1)}
+  body.mobile.s-playing #panel.expanded{transform:translateY(0)}
+  body.mobile #sheet-grip{display:block;position:relative;height:50px;cursor:pointer;text-align:center;user-select:none}
+  body.mobile #sheet-grip .pill{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:42px;height:4px;border-radius:3px;background:rgba(255,255,255,.3)}
+  body.mobile #sheet-grip .lbl{display:inline-block;margin-top:23px;color:var(--dim);font:600 10.5px/1 var(--display);letter-spacing:.26em;text-transform:uppercase}
+  body.mobile.s-playing #panel.expanded #sheet-grip .lbl{color:var(--gold)}
+  body.mobile #pads{gap:9px}
+  body.mobile .pad{flex:1 1 calc(50% - 9px);min-height:56px;font-size:14px;border-radius:11px}
+  body.mobile #knobs{gap:10px 14px}
+  body.mobile .knob .k{font-size:12px}
+  body.mobile .knob input[type=range]{height:28px}
+  body.mobile #preset{padding:12px 10px;font-size:15px}
+  body.mobile #meta .name{font-size:17px}
+  body.mobile .sheet-note{display:block;margin-top:13px;color:var(--faint);font:500 11px/1.45 var(--display);text-align:center;letter-spacing:.01em}
 </style>
 </head>
 <body>
@@ -217,13 +241,15 @@
     </div>
   </div>
 
-  <!-- controller -->
+  <!-- controller (also the mobile bottom-sheet) -->
   <div id="panel">
+    <div id="sheet-grip"><span class="pill"></span><span class="lbl">controls</span></div>
     <div id="meta"><span class="name" id="curname">—</span><span class="tag" id="curtag"></span></div>
     <div class="row"><label>effect</label><select id="preset"></select></div>
     <div id="knobs"></div>
     <div id="pads"></div>
     <div id="err"></div>
+    <div class="sheet-note">tap the pads · the full F1 console + Python editor are on desktop</div>
   </div>
 
   <!-- INTRO: a bare loading screen, then a single directive to click -->
@@ -249,6 +275,6 @@
   </main>
   <div id="scrollhint">scroll<span class="ar"></span></div>
 
-  <script type="module" src="./main.js?v=20260610"></script>
+  <script type="module" src="./main.js?v=20260611"></script>
 </body>
 </html>

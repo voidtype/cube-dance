@@ -35,6 +35,25 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; controls.dampingFactor = 0.06;
 controls.autoRotate = true; controls.autoRotateSpeed = 0.55;
 
+// --- responsive: a phone gets a touch-first layout (no desktop F1 hardware sim) ---
+function isMobile() {
+  return matchMedia('(max-width: 760px)').matches || matchMedia('(pointer: coarse)').matches || /[?&]mobile\b/.test(location.search);
+}
+let MOBILE = isMobile();
+function applyMobile() { MOBILE = isMobile(); document.body.classList.toggle('mobile', MOBILE); }
+applyMobile();
+
+// --- fit + centre the cube for the current aspect (so it's centred on ANY screen,
+//     and pulls back so it never clips on a tall/narrow phone) ---
+let _rmax = 1;
+function frameCube() {
+  const vfov = camera.fov * Math.PI / 180;
+  const hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
+  const d = _rmax * 1.25 / Math.sin(Math.min(vfov, hfov) / 2);   // fit the tighter of the two axes
+  camera.position.copy(new THREE.Vector3(0.45, 0.28, 0.95).normalize().multiplyScalar(d));
+  controls.update();
+}
+
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.95, 0.45, 0.7);
@@ -59,6 +78,7 @@ let points = null, colorAttr = null, N = 0;
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
+  frameCube(); applyMobile();
 });
 
 function buildCloud(posFlat) {
@@ -76,7 +96,7 @@ function buildCloud(posFlat) {
   geo.setAttribute('color', colorAttr);
   if (points) scene.remove(points);
   points = new THREE.Points(geo, pointMat); scene.add(points);
-  const d = rmax * 2.4; camera.position.set(d*0.45, d*0.28, d*0.95); controls.update();
+  _rmax = rmax; frameCube();
 }
 
 // ---------------------------------------------------------------- Web Audio
@@ -339,6 +359,7 @@ function installToolbar() {
     f.classList.toggle('show', show); b.classList.toggle('active', show);
   });
   $('#btn-edit').addEventListener('click', openEditor);
+  $('#sheet-grip').addEventListener('click', () => $('#panel').classList.toggle('expanded'));  // mobile sheet peek/expand
   $('#ed-close').addEventListener('click', () => $('#editor').classList.remove('show'));
   $('#editor').addEventListener('click', e => { if (e.target.id === 'editor') $('#editor').classList.remove('show'); });
   $('#ed-run').addEventListener('click', () => {                       // preview the edit, no save
@@ -530,7 +551,11 @@ async function beginAudio() {                       // on the click gesture -> I
 function enterPlaying() {                           // reveal the tool — cube + audio uninterrupted
   setState('playing');
   $('#panel').classList.add('show');
-  $('#f1').classList.add('show'); $('#btn-f1').classList.add('active');
+  if (MOBILE) {                                     // phone: a touch bottom-sheet, no desktop F1
+    $('#panel').classList.add('expanded');
+  } else {
+    $('#f1').classList.add('show'); $('#btn-f1').classList.add('active');
+  }
 }
 
 function installStory() {
