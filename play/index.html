@@ -12,7 +12,9 @@
 <meta property="og:image" content="https://voidtype.github.io/cube-dance/assets/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#05060a">
-<style>html{scroll-behavior:smooth}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="importmap">
 {
   "imports": {
@@ -22,12 +24,12 @@
 }
 </script>
 <style>
-  :root{ --gold:#ffce8a; --moon:#9ec5ff; --ink:#e9edf6; --dim:#8a93a9; --panel:rgba(10,12,20,.82); }
+  :root{ --gold:#ffce8a; --moon:#9ec5ff; --ink:#e9edf6; --dim:#8a93a9; --panel:rgba(10,12,20,.82);
+    --display:"Space Grotesk",-apple-system,"Helvetica Neue",system-ui,sans-serif; }
   *{box-sizing:border-box}
   html,body{margin:0;background:#05060a;color:var(--ink);
     font:13px/1.5 -apple-system,"Helvetica Neue",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-  body{overflow:hidden}                 /* intro & playing: locked. listening: scrolls (below) */
-  body.s-listening{overflow:visible}
+  body{overflow:hidden}                 /* the #story element owns its own snap-scroll */
   canvas{display:block;position:fixed;inset:0;z-index:0}   /* the live cube, always behind */
   #drop-hint{position:fixed;inset:0;z-index:30;pointer-events:none;border:2px dashed transparent;transition:.2s}
   body.drag #drop-hint{border-color:var(--gold);background:rgba(255,206,138,.06)}
@@ -128,47 +130,56 @@
   .f1-stop{position:absolute;border-radius:4px;background:#2a1a0c;border:1px solid #cf6a1e;cursor:pointer}
   .f1-stop:active{background:#cf6a1e}
 
-  /* ===== landing experience: intro -> scroll narrative -> play ===== */
+  /* ===== landing experience: loading -> snap-scroll narrative -> play ===== */
   /* the tool chrome only appears once you hit Play */
   body:not(.s-playing) #toolbar,
   body:not(.s-playing) #hud,
   body:not(.s-playing) #panel,
   body:not(.s-playing) #f1{display:none !important}
 
-  /* INTRO — the silent spinning cube + a single prompt */
-  #intro{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  /* INTRO — a bare "loading" screen, then a single directive to click */
+  #intro{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;cursor:progress;
     background:radial-gradient(125% 95% at 50% 45%,rgba(8,11,22,.10),rgba(5,6,10,.5) 78%);transition:opacity 1s ease,visibility 1s}
+  #intro:not(.booting){cursor:pointer}
   #intro.gone{opacity:0;visibility:hidden;pointer-events:none}
-  #intro .prompt{text-align:center;opacity:0;animation:cd-fade 1.3s ease .2s forwards;
-    font:400 clamp(21px,3.3vw,36px)/1.3 "Hoefler Text",Georgia,"Times New Roman",serif;color:#dde7fc;letter-spacing:.01em}
-  #intro.booting .prompt{color:var(--dim);animation:cd-pulse 1.8s ease-in-out infinite}
-  #intro .prompt small{display:block;margin-top:16px;font:600 11px/1 system-ui,sans-serif;
-    letter-spacing:.24em;text-transform:uppercase;color:var(--gold);opacity:.85}
+  #intro .prompt{text-align:center;font-family:var(--display)}
+  #intro .loadtext{font:500 clamp(14px,1.8vw,19px)/1 var(--display);letter-spacing:.36em;text-transform:uppercase;
+    color:var(--dim);animation:cd-pulse 1.6s ease-in-out infinite}
+  #intro .loadtext::after{content:"";display:inline-block;width:1.3em;text-align:left;animation:cd-dots 1.6s steps(1,end) infinite}
+  #intro:not(.booting) .loadtext{display:none}
+  #intro .readytext{display:none;opacity:0;animation:cd-fade 1s ease forwards;
+    font:600 clamp(19px,2.7vw,30px)/1.2 var(--display);letter-spacing:.005em;color:#eaf0fc}
+  #intro:not(.booting) .readytext{display:block}
+  #intro .readytext em{font-style:normal;color:var(--gold)}
   @keyframes cd-fade{to{opacity:1}}
-  @keyframes cd-pulse{0%,100%{opacity:.45}50%{opacity:.8}}
+  @keyframes cd-pulse{0%,100%{opacity:.4}50%{opacity:.85}}
+  @keyframes cd-dots{0%{content:""}25%{content:"."}50%{content:".."}75%,100%{content:"..."}}
 
-  /* STORY — scroll narrative layered over the live cube */
-  #story{position:relative;z-index:10;display:none}
+  /* STORY — a snap-scrolling narrative over the live cube */
+  #story{position:fixed;inset:0;z-index:10;display:none;overflow-y:scroll;scroll-snap-type:y mandatory;
+    scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #story::-webkit-scrollbar{display:none}
   body.s-listening #story{display:block}
-  #story section{height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 7vw}
-  #story .line h2{margin:0;font:500 clamp(30px,6.4vw,72px)/1.07 "Hoefler Text",Georgia,"Times New Roman",serif;
-    color:#eef2fb;letter-spacing:-.012em;text-shadow:0 2px 46px rgba(3,5,11,.85);
-    opacity:0;transform:translateY(34px);transition:opacity 1s ease,transform 1s ease}
+  #story section{height:100vh;scroll-snap-align:center;
+    display:flex;align-items:center;justify-content:center;text-align:center;padding:0 7vw}
+  #story .line h2{margin:0;font:600 clamp(32px,6.6vw,76px)/1.05 var(--display);color:#eef2fb;letter-spacing:-.022em;
+    text-shadow:0 2px 50px rgba(3,5,11,.9);opacity:0;transform:translateY(26px) scale(.985);
+    transition:opacity .65s ease,transform .65s ease}
   #story .line.in h2{opacity:1;transform:none}
-  #story .line h2 .soon{color:var(--gold);font-style:italic;font-size:.6em;opacity:.92;letter-spacing:0}
-  #play-btn{cursor:pointer;border:0;border-radius:999px;padding:18px 42px;display:inline-flex;align-items:center;gap:11px;
-    font:600 17px/1 system-ui,sans-serif;color:#05060a;background:var(--gold);box-shadow:0 16px 54px -12px rgba(255,206,138,.6);
-    opacity:0;transform:translateY(34px);transition:opacity 1s ease,transform 1s ease}
+  #story .line h2 .soon{color:var(--gold);font-weight:500;font-size:.58em;opacity:.92;letter-spacing:0}
+  #play-btn{cursor:pointer;border:0;border-radius:999px;padding:18px 44px;display:inline-flex;align-items:center;gap:11px;
+    font:600 18px/1 var(--display);letter-spacing:.01em;color:#05060a;background:var(--gold);box-shadow:0 16px 54px -12px rgba(255,206,138,.6);
+    opacity:0;transform:translateY(26px);transition:opacity .65s ease,transform .65s ease}
   #story .cta.in #play-btn{opacity:1;transform:none}
   #play-btn span{font-size:1.35em;line-height:0;margin-top:-2px}
   #play-btn:hover{filter:brightness(1.07)}
 
   /* a subtle scroll hint while listening */
   #scrollhint{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:15;display:none;opacity:0;
-    color:var(--dim);font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.26em;text-transform:uppercase;
+    color:var(--dim);font:600 10px/1 var(--display);letter-spacing:.3em;text-transform:uppercase;
     pointer-events:none;transition:opacity .7s}
   body.s-listening #scrollhint{display:block}
-  #scrollhint.show{opacity:.75}
+  #scrollhint.show{opacity:.7}
   #scrollhint .ar{display:block;margin:10px auto 0;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;
     transform:rotate(45deg);animation:cd-bob 1.9s ease-in-out infinite}
   @keyframes cd-bob{0%,100%{transform:rotate(45deg) translate(0,0)}50%{transform:rotate(45deg) translate(4px,4px)}}
@@ -215,9 +226,13 @@
     <div id="err"></div>
   </div>
 
-  <!-- INTRO: the silent spinning cube + one prompt (doubles as the boot screen) -->
+  <!-- INTRO: a bare loading screen, then a single directive to click -->
   <div id="intro" class="booting">
-    <div class="prompt"><span id="prog">warming up the cube…</span><small class="introsub">click to begin · sound on</small></div>
+    <div class="prompt">
+      <span class="loadtext">loading</span>
+      <span class="readytext">Click to begin <em>· sound on</em></span>
+    </div>
+    <span id="prog" hidden></span>      <!-- boot-detail sink (kept out of view) -->
   </div>
 
   <!-- STORY: scroll narrative, layered over the live cube -->
@@ -234,6 +249,6 @@
   </main>
   <div id="scrollhint">scroll<span class="ar"></span></div>
 
-  <script type="module" src="./main.js?v=20260609"></script>
+  <script type="module" src="./main.js?v=20260610"></script>
 </body>
 </html>
