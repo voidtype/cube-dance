@@ -4,7 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Cube Dance — effect preview</title>
+<title>Cube Dance</title>
+<meta name="description" content="A 2.6 m LED truss cube with a custom, sound-aware brain. Press play.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cube Dance">
+<meta property="og:description" content="The cube has a new brain. Press play.">
+<meta property="og:image" content="https://voidtype.github.io/cube-dance/assets/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#05060a">
+<style>html{scroll-behavior:smooth}</style>
 <script type="importmap">
 {
   "imports": {
@@ -16,9 +24,11 @@
 <style>
   :root{ --gold:#ffce8a; --moon:#9ec5ff; --ink:#e9edf6; --dim:#8a93a9; --panel:rgba(10,12,20,.82); }
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%;overflow:hidden;background:#05060a;color:var(--ink);
+  html,body{margin:0;background:#05060a;color:var(--ink);
     font:13px/1.5 -apple-system,"Helvetica Neue",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-  canvas{display:block}
+  body{overflow:hidden}                 /* intro & playing: locked. listening: scrolls (below) */
+  body.s-listening{overflow:visible}
+  canvas{display:block;position:fixed;inset:0;z-index:0}   /* the live cube, always behind */
   #drop-hint{position:fixed;inset:0;z-index:30;pointer-events:none;border:2px dashed transparent;transition:.2s}
   body.drag #drop-hint{border-color:var(--gold);background:rgba(255,206,138,.06)}
 
@@ -117,6 +127,51 @@
   .f1-enc{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 32%,#42464f,#191b20);border:1px solid #2c2f37;cursor:ns-resize}
   .f1-stop{position:absolute;border-radius:4px;background:#2a1a0c;border:1px solid #cf6a1e;cursor:pointer}
   .f1-stop:active{background:#cf6a1e}
+
+  /* ===== landing experience: intro -> scroll narrative -> play ===== */
+  /* the tool chrome only appears once you hit Play */
+  body:not(.s-playing) #toolbar,
+  body:not(.s-playing) #hud,
+  body:not(.s-playing) #panel,
+  body:not(.s-playing) #f1{display:none !important}
+
+  /* INTRO — the silent spinning cube + a single prompt */
+  #intro{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;cursor:pointer;
+    background:radial-gradient(125% 95% at 50% 45%,rgba(8,11,22,.10),rgba(5,6,10,.5) 78%);transition:opacity 1s ease,visibility 1s}
+  #intro.gone{opacity:0;visibility:hidden;pointer-events:none}
+  #intro .prompt{text-align:center;opacity:0;animation:cd-fade 1.3s ease .2s forwards;
+    font:400 clamp(21px,3.3vw,36px)/1.3 "Hoefler Text",Georgia,"Times New Roman",serif;color:#dde7fc;letter-spacing:.01em}
+  #intro.booting .prompt{color:var(--dim);animation:cd-pulse 1.8s ease-in-out infinite}
+  #intro .prompt small{display:block;margin-top:16px;font:600 11px/1 system-ui,sans-serif;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--gold);opacity:.85}
+  @keyframes cd-fade{to{opacity:1}}
+  @keyframes cd-pulse{0%,100%{opacity:.45}50%{opacity:.8}}
+
+  /* STORY — scroll narrative layered over the live cube */
+  #story{position:relative;z-index:10;display:none}
+  body.s-listening #story{display:block}
+  #story section{height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 7vw}
+  #story .line h2{margin:0;font:500 clamp(30px,6.4vw,72px)/1.07 "Hoefler Text",Georgia,"Times New Roman",serif;
+    color:#eef2fb;letter-spacing:-.012em;text-shadow:0 2px 46px rgba(3,5,11,.85);
+    opacity:0;transform:translateY(34px);transition:opacity 1s ease,transform 1s ease}
+  #story .line.in h2{opacity:1;transform:none}
+  #story .line h2 .soon{color:var(--gold);font-style:italic;font-size:.6em;opacity:.92;letter-spacing:0}
+  #play-btn{cursor:pointer;border:0;border-radius:999px;padding:18px 42px;display:inline-flex;align-items:center;gap:11px;
+    font:600 17px/1 system-ui,sans-serif;color:#05060a;background:var(--gold);box-shadow:0 16px 54px -12px rgba(255,206,138,.6);
+    opacity:0;transform:translateY(34px);transition:opacity 1s ease,transform 1s ease}
+  #story .cta.in #play-btn{opacity:1;transform:none}
+  #play-btn span{font-size:1.35em;line-height:0;margin-top:-2px}
+  #play-btn:hover{filter:brightness(1.07)}
+
+  /* a subtle scroll hint while listening */
+  #scrollhint{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:15;display:none;opacity:0;
+    color:var(--dim);font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.26em;text-transform:uppercase;
+    pointer-events:none;transition:opacity .7s}
+  body.s-listening #scrollhint{display:block}
+  #scrollhint.show{opacity:.75}
+  #scrollhint .ar{display:block;margin:10px auto 0;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+    transform:rotate(45deg);animation:cd-bob 1.9s ease-in-out infinite}
+  @keyframes cd-bob{0%,100%{transform:rotate(45deg) translate(0,0)}50%{transform:rotate(45deg) translate(4px,4px)}}
 </style>
 </head>
 <body>
@@ -160,14 +215,25 @@
     <div id="err"></div>
   </div>
 
-  <!-- loading + start gate -->
-  <div id="gate">
-    <h1>Cube Dance</h1>
-    <div class="sub">An effect preview — the real Python engine, running in your browser. Scored by <b>KOAN&nbsp;Sound — Anchorite</b> as the test.</div>
-    <div id="prog">booting…</div>
-    <div class="tip">drag in an <b>audio file</b> to swap the track · or a <b>.py effect</b> to preview it · drag to orbit, scroll to zoom</div>
+  <!-- INTRO: the silent spinning cube + one prompt (doubles as the boot screen) -->
+  <div id="intro" class="booting">
+    <div class="prompt"><span id="prog">warming up the cube…</span><small class="introsub">click to begin · sound on</small></div>
   </div>
 
-  <script type="module" src="./main.js?v=20260608"></script>
+  <!-- STORY: scroll narrative, layered over the live cube -->
+  <main id="story">
+    <section class="lead"></section>
+    <section class="line"><h2>This New Year&rsquo;s</h2></section>
+    <section class="line"><h2>The cube has a new brain</h2></section>
+    <section class="line"><h2>Custom-written software</h2></section>
+    <section class="line"><h2>Cube- and sound-aware<br>from the ground up</h2></section>
+    <section class="line"><h2>Fully programmable</h2></section>
+    <section class="line"><h2>Vibe-codable <span class="soon">(soon)</span></h2></section>
+    <section class="line"><h2>Now it&rsquo;s your chance to play</h2></section>
+    <section class="cta"><button id="play-btn">Play <span>&rsaquo;</span></button></section>
+  </main>
+  <div id="scrollhint">scroll<span class="ar"></span></div>
+
+  <script type="module" src="./main.js?v=20260609"></script>
 </body>
 </html>
