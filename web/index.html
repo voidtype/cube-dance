@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>Cube Dance — effect preview</title>
 <script type="importmap">
 {
@@ -59,12 +60,20 @@
   #hud{position:fixed;right:14px;top:12px;z-index:20;text-align:right;color:var(--dim);font:11px/1.5 ui-monospace,monospace}
   #hud b{color:var(--moon);font-weight:600}
   #hud .fps{color:var(--gold)}
+
+  #sound{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:25;display:none;cursor:pointer;
+    border:0;border-radius:999px;padding:11px 22px;font:600 13px/1 inherit;color:#05060a;background:var(--gold);
+    box-shadow:0 8px 30px -8px rgba(255,206,138,.55)}
+  #sound.show{display:inline-block}
+  #sound:hover{filter:brightness(1.06)}
+  #sound.on{background:rgba(16,20,30,.85);color:var(--gold);border:1px solid rgba(255,206,138,.45);box-shadow:none}
 </style>
 </head>
 <body>
   <div id="drop-hint"></div>
 
   <div id="hud"></div>
+  <button id="sound">▶ sound on · Smooth Operator</button>
 
   <!-- controller -->
   <div id="panel">
@@ -80,10 +89,9 @@
     <h1>Cube Dance</h1>
     <div class="sub">An effect preview — the real Python engine, running in your browser. Scored by <b>Smooth&nbsp;Operator</b> as the test.</div>
     <div id="prog">booting…</div>
-    <button id="startbtn">▶ Start (sound on)</button>
     <div class="tip">drag in an <b>audio file</b> to swap the track · or a <b>.py effect</b> to preview it · drag to orbit, scroll to zoom</div>
   </div>
 
-  <script type="module" src="/web/main.js"></script>
+  <script type="module" src="./main.js"></script>
 </body>
 </html>

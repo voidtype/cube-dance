@@ -67,7 +67,9 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def _is_zip(self) -> bool:
-        return self.path.split("?", 1)[0] == ZIP_ROUTE
+        # match /cube_dance.zip at any base (e.g. /web/cube_dance.zip) so the app
+        # can fetch it with a relative path (works the same when hosted online).
+        return self.path.split("?", 1)[0].endswith("/cube_dance.zip")
 
     def do_GET(self) -> None:
         if self._is_zip():

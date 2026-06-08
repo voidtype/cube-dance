@@ -35,3 +35,6 @@ showcase/cube-into-2027.html
 # Editor
 .idea/
 .vscode/
+
+# Browser preview: copied test audio (copyrighted — not committed)
+web/*.mp3

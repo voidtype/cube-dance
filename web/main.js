@@ -142,13 +142,31 @@ function playBuffer(buf) {
   if (current) { try { current.stop(); } catch(_){} try { current.disconnect(); } catch(_){} }
   const src = new AudioBufferSourceNode(actx, { buffer: buf, loop: true });
   src.connect(actx.destination); src.connect(splitter); src.start(0); current = src;
+  audioPlaying = true;
 }
 async function unlock() { ensureAudio(); if (actx.state === 'suspended') await actx.resume(); return actx.state; }
 async function playURL(url) { ensureAudio(); await unlock(); const r = await fetch(url); playBuffer(await actx.decodeAudioData(await r.arrayBuffer())); }
 async function playFile(file) { ensureAudio(); await unlock(); playBuffer(await actx.decodeAudioData(await file.arrayBuffer())); }
 
 // ---------------------------------------------------------------- Pyodide bridge
-let pyodide, BRIDGE, outProxy, featProxy, feat = new Float32Array(25);
+let pyodide, BRIDGE, outProxy, featProxy, feat = new Float32Array(25), audioPlaying = false;
+
+// A gentle synthetic beat so the cube is ALWAYS alive — on load, and any time no
+// real audio is playing. Real audio takes over the moment a track starts.
+function synthFeatures(t) {
+  const b = (t * 1.9) % 1;                       // ~114 bpm
+  const env = Math.exp(-b / 0.16) + 0.25;        // kick pulse + a floor (never dark)
+  const sweep = 0.5 + 0.5 * Math.sin(t * 0.25);
+  const bl = new Float32Array(8), br = new Float32Array(8);
+  for (let i = 0; i < 8; i++) {
+    const v = Math.min(1, 0.3 + 0.55 * Math.abs(Math.sin(t * 0.8 + i * 0.7)) * env);
+    bl[i] = v; br[i] = v * 0.92;
+  }
+  const bass = Math.min(1, 0.4 + 0.5 * env);
+  return { level: Math.min(1, 0.35 + 0.4 * env), bass, mid: 0.3 + 0.35 * sweep,
+    treble: 0.25 + 0.3 * (1 - sweep), bass_l: bass, bass_r: bass * 0.9,
+    buckets_l: bl, buckets_r: br, beat: b, kick: b < 0.04 };
+}
 const toObj = p => { const o = p.toJs({ dict_converter: Object.fromEntries }); p.destroy(); return o; };
 
 async function bootPython() {
@@ -158,10 +176,10 @@ async function bootPython() {
   setProg('loading numpy + scipy…');
   await pyodide.loadPackage(['numpy', 'scipy']);
   setProg('fetching the live cube_dance engine…');
-  const zip = await (await fetch('/cube_dance.zip')).arrayBuffer();
+  const zip = await (await fetch('./cube_dance.zip')).arrayBuffer();
   await pyodide.unpackArchive(zip, 'zip');           // -> /home/pyodide/cube_dance (on sys.path)
   setProg('starting the engine…');
-  const src = await (await fetch('/web/bridge.py')).text();
+  const src = await (await fetch('./bridge.py')).text();
   pyodide.FS.writeFile('bridge.py', src);
   const mod = pyodide.pyimport('bridge');
   BRIDGE = mod.BRIDGE;
@@ -233,8 +251,9 @@ function installDnD() {
 let t0 = performance.now(), frames = 0, fps = 0, lastFps = t0;
 function frame() {
   const now = performance.now(), t = (now - t0) / 1000;
-  // 1. audio features -> Python's feature buffer (zero-copy view)
-  const m = analyse();
+  // 1. features -> Python's feature buffer (zero-copy view). Synthetic beat keeps
+  //    the cube alive until a real track is playing.
+  const m = audioPlaying ? analyse() : synthFeatures(t);
   feat[0]=m.level; feat[1]=m.bass; feat[2]=m.mid; feat[3]=m.treble; feat[4]=m.bass_l; feat[5]=m.bass_r;
   feat[6]=m.beat; feat[7]=m.kick?1:0; feat[8]=m.kick?Math.min(1,m.bass*1.5+0.4):0;
   feat.set(m.buckets_l, 9); feat.set(m.buckets_r, 17);
@@ -266,12 +285,17 @@ function frame() {
     loadPreset('deep');
     installDnD();
     $('#panel').classList.add('show');
-    requestAnimationFrame(frame);                     // render even before audio (silent)
-    setProg('ready.'); $('#startbtn').classList.add('ready');
-    $('#startbtn').addEventListener('click', async () => {
-      $('#gate').classList.add('gone');
-      try { await playURL('/showcase/assets/smooth.mp3'); $('#hud').dataset.track = 'Smooth Operator'; }
-      catch (e) { console.warn('audio load failed', e); }
+    requestAnimationFrame(frame);                     // the cube is alive on load (synthetic beat)
+    $('#gate').classList.add('gone');                 // reveal the living cube immediately
+    const snd = $('#sound'); snd.classList.add('show');
+    const AUDIO = ['./smooth.mp3', '../assets/smooth.mp3'];   // local web/, then the copy already on the site
+    snd.addEventListener('click', async () => {
+      snd.textContent = '…';
+      for (const u of AUDIO) {
+        try { await playURL(u); snd.classList.add('on'); snd.textContent = '♪ Smooth Operator'; $('#hud').dataset.track = 'Smooth Operator'; return; }
+        catch (e) { /* try the next candidate */ }
+      }
+      snd.textContent = '▶ sound (drag a track in)';
     });
   } catch (e) {
     setProg('boot failed:\n' + (e && e.message ? e.message : e));
