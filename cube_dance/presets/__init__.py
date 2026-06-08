@@ -11,8 +11,14 @@ import importlib
 # the original mixer-friendly presets (deck defaults); the next four are wilder,
 # stylistically distinct "imaginings" of what a preset can be.
 PRESET_ORDER = (
-    # originals (deck defaults)
-    "deep", "punchy", "minimal", "strobe", "inferno", "matrix", "plasma", "siren", "spiral", "vortex",
+    # the four mixer deck-default presets — keep these first: the DeckMixer seeds
+    # its four decks from PRESET_ORDER[:4].
+    "deep", "punchy", "minimal", "strobe",
+    # the reference plugin + browser default — maps the sound onto the cube's
+    # pixels and demonstrates every facility a plugin author has (presets/atlas.py).
+    "atlas",
+    # more originals
+    "inferno", "matrix", "plasma", "siren", "spiral", "vortex",
     # 20 new 3-D effects (see docs/effect-ideas.md)
     "life", "reaction", "flock", "crystal", "clouds", "menger", "bulb", "slice", "sphere", "knot",
     "icosa", "snake", "lacing", "arc", "current", "sun", "ripple", "aurora", "accretion", "dipole",

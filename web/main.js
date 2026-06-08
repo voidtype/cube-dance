@@ -79,6 +79,11 @@ function buildCloud(posFlat) {
 // ---------------------------------------------------------------- Web Audio
 let actx, analyserL, analyserR, splitter, dataL, dataR, band, current = null;
 const FFT = 2048;
+const WAVE_M = 96;                               // scope samples per channel (-> feat[25..])
+const _wL = new Float32Array(WAVE_M), _wR = new Float32Array(WAVE_M);
+// downsample an analyser's time-domain signal into dst (the oscilloscope feed)
+function waveOf(an, dst) { an.getFloatTimeDomainData(tbuf); const step = tbuf.length / WAVE_M;
+  for (let i = 0; i < WAVE_M; i++) dst[i] = tbuf[(i * step) | 0]; }
 function ensureAudio() {
   if (actx) return actx;
   actx = new (window.AudioContext || window.webkitAudioContext)();
@@ -121,7 +126,7 @@ function detect(mono, now) {
   let beat = ((now - lastBeat) / beatPeriod) % 1; if (beat < 0) beat += 1;
   return { kick, beat };
 }
-const ZERO = { level:0,bass:0,mid:0,treble:0,bass_l:0,bass_r:0,buckets_l:new Float32Array(8),buckets_r:new Float32Array(8),beat:0,kick:false };
+const ZERO = { level:0,bass:0,mid:0,treble:0,bass_l:0,bass_r:0,buckets_l:new Float32Array(8),buckets_r:new Float32Array(8),beat:0,kick:false,waveL:new Float32Array(WAVE_M),waveR:new Float32Array(WAVE_M) };
 function analyse() {
   if (!actx || actx.state !== 'running') return ZERO;
   analyserL.getFloatFrequencyData(dataL); analyserR.getFloatFrequencyData(dataR);
@@ -131,11 +136,12 @@ function analyse() {
   const mono = new Float32Array(band.binCount);
   for (let i = 0; i < band.binCount; i++) mono[i] = (dbN(dataL[i]) + dbN(dataR[i])) * 0.5;
   const { kick, beat } = detect(mono, actx.currentTime);
+  waveOf(analyserL, _wL); waveOf(analyserR, _wR);   // the real stereo waveform -> scope
   return {
     level: (rms(analyserL)+rms(analyserR))*0.5, bass: (bl+br)*0.5,
     mid: (bandLvl(dataL,band.mid)+bandLvl(dataR,band.mid))*0.5,
     treble: (bandLvl(dataL,band.treble)+bandLvl(dataR,band.treble))*0.5,
-    bass_l: bl, bass_r: br, buckets_l, buckets_r, beat, kick,
+    bass_l: bl, bass_r: br, buckets_l, buckets_r, beat, kick, waveL: _wL, waveR: _wR,
   };
 }
 function playBuffer(buf) {
@@ -149,7 +155,7 @@ async function playURL(url) { ensureAudio(); await unlock(); const r = await fet
 async function playFile(file) { ensureAudio(); await unlock(); playBuffer(await actx.decodeAudioData(await file.arrayBuffer())); }
 
 // ---------------------------------------------------------------- Pyodide bridge
-let pyodide, BRIDGE, outProxy, featProxy, feat = new Float32Array(25), audioPlaying = false;
+let pyodide, BRIDGE, outProxy, featProxy, feat = new Float32Array(25 + 2 * WAVE_M), audioPlaying = false;
 
 // A gentle synthetic beat so the cube is ALWAYS alive — on load, and any time no
 // real audio is playing. Real audio takes over the moment a track starts.
@@ -163,9 +169,14 @@ function synthFeatures(t) {
     bl[i] = v; br[i] = v * 0.92;
   }
   const bass = Math.min(1, 0.4 + 0.5 * env);
+  for (let i = 0; i < WAVE_M; i++) {             // a synthetic wave so the scope lives pre-audio
+    const ph = (i / WAVE_M) * Math.PI * 6 + t * 6;
+    _wL[i] = Math.sin(ph) * (0.25 + 0.5 * env);
+    _wR[i] = Math.sin(ph + 0.6) * (0.25 + 0.5 * env) * 0.9;
+  }
   return { level: Math.min(1, 0.35 + 0.4 * env), bass, mid: 0.3 + 0.35 * sweep,
     treble: 0.25 + 0.3 * (1 - sweep), bass_l: bass, bass_r: bass * 0.9,
-    buckets_l: bl, buckets_r: br, beat: b, kick: b < 0.04 };
+    buckets_l: bl, buckets_r: br, beat: b, kick: b < 0.04, waveL: _wL, waveR: _wR };
 }
 const toObj = p => { const o = p.toJs({ dict_converter: Object.fromEntries }); p.destroy(); return o; };
 
@@ -444,6 +455,7 @@ function frame() {
   feat[0]=m.level; feat[1]=m.bass; feat[2]=m.mid; feat[3]=m.treble; feat[4]=m.bass_l; feat[5]=m.bass_r;
   feat[6]=m.beat; feat[7]=m.kick?1:0; feat[8]=m.kick?Math.min(1,m.bass*1.5+0.4):0;
   feat.set(m.buckets_l, 9); feat.set(m.buckets_r, 17);
+  feat.set(m.waveL, 25); feat.set(m.waveR, 25 + WAVE_M);   // stereo scope -> atlas oscilloscope
   let stepMs = 0;
   if (BRIDGE) {
     const t1 = performance.now();
@@ -469,7 +481,7 @@ function frame() {
   try {
     await bootPython();
     fillPresetSelect();
-    loadPreset('deep');
+    loadPreset('atlas');                              // the reference plugin (maps sound -> pixels)
     installDnD();
     installToolbar();
     buildF1();

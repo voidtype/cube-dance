@@ -52,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--visual", choices=["auto", "spectrum", "vu"], default="auto",
         help="Visual: spectrum (preset-driven element engine), vu (Phase-1 meter), or auto.",
     )
-    p.add_argument("--preset", default="deep", help="Visual preset for the element engine (e.g. deep, punchy).")
+    p.add_argument("--preset", default="atlas", help="Visual preset for the element engine (e.g. atlas, deep, punchy).")
     p.add_argument(
         "--set", dest="show", default=None, metavar="NAME",
         help="Run an autonomous SHOW that performs a whole night on its own (e.g. 'dustlight', the "
