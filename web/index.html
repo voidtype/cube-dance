@@ -97,6 +97,26 @@
   #ed-download{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid rgba(255,255,255,.16)}
   .ed-foot .tip{color:var(--faint);font-size:11px;margin-left:auto;text-align:right}
   #preset optgroup{color:var(--gold)}
+
+  /* simulated Traktor F1 */
+  #f1{position:fixed;right:14px;top:0;transform-origin:top right;z-index:24;display:none;
+    background:linear-gradient(#1a1c22,#121419);border:1px solid #2c2f37;border-radius:18px;box-shadow:0 30px 90px -20px #000}
+  #f1.show{display:block}
+  #f1 .lab{position:absolute;color:#828896;font:600 12px/1 var(--sans);letter-spacing:.03em;text-align:center;pointer-events:none;text-transform:uppercase;overflow:hidden;white-space:nowrap}
+  .f1-knob{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 32%,#42464f,#191b20);border:1px solid #2c2f37;cursor:ns-resize}
+  .f1-knob .ind{position:absolute;left:calc(50% - 1px);top:7%;width:2px;height:44%;background:var(--gold);transform-origin:bottom center;border-radius:1px}
+  .f1-fader{position:absolute;background:#0a0b0e;border:1px solid #2a2d34;border-radius:3px;cursor:ns-resize}
+  .f1-fthumb{position:absolute;left:-5px;right:-5px;height:15px;background:linear-gradient(#5e636f,#33363d);border:1px solid #1c1e25;border-radius:3px;pointer-events:none}
+  .f1-pad{position:absolute;border-radius:8px;cursor:pointer;border:1px solid rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;
+    color:#05060a;font:700 15px/1.05 var(--sans);text-align:center;text-shadow:0 1px 0 rgba(255,255,255,.3);user-select:none;overflow:hidden;padding:3px}
+  .f1-pad:active,.f1-pad.hit{filter:brightness(1.8) saturate(1.2)}
+  .f1-btn{position:absolute;border-radius:6px;background:#23262d;border:1px solid #313540;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    color:#9aa0ac;font:700 11px/1 var(--sans);letter-spacing:.02em;user-select:none;overflow:hidden}
+  .f1-disp{position:absolute;background:#1a0605;border:1px solid #3a1110;border-radius:4px;display:flex;align-items:center;justify-content:center;
+    color:#ff4232;font:700 22px/1 "SF Mono",ui-monospace,monospace;text-shadow:0 0 9px rgba(255,66,50,.75)}
+  .f1-enc{position:absolute;border-radius:50%;background:radial-gradient(circle at 40% 32%,#42464f,#191b20);border:1px solid #2c2f37;cursor:ns-resize}
+  .f1-stop{position:absolute;border-radius:4px;background:#2a1a0c;border:1px solid #cf6a1e;cursor:pointer}
+  .f1-stop:active{background:#cf6a1e}
 </style>
 </head>
 <body>
@@ -107,8 +127,10 @@
 
   <div id="toolbar">
     <button id="btn-controls" class="active">⚙ Controls</button>
+    <button id="btn-f1">🎛 F1</button>
     <button id="btn-edit">&lt;/&gt; Edit Python</button>
   </div>
+  <div id="f1"></div>
 
   <!-- python editor overlay -->
   <div id="editor">

@@ -217,6 +217,8 @@ function buildControls(schema) {
     b.addEventListener('pointerdown', () => BRIDGE.fire(t.label));
     pw.appendChild(b);
   });
+  curSchema = schema;
+  if (f1ui) updateF1(schema);
 }
 // effect state + the saved-effects ("your effects") library
 let cur = { name: '', source: '', isUser: false };
@@ -301,6 +303,10 @@ function installToolbar() {
     const p = $('#panel'), b = $('#btn-controls'), show = !p.classList.contains('show');
     p.classList.toggle('show', show); b.classList.toggle('active', show);
   });
+  $('#btn-f1').addEventListener('click', () => {
+    const f = $('#f1'), b = $('#btn-f1'), show = !f.classList.contains('show');
+    f.classList.toggle('show', show); b.classList.toggle('active', show);
+  });
   $('#btn-edit').addEventListener('click', openEditor);
   $('#ed-close').addEventListener('click', () => $('#editor').classList.remove('show'));
   $('#editor').addEventListener('click', e => { if (e.target.id === 'editor') $('#editor').classList.remove('show'); });
@@ -326,6 +332,106 @@ function installToolbar() {
       t.value = t.value.slice(0, s) + '  ' + t.value.slice(t.selectionEnd); t.selectionStart = t.selectionEnd = s + 2;
     } else if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); $('#ed-run').click(); }
   });
+}
+
+// ---------------------------------------------------------------- simulated Traktor F1
+const F1L = {
+  W: 360, H: 880, knobsX: [54, 142, 230, 318], knobY: 118, knobR: 34,
+  faderTop: 180, faderBot: 344, faderHW: 12,
+  buttons: { SYNC:[14,372,98,408], QUANT:[104,372,188,408], CAPTURE:[194,372,278,408],
+    SHIFT:[10,420,70,456], REVERSE:[76,420,138,456], TYPE:[144,420,206,456], SIZE:[212,420,274,456], BROWSE:[280,420,346,456] },
+  display:[282,364,324,406], encX:343, encY:385, encR:14, pads:[16,474,344,812], stop:[16,822,344,858],
+  palette:[[210,40,40],[220,110,30],[220,150,30],[210,200,40],[150,200,40],[60,180,60],[40,180,110],[40,190,180],
+    [40,150,210],[50,90,210],[90,60,210],[140,50,200],[180,40,180],[210,40,140],[210,40,90],[210,60,60]],
+  btnColor:{SYNC:[240,120,20],QUANT:[240,120,20],CAPTURE:[240,120,20],SHIFT:[220,220,225],REVERSE:[240,120,20],TYPE:[240,120,20],SIZE:[240,120,20],BROWSE:[40,90,230]},
+};
+let F1S = 0.55, f1ui = null, curSchema = null;
+const f1knob = [0, 0, 0, 0], f1fader = [0.46, 0.48, 0.36, 0.22];
+const FADERMAP = [ v => pointMat.uniforms.uBright.value = 0.6 + 2.6 * v, v => bloom.strength = 2.0 * v,
+  v => pointMat.uniforms.uSize.value = 40 + 150 * v, v => controls.autoRotateSpeed = 2.6 * v ];
+const FADERLAB = ['bright', 'bloom', 'size', 'spin'];
+const fpx = v => v + 'px';   // natural panel coords; the whole #f1 is CSS-scaled by F1S
+
+function setKnob(i, v) { f1knob[i] = v; if (f1ui) f1ui.inds[i].style.transform = `rotate(${-135 + 270 * v}deg)`; }
+function setFader(i, v) { f1fader[i] = v; const f = f1ui.faders[i];
+  f.th.style.top = ((1 - v) * (F1L.faderBot - F1L.faderTop) - 7) + 'px'; FADERMAP[i](v); }
+function allEffects() { return [...BUILTIN, ...Object.keys(userFx)]; }
+function cycleEffect(d) { const a = allEffects(); let i = a.indexOf(cur.name); i = (i + d + a.length) % a.length;
+  (a[i] in userFx) ? loadUser(a[i]) : loadPreset(a[i]); }
+
+function buildF1() {
+  F1S = Math.max(0.45, Math.min(0.9, Math.min((innerHeight - 30) / F1L.H, (innerWidth * 0.27) / F1L.W)));
+  const f1 = $('#f1'); f1.style.width = F1L.W + 'px'; f1.style.height = F1L.H + 'px';
+  f1.style.transform = 'scale(' + F1S + ')'; f1.style.top = ((innerHeight - F1L.H * F1S) / 2) + 'px';
+  f1.innerHTML = '';
+  const node = (cls, x, y, w, h) => { const d = document.createElement('div'); d.className = cls;
+    d.style.left = fpx(x); d.style.top = fpx(y); if (w != null) { d.style.width = fpx(w); d.style.height = fpx(h); } f1.appendChild(d); return d; };
+  const lab = (text, x, y, w) => { const d = node('lab', x, y); d.style.width = fpx(w); d.textContent = text; return d; };
+  f1ui = { inds: [], klab: [], faders: [], pads: [], btn: {}, btnOn: {}, trigs: [] };
+
+  F1L.knobsX.forEach((cx, i) => {
+    const k = node('f1-knob', cx - F1L.knobR, F1L.knobY - F1L.knobR, F1L.knobR * 2, F1L.knobR * 2);
+    const ind = document.createElement('div'); ind.className = 'ind'; k.appendChild(ind); f1ui.inds.push(ind);
+    f1ui.klab.push(lab('', cx - 40, F1L.knobY + F1L.knobR + 6, 80));
+    k.addEventListener('pointerdown', e => { e.preventDefault(); const sy = e.clientY, s0 = f1knob[i];
+      const mv = ev => { const v = Math.max(0, Math.min(1, s0 + (sy - ev.clientY) / 150)); setKnob(i, v); BRIDGE.set_knob(i, v); };
+      const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); };
+      addEventListener('pointermove', mv); addEventListener('pointerup', up); });
+  });
+  F1L.knobsX.forEach((cx, i) => {
+    const tk = node('f1-fader', cx - F1L.faderHW, F1L.faderTop, F1L.faderHW * 2, F1L.faderBot - F1L.faderTop);
+    const th = document.createElement('div'); th.className = 'f1-fthumb'; tk.appendChild(th);
+    f1ui.faders.push({ tk, th }); lab(FADERLAB[i], cx - 30, F1L.faderBot + 6, 60);
+    tk.addEventListener('pointerdown', e => { e.preventDefault(); const r = tk.getBoundingClientRect();
+      const set = ev => setFader(i, Math.max(0, Math.min(1, 1 - (ev.clientY - r.top) / r.height)));
+      set(e); const up = () => { removeEventListener('pointermove', set); removeEventListener('pointerup', up); };
+      addEventListener('pointermove', set); addEventListener('pointerup', up); });
+    setFader(i, f1fader[i]);
+  });
+  f1ui.disp = node('f1-disp', F1L.display[0], F1L.display[1], F1L.display[2] - F1L.display[0], F1L.display[3] - F1L.display[1]);
+  const enc = node('f1-enc', F1L.encX - F1L.encR, F1L.encY - F1L.encR, F1L.encR * 2, F1L.encR * 2);
+  enc.addEventListener('wheel', e => { e.preventDefault(); cycleEffect(e.deltaY > 0 ? 1 : -1); }, { passive: false });
+  enc.addEventListener('pointerdown', e => { e.preventDefault(); let last = e.clientY;
+    const mv = ev => { if (Math.abs(ev.clientY - last) > 16) { cycleEffect(ev.clientY > last ? 1 : -1); last = ev.clientY; } };
+    const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); };
+    addEventListener('pointermove', mv); addEventListener('pointerup', up); });
+  for (const [name, [x0, y0, x1, y1]] of Object.entries(F1L.buttons)) {
+    const b = node('f1-btn', x0, y0, x1 - x0, y1 - y0); b.textContent = name; f1ui.btn[name] = b; f1ui.btnOn[name] = false;
+    b.addEventListener('pointerdown', () => {
+      if (name === 'BROWSE') { toObj(BRIDGE.reset_knobs()).forEach((v, i) => setKnob(i, v)); return; }
+      const on = !f1ui.btnOn[name]; f1ui.btnOn[name] = on; const col = F1L.btnColor[name];
+      b.style.background = on ? `rgb(${col[0]},${col[1]},${col[2]})` : '#23262d'; b.style.color = on ? '#05060a' : '#9aa0ac';
+      if (name === 'CAPTURE') BRIDGE.set_flag('mono', on);
+      else if (name === 'REVERSE') BRIDGE.set_flag('reverse', on);
+      else if (name === 'SIZE') BRIDGE.set_flag('size_boost', on);
+      else if (name === 'QUANT') BRIDGE.set_flag('freeze', on);
+    });
+  }
+  const [px0, py0, px1, py1] = F1L.pads, g = 8, pw = ((px1 - px0) - 3 * g) / 4, ph = ((py1 - py0) - 3 * g) / 4;
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    const el = node('f1-pad', px0 + c * (pw + g), py0 + r * (ph + g), pw, ph);
+    f1ui.pads.push(el);
+    el.addEventListener('pointerdown', () => { const t = f1ui.trigs; if (t.length) BRIDGE.fire(t[c % t.length].label);
+      el.classList.add('hit'); setTimeout(() => el.classList.remove('hit'), 130); });
+  }
+  const [sx0, sy0, sx1, sy1] = F1L.stop, sw = ((sx1 - sx0) - 3 * g) / 4;
+  for (let c = 0; c < 4; c++) { const el = node('f1-stop', sx0 + c * (sw + g), sy0, sw, sy1 - sy0); el.addEventListener('pointerdown', () => BRIDGE.clear()); }
+  if (curSchema) updateF1(curSchema);
+}
+
+function updateF1(schema) {
+  if (!f1ui || !schema || !schema.ok) return;
+  const ks = schema.knobs || [];
+  for (let i = 0; i < 4; i++) { const k = ks[i];
+    f1ui.inds[i].parentElement.style.opacity = k ? 1 : 0.3;
+    f1ui.klab[i].textContent = k ? k.label : ''; setKnob(i, k ? k.value : 0); }
+  f1ui.trigs = schema.triggers || [];
+  f1ui.pads.forEach((el, idx) => { const c = idx % 4, r = (idx / 4) | 0;
+    let col = F1L.palette[idx], txt = '';
+    if (r === 3 && c < f1ui.trigs.length) { col = f1ui.trigs[c].color; txt = f1ui.trigs[c].label; }
+    el.style.background = `rgb(${col[0]},${col[1]},${col[2]})`; el.textContent = txt; });
+  const a = allEffects(), i = Math.max(0, a.indexOf(schema.name));
+  f1ui.disp.textContent = String(i % 100).padStart(2, '0');
 }
 
 // ---------------------------------------------------------------- frame loop
@@ -366,7 +472,9 @@ function frame() {
     loadPreset('deep');
     installDnD();
     installToolbar();
+    buildF1();
     $('#panel').classList.add('show');
+    $('#f1').classList.add('show'); $('#btn-f1').classList.add('active');
     requestAnimationFrame(frame);                     // the cube is alive on load (synthetic beat)
     $('#gate').classList.add('gone');                 // reveal the living cube immediately
     const snd = $('#sound'); snd.classList.add('show');
