@@ -1,0 +1,6704 @@
+{
+  "metadata": {
+    "source_file": "led_cube_new_version.mad",
+    "format": "MadMapper 0BADBABE binary",
+    "total_fixtures": 203,
+    "total_leds": 2443,
+    "protocol": "ArtNet",
+    "universes_used": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      71
+    ],
+    "fixture_types": {
+      "LED Strip - 18": "18 RGB LEDs (54 DMX channels)",
+      "LED Strip - 25": "25 RGB LEDs (75 DMX channels)",
+      "LED Strip - 119": "119 RGB LEDs (357 DMX channels)"
+    },
+    "color_format": "RGB (3 channels per pixel)",
+    "avoidCrossUniversePixels": true
+  },
+  "summary": {
+    "totalAddressableLEDs": 2443,
+    "totalFixturesWithLEDs": 123,
+    "totalStructuralFixtures": 80,
+    "artnetUniversesUsed": [
+      0,
+      1,
+      9,
+      10,
+      11,
+      17,
+      18,
+      27,
+      28,
+      29,
+      35,
+      36,
+      45,
+      46,
+      47,
+      52,
+      53,
+      54,
+      62,
+      63,
+      64,
+      71
+    ],
+    "cubeVertexPositions": 8,
+    "fixtureTypesPerVertex": {
+      "odd_vertices_1357": [
+        "Left-N (18 LEDs, vertical edge)",
+        "Right-N (18 LEDs, vertical edge)",
+        "CLeft-top-N (25 LEDs)",
+        "CLeft-bot-N (18 LEDs)",
+        "CLeft-left-N (25 LEDs)",
+        "CLeft-diag-left-N (18 LEDs)",
+        "CLeft-diag-right-N (18 LEDs)",
+        "CRight-top-N (25 LEDs)",
+        "CRight-bot-N (18 LEDs)",
+        "CRight-left-N (25 LEDs)",
+        "CRight-diag-left-N (18 LEDs)",
+        "CRight-diag-right-N (18 LEDs)"
+      ],
+      "even_vertices_2468": [
+        "Left-N (18 LEDs, vertical edge)",
+        "Right-N (18 LEDs, vertical edge)",
+        "Top-N (18 LEDs, top edge)",
+        "CLeft-top-N (25 LEDs)",
+        "CLeft-bot-N (18 LEDs)",
+        "CLeft-left-N (25 LEDs)",
+        "CLeft-diag-left-N (18 LEDs)",
+        "CLeft-diag-right-N (18 LEDs)",
+        "CRight-top-N (25 LEDs)",
+        "CRight-bot-N (18 LEDs)",
+        "CRight-left-N (25 LEDs)",
+        "CRight-diag-left-N (18 LEDs)",
+        "CRight-diag-right-N (18 LEDs)",
+        "CTop-top-N (25 LEDs)",
+        "CTop-bot-N (18 LEDs)",
+        "CTop-left-N (25 LEDs)",
+        "CTop-diag-left-N (18 LEDs)",
+        "CTop-diag-right-N (18 LEDs)"
+      ],
+      "ledsPerOddVertex": 244,
+      "ledsPerEvenVertex": 366
+    },
+    "colorFormat": "RGB, 3 channels per pixel, big-endian channel order",
+    "channelNote": "pixelChannelOffsets are 1-indexed relative offsets within the fixture strip. Pixel N at offset O uses absolute DMX channels: R=startChannel+O-1, G=startChannel+O, B=startChannel+O+1"
+  },
+  "fixtures": [
+    {
+      "name": "Left-1",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 0,
+        "startChannel": 1,
+        "endChannel": 54,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_left"
+    },
+    {
+      "name": "Channel 6",
+      "ledCount": 1,
+      "artnet": {
+        "universe": 0,
+        "startChannel": 13,
+        "endChannel": 15,
+        "channelCount": 3
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1
+        ]
+      },
+      "cubeSection": "channel"
+    },
+    {
+      "name": "CLeft-top-1",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 0,
+        "startChannel": 55,
+        "endChannel": 129,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_top"
+    },
+    {
+      "name": "CLeft-diag-left-1",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 0,
+        "startChannel": 130,
+        "endChannel": 183,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "CLeft-bot-1",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 0,
+        "startChannel": 184,
+        "endChannel": 237,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_bot"
+    },
+    {
+      "name": "CLeft-left-1",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 0,
+        "startChannel": 238,
+        "endChannel": 312,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_left"
+    },
+    {
+      "name": "CLeft-diag-right-1",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 0,
+        "startChannel": 313,
+        "endChannel": 366,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "Right-1",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 0,
+        "startChannel": 367,
+        "endChannel": 420,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_right"
+    },
+    {
+      "name": "CRight-top-1",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 0,
+        "startChannel": 421,
+        "endChannel": 495,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_top"
+    },
+    {
+      "name": "CRight-diag-left-1",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 0,
+        "startChannel": 496,
+        "endChannel": 549,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "CRight-bot-1",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 1,
+        "startChannel": 40,
+        "endChannel": 93,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_bot"
+    },
+    {
+      "name": "CRight-left-1",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 1,
+        "startChannel": 94,
+        "endChannel": 168,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_left"
+    },
+    {
+      "name": "CRight-diag-right-1",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 1,
+        "startChannel": 169,
+        "endChannel": 222,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "Left-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 9,
+        "startChannel": 427,
+        "endChannel": 480,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_left"
+    },
+    {
+      "name": "CLeft-top-2",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 9,
+        "startChannel": 481,
+        "endChannel": 555,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_top"
+    },
+    {
+      "name": "CLeft-diag-left-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 10,
+        "startChannel": 46,
+        "endChannel": 99,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "CLeft-bot-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 10,
+        "startChannel": 100,
+        "endChannel": 153,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_bot"
+    },
+    {
+      "name": "CLeft-left-2",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 10,
+        "startChannel": 154,
+        "endChannel": 228,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_left"
+    },
+    {
+      "name": "CLeft-diag-right-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 10,
+        "startChannel": 229,
+        "endChannel": 282,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "Right-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 10,
+        "startChannel": 283,
+        "endChannel": 336,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_right"
+    },
+    {
+      "name": "CRight-top-2",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 10,
+        "startChannel": 337,
+        "endChannel": 411,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_top"
+    },
+    {
+      "name": "CRight-diag-left-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 10,
+        "startChannel": 412,
+        "endChannel": 465,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "CRight-bot-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 10,
+        "startChannel": 466,
+        "endChannel": 519,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_bot"
+    },
+    {
+      "name": "CRight-left-2",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 11,
+        "startChannel": 10,
+        "endChannel": 84,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_left"
+    },
+    {
+      "name": "CRight-diag-right-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 11,
+        "startChannel": 85,
+        "endChannel": 138,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "Top-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 11,
+        "startChannel": 139,
+        "endChannel": 192,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_top"
+    },
+    {
+      "name": "CTop-top-2",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 11,
+        "startChannel": 193,
+        "endChannel": 267,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_top_top"
+    },
+    {
+      "name": "CTop-diag-left-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 11,
+        "startChannel": 268,
+        "endChannel": 321,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_diag"
+    },
+    {
+      "name": "CTop-bot-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 11,
+        "startChannel": 322,
+        "endChannel": 375,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_bot"
+    },
+    {
+      "name": "CTop-left-2",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 11,
+        "startChannel": 376,
+        "endChannel": 450,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_top_left"
+    },
+    {
+      "name": "CTop-diag-right-2",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 11,
+        "startChannel": 451,
+        "endChannel": 504,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_diag"
+    },
+    {
+      "name": "Left-3",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 17,
+        "startChannel": 301,
+        "endChannel": 354,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_left"
+    },
+    {
+      "name": "CLeft-top-3",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 17,
+        "startChannel": 355,
+        "endChannel": 429,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_top"
+    },
+    {
+      "name": "CLeft-diag-left-3",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 17,
+        "startChannel": 430,
+        "endChannel": 483,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "CLeft-bot-3",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 17,
+        "startChannel": 484,
+        "endChannel": 537,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_bot"
+    },
+    {
+      "name": "CLeft-left-3",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 18,
+        "startChannel": 28,
+        "endChannel": 102,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_left"
+    },
+    {
+      "name": "CLeft-diag-right-3",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 18,
+        "startChannel": 103,
+        "endChannel": 156,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "Right-3",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 18,
+        "startChannel": 157,
+        "endChannel": 210,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_right"
+    },
+    {
+      "name": "CRight-top-3",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 18,
+        "startChannel": 211,
+        "endChannel": 285,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_top"
+    },
+    {
+      "name": "CRight-diag-left-3",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 18,
+        "startChannel": 286,
+        "endChannel": 339,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "CRight-bot-3",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 18,
+        "startChannel": 340,
+        "endChannel": 393,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_bot"
+    },
+    {
+      "name": "CRight-left-3",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 18,
+        "startChannel": 394,
+        "endChannel": 468,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_left"
+    },
+    {
+      "name": "CRight-diag-right-3",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 18,
+        "startChannel": 469,
+        "endChannel": 522,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "Left-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 27,
+        "startChannel": 217,
+        "endChannel": 270,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_left"
+    },
+    {
+      "name": "CLeft-top-4",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 27,
+        "startChannel": 271,
+        "endChannel": 345,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_top"
+    },
+    {
+      "name": "CLeft-diag-left-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 27,
+        "startChannel": 346,
+        "endChannel": 399,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "CLeft-bot-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 27,
+        "startChannel": 400,
+        "endChannel": 453,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_bot"
+    },
+    {
+      "name": "CLeft-left-4",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 27,
+        "startChannel": 454,
+        "endChannel": 528,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_left"
+    },
+    {
+      "name": "CLeft-diag-right-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 28,
+        "startChannel": 19,
+        "endChannel": 72,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "Right-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 28,
+        "startChannel": 73,
+        "endChannel": 126,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_right"
+    },
+    {
+      "name": "CRight-top-4",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 28,
+        "startChannel": 127,
+        "endChannel": 201,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_top"
+    },
+    {
+      "name": "CRight-diag-left-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 28,
+        "startChannel": 202,
+        "endChannel": 255,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "CRight-bot-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 28,
+        "startChannel": 256,
+        "endChannel": 309,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_bot"
+    },
+    {
+      "name": "CRight-left-4",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 28,
+        "startChannel": 310,
+        "endChannel": 384,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_left"
+    },
+    {
+      "name": "CRight-diag-right-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 28,
+        "startChannel": 385,
+        "endChannel": 438,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "Top-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 28,
+        "startChannel": 439,
+        "endChannel": 492,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_top"
+    },
+    {
+      "name": "CTop-top-4",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 28,
+        "startChannel": 493,
+        "endChannel": 567,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_top_top"
+    },
+    {
+      "name": "CTop-diag-left-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 29,
+        "startChannel": 58,
+        "endChannel": 111,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_diag"
+    },
+    {
+      "name": "CTop-bot-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 29,
+        "startChannel": 112,
+        "endChannel": 165,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_bot"
+    },
+    {
+      "name": "CTop-left-4",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 29,
+        "startChannel": 166,
+        "endChannel": 240,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_top_left"
+    },
+    {
+      "name": "CTop-diag-right-4",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 29,
+        "startChannel": 241,
+        "endChannel": 294,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_diag"
+    },
+    {
+      "name": "Left-5",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 35,
+        "startChannel": 91,
+        "endChannel": 144,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_left"
+    },
+    {
+      "name": "CLeft-top-5",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 35,
+        "startChannel": 145,
+        "endChannel": 219,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_top"
+    },
+    {
+      "name": "CLeft-diag-left-5",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 35,
+        "startChannel": 220,
+        "endChannel": 273,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "CLeft-bot-5",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 35,
+        "startChannel": 274,
+        "endChannel": 327,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_bot"
+    },
+    {
+      "name": "CLeft-left-5",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 35,
+        "startChannel": 328,
+        "endChannel": 402,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_left"
+    },
+    {
+      "name": "CLeft-diag-right-5",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 35,
+        "startChannel": 403,
+        "endChannel": 456,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "Right-5",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 35,
+        "startChannel": 457,
+        "endChannel": 510,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_right"
+    },
+    {
+      "name": "CRight-top-5",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 35,
+        "startChannel": 511,
+        "endChannel": 585,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_top"
+    },
+    {
+      "name": "CRight-diag-left-5",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 36,
+        "startChannel": 76,
+        "endChannel": 129,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "CRight-bot-5",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 36,
+        "startChannel": 130,
+        "endChannel": 183,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_bot"
+    },
+    {
+      "name": "CRight-left-5",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 36,
+        "startChannel": 184,
+        "endChannel": 258,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_left"
+    },
+    {
+      "name": "CRight-diag-right-5",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 36,
+        "startChannel": 259,
+        "endChannel": 312,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "Left-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 45,
+        "startChannel": 7,
+        "endChannel": 60,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_left"
+    },
+    {
+      "name": "CLeft-top-6",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 45,
+        "startChannel": 61,
+        "endChannel": 135,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_top"
+    },
+    {
+      "name": "CLeft-diag-left-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 45,
+        "startChannel": 136,
+        "endChannel": 189,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "CLeft-bot-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 45,
+        "startChannel": 190,
+        "endChannel": 243,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_bot"
+    },
+    {
+      "name": "CLeft-left-6",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 45,
+        "startChannel": 244,
+        "endChannel": 318,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_left"
+    },
+    {
+      "name": "CLeft-diag-right-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 45,
+        "startChannel": 319,
+        "endChannel": 372,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "Right-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 45,
+        "startChannel": 373,
+        "endChannel": 426,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_right"
+    },
+    {
+      "name": "CRight-top-6",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 45,
+        "startChannel": 427,
+        "endChannel": 501,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_top"
+    },
+    {
+      "name": "CRight-diag-left-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 45,
+        "startChannel": 502,
+        "endChannel": 555,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "CRight-bot-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 46,
+        "startChannel": 46,
+        "endChannel": 99,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_bot"
+    },
+    {
+      "name": "CRight-left-6",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 46,
+        "startChannel": 100,
+        "endChannel": 174,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_left"
+    },
+    {
+      "name": "CRight-diag-right-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 46,
+        "startChannel": 175,
+        "endChannel": 228,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "Top-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 46,
+        "startChannel": 229,
+        "endChannel": 282,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_top"
+    },
+    {
+      "name": "CTop-top-6",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 46,
+        "startChannel": 283,
+        "endChannel": 357,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_top_top"
+    },
+    {
+      "name": "CTop-diag-left-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 46,
+        "startChannel": 358,
+        "endChannel": 411,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_diag"
+    },
+    {
+      "name": "CTop-bot-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 46,
+        "startChannel": 412,
+        "endChannel": 465,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_bot"
+    },
+    {
+      "name": "CTop-left-6",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 46,
+        "startChannel": 466,
+        "endChannel": 540,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_top_left"
+    },
+    {
+      "name": "CTop-diag-right-6",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 47,
+        "startChannel": 31,
+        "endChannel": 84,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_diag"
+    },
+    {
+      "name": "Left-7",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 52,
+        "startChannel": 391,
+        "endChannel": 444,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_left"
+    },
+    {
+      "name": "CLeft-top-7",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 52,
+        "startChannel": 445,
+        "endChannel": 519,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_top"
+    },
+    {
+      "name": "CLeft-diag-left-7",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 53,
+        "startChannel": 10,
+        "endChannel": 63,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "CLeft-bot-7",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 53,
+        "startChannel": 64,
+        "endChannel": 117,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_bot"
+    },
+    {
+      "name": "CLeft-left-7",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 53,
+        "startChannel": 118,
+        "endChannel": 192,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_left"
+    },
+    {
+      "name": "CLeft-diag-right-7",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 53,
+        "startChannel": 193,
+        "endChannel": 246,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "Right-7",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 53,
+        "startChannel": 247,
+        "endChannel": 300,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_right"
+    },
+    {
+      "name": "CRight-top-7",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 53,
+        "startChannel": 301,
+        "endChannel": 375,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_top"
+    },
+    {
+      "name": "CRight-diag-left-7",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 53,
+        "startChannel": 376,
+        "endChannel": 429,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "CRight-bot-7",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 53,
+        "startChannel": 430,
+        "endChannel": 483,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_bot"
+    },
+    {
+      "name": "CRight-left-7",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 53,
+        "startChannel": 484,
+        "endChannel": 558,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_left"
+    },
+    {
+      "name": "CRight-diag-right-7",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 54,
+        "startChannel": 49,
+        "endChannel": 102,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "Left-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 62,
+        "startChannel": 307,
+        "endChannel": 360,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_left"
+    },
+    {
+      "name": "CLeft-top-8",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 62,
+        "startChannel": 361,
+        "endChannel": 435,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_top"
+    },
+    {
+      "name": "CLeft-diag-left-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 62,
+        "startChannel": 436,
+        "endChannel": 489,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "CLeft-bot-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 62,
+        "startChannel": 490,
+        "endChannel": 543,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_bot"
+    },
+    {
+      "name": "CLeft-left-8",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 63,
+        "startChannel": 34,
+        "endChannel": 108,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_left_left"
+    },
+    {
+      "name": "CLeft-diag-right-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 63,
+        "startChannel": 109,
+        "endChannel": 162,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_left_diag"
+    },
+    {
+      "name": "Right-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 63,
+        "startChannel": 163,
+        "endChannel": 216,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_right"
+    },
+    {
+      "name": "CRight-top-8",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 63,
+        "startChannel": 217,
+        "endChannel": 291,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_top"
+    },
+    {
+      "name": "CRight-diag-left-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 63,
+        "startChannel": 292,
+        "endChannel": 345,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "CRight-bot-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 63,
+        "startChannel": 346,
+        "endChannel": 399,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_bot"
+    },
+    {
+      "name": "CRight-left-8",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 63,
+        "startChannel": 400,
+        "endChannel": 474,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_right_left"
+    },
+    {
+      "name": "CRight-diag-right-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 63,
+        "startChannel": 475,
+        "endChannel": 528,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_right_diag"
+    },
+    {
+      "name": "Top-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 64,
+        "startChannel": 19,
+        "endChannel": 72,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "vertical_top"
+    },
+    {
+      "name": "CTop-top-8",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 64,
+        "startChannel": 73,
+        "endChannel": 147,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_top_top"
+    },
+    {
+      "name": "CTop-diag-left-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 64,
+        "startChannel": 148,
+        "endChannel": 201,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_diag"
+    },
+    {
+      "name": "CTop-bot-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 64,
+        "startChannel": 202,
+        "endChannel": 255,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_bot"
+    },
+    {
+      "name": "CTop-left-8",
+      "ledCount": 25,
+      "artnet": {
+        "universe": 64,
+        "startChannel": 256,
+        "endChannel": 330,
+        "channelCount": 75
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52,
+          55,
+          58,
+          61,
+          64,
+          67,
+          70,
+          73
+        ]
+      },
+      "cubeSection": "corner_top_left"
+    },
+    {
+      "name": "CTop-diag-right-8",
+      "ledCount": 18,
+      "artnet": {
+        "universe": 64,
+        "startChannel": 331,
+        "endChannel": 384,
+        "channelCount": 54
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1,
+          4,
+          7,
+          10,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          37,
+          40,
+          43,
+          46,
+          49,
+          52
+        ]
+      },
+      "cubeSection": "corner_top_diag"
+    },
+    {
+      "name": "HTop-Top-inside-8",
+      "ledCount": 1,
+      "artnet": {
+        "universe": 71,
+        "startChannel": 1,
+        "endChannel": 3,
+        "channelCount": 3
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1
+        ]
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "Channel 6",
+      "ledCount": 1,
+      "artnet": {
+        "universe": 71,
+        "startChannel": 7,
+        "endChannel": 9,
+        "channelCount": 3
+      },
+      "pixelMapping": {
+        "description": "Channel offset within strip for R of each pixel (G=offset+1, B=offset+2)",
+        "channelOffsets": [
+          1
+        ]
+      },
+      "cubeSection": "channel"
+    }
+  ],
+  "universeMap": {
+    "0": [
+      {
+        "fixture": "Left-1",
+        "startChannel": 1,
+        "endChannel": 54,
+        "ledCount": 18,
+        "cubeSection": "vertical_left"
+      },
+      {
+        "fixture": "Channel 6",
+        "startChannel": 13,
+        "endChannel": 15,
+        "ledCount": 1,
+        "cubeSection": "channel"
+      },
+      {
+        "fixture": "CLeft-top-1",
+        "startChannel": 55,
+        "endChannel": 129,
+        "ledCount": 25,
+        "cubeSection": "corner_left_top"
+      },
+      {
+        "fixture": "CLeft-diag-left-1",
+        "startChannel": 130,
+        "endChannel": 183,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "CLeft-bot-1",
+        "startChannel": 184,
+        "endChannel": 237,
+        "ledCount": 18,
+        "cubeSection": "corner_left_bot"
+      },
+      {
+        "fixture": "CLeft-left-1",
+        "startChannel": 238,
+        "endChannel": 312,
+        "ledCount": 25,
+        "cubeSection": "corner_left_left"
+      },
+      {
+        "fixture": "CLeft-diag-right-1",
+        "startChannel": 313,
+        "endChannel": 366,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "Right-1",
+        "startChannel": 367,
+        "endChannel": 420,
+        "ledCount": 18,
+        "cubeSection": "vertical_right"
+      },
+      {
+        "fixture": "CRight-top-1",
+        "startChannel": 421,
+        "endChannel": 495,
+        "ledCount": 25,
+        "cubeSection": "corner_right_top"
+      },
+      {
+        "fixture": "CRight-diag-left-1",
+        "startChannel": 496,
+        "endChannel": 549,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      }
+    ],
+    "1": [
+      {
+        "fixture": "CRight-bot-1",
+        "startChannel": 40,
+        "endChannel": 93,
+        "ledCount": 18,
+        "cubeSection": "corner_right_bot"
+      },
+      {
+        "fixture": "CRight-left-1",
+        "startChannel": 94,
+        "endChannel": 168,
+        "ledCount": 25,
+        "cubeSection": "corner_right_left"
+      },
+      {
+        "fixture": "CRight-diag-right-1",
+        "startChannel": 169,
+        "endChannel": 222,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      }
+    ],
+    "9": [
+      {
+        "fixture": "Left-2",
+        "startChannel": 427,
+        "endChannel": 480,
+        "ledCount": 18,
+        "cubeSection": "vertical_left"
+      },
+      {
+        "fixture": "CLeft-top-2",
+        "startChannel": 481,
+        "endChannel": 555,
+        "ledCount": 25,
+        "cubeSection": "corner_left_top"
+      }
+    ],
+    "10": [
+      {
+        "fixture": "CLeft-diag-left-2",
+        "startChannel": 46,
+        "endChannel": 99,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "CLeft-bot-2",
+        "startChannel": 100,
+        "endChannel": 153,
+        "ledCount": 18,
+        "cubeSection": "corner_left_bot"
+      },
+      {
+        "fixture": "CLeft-left-2",
+        "startChannel": 154,
+        "endChannel": 228,
+        "ledCount": 25,
+        "cubeSection": "corner_left_left"
+      },
+      {
+        "fixture": "CLeft-diag-right-2",
+        "startChannel": 229,
+        "endChannel": 282,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "Right-2",
+        "startChannel": 283,
+        "endChannel": 336,
+        "ledCount": 18,
+        "cubeSection": "vertical_right"
+      },
+      {
+        "fixture": "CRight-top-2",
+        "startChannel": 337,
+        "endChannel": 411,
+        "ledCount": 25,
+        "cubeSection": "corner_right_top"
+      },
+      {
+        "fixture": "CRight-diag-left-2",
+        "startChannel": 412,
+        "endChannel": 465,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      },
+      {
+        "fixture": "CRight-bot-2",
+        "startChannel": 466,
+        "endChannel": 519,
+        "ledCount": 18,
+        "cubeSection": "corner_right_bot"
+      }
+    ],
+    "11": [
+      {
+        "fixture": "CRight-left-2",
+        "startChannel": 10,
+        "endChannel": 84,
+        "ledCount": 25,
+        "cubeSection": "corner_right_left"
+      },
+      {
+        "fixture": "CRight-diag-right-2",
+        "startChannel": 85,
+        "endChannel": 138,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      },
+      {
+        "fixture": "Top-2",
+        "startChannel": 139,
+        "endChannel": 192,
+        "ledCount": 18,
+        "cubeSection": "vertical_top"
+      },
+      {
+        "fixture": "CTop-top-2",
+        "startChannel": 193,
+        "endChannel": 267,
+        "ledCount": 25,
+        "cubeSection": "corner_top_top"
+      },
+      {
+        "fixture": "CTop-diag-left-2",
+        "startChannel": 268,
+        "endChannel": 321,
+        "ledCount": 18,
+        "cubeSection": "corner_top_diag"
+      },
+      {
+        "fixture": "CTop-bot-2",
+        "startChannel": 322,
+        "endChannel": 375,
+        "ledCount": 18,
+        "cubeSection": "corner_top_bot"
+      },
+      {
+        "fixture": "CTop-left-2",
+        "startChannel": 376,
+        "endChannel": 450,
+        "ledCount": 25,
+        "cubeSection": "corner_top_left"
+      },
+      {
+        "fixture": "CTop-diag-right-2",
+        "startChannel": 451,
+        "endChannel": 504,
+        "ledCount": 18,
+        "cubeSection": "corner_top_diag"
+      }
+    ],
+    "17": [
+      {
+        "fixture": "Left-3",
+        "startChannel": 301,
+        "endChannel": 354,
+        "ledCount": 18,
+        "cubeSection": "vertical_left"
+      },
+      {
+        "fixture": "CLeft-top-3",
+        "startChannel": 355,
+        "endChannel": 429,
+        "ledCount": 25,
+        "cubeSection": "corner_left_top"
+      },
+      {
+        "fixture": "CLeft-diag-left-3",
+        "startChannel": 430,
+        "endChannel": 483,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "CLeft-bot-3",
+        "startChannel": 484,
+        "endChannel": 537,
+        "ledCount": 18,
+        "cubeSection": "corner_left_bot"
+      }
+    ],
+    "18": [
+      {
+        "fixture": "CLeft-left-3",
+        "startChannel": 28,
+        "endChannel": 102,
+        "ledCount": 25,
+        "cubeSection": "corner_left_left"
+      },
+      {
+        "fixture": "CLeft-diag-right-3",
+        "startChannel": 103,
+        "endChannel": 156,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "Right-3",
+        "startChannel": 157,
+        "endChannel": 210,
+        "ledCount": 18,
+        "cubeSection": "vertical_right"
+      },
+      {
+        "fixture": "CRight-top-3",
+        "startChannel": 211,
+        "endChannel": 285,
+        "ledCount": 25,
+        "cubeSection": "corner_right_top"
+      },
+      {
+        "fixture": "CRight-diag-left-3",
+        "startChannel": 286,
+        "endChannel": 339,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      },
+      {
+        "fixture": "CRight-bot-3",
+        "startChannel": 340,
+        "endChannel": 393,
+        "ledCount": 18,
+        "cubeSection": "corner_right_bot"
+      },
+      {
+        "fixture": "CRight-left-3",
+        "startChannel": 394,
+        "endChannel": 468,
+        "ledCount": 25,
+        "cubeSection": "corner_right_left"
+      },
+      {
+        "fixture": "CRight-diag-right-3",
+        "startChannel": 469,
+        "endChannel": 522,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      }
+    ],
+    "27": [
+      {
+        "fixture": "Left-4",
+        "startChannel": 217,
+        "endChannel": 270,
+        "ledCount": 18,
+        "cubeSection": "vertical_left"
+      },
+      {
+        "fixture": "CLeft-top-4",
+        "startChannel": 271,
+        "endChannel": 345,
+        "ledCount": 25,
+        "cubeSection": "corner_left_top"
+      },
+      {
+        "fixture": "CLeft-diag-left-4",
+        "startChannel": 346,
+        "endChannel": 399,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "CLeft-bot-4",
+        "startChannel": 400,
+        "endChannel": 453,
+        "ledCount": 18,
+        "cubeSection": "corner_left_bot"
+      },
+      {
+        "fixture": "CLeft-left-4",
+        "startChannel": 454,
+        "endChannel": 528,
+        "ledCount": 25,
+        "cubeSection": "corner_left_left"
+      }
+    ],
+    "28": [
+      {
+        "fixture": "CLeft-diag-right-4",
+        "startChannel": 19,
+        "endChannel": 72,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "Right-4",
+        "startChannel": 73,
+        "endChannel": 126,
+        "ledCount": 18,
+        "cubeSection": "vertical_right"
+      },
+      {
+        "fixture": "CRight-top-4",
+        "startChannel": 127,
+        "endChannel": 201,
+        "ledCount": 25,
+        "cubeSection": "corner_right_top"
+      },
+      {
+        "fixture": "CRight-diag-left-4",
+        "startChannel": 202,
+        "endChannel": 255,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      },
+      {
+        "fixture": "CRight-bot-4",
+        "startChannel": 256,
+        "endChannel": 309,
+        "ledCount": 18,
+        "cubeSection": "corner_right_bot"
+      },
+      {
+        "fixture": "CRight-left-4",
+        "startChannel": 310,
+        "endChannel": 384,
+        "ledCount": 25,
+        "cubeSection": "corner_right_left"
+      },
+      {
+        "fixture": "CRight-diag-right-4",
+        "startChannel": 385,
+        "endChannel": 438,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      },
+      {
+        "fixture": "Top-4",
+        "startChannel": 439,
+        "endChannel": 492,
+        "ledCount": 18,
+        "cubeSection": "vertical_top"
+      },
+      {
+        "fixture": "CTop-top-4",
+        "startChannel": 493,
+        "endChannel": 567,
+        "ledCount": 25,
+        "cubeSection": "corner_top_top"
+      }
+    ],
+    "29": [
+      {
+        "fixture": "CTop-diag-left-4",
+        "startChannel": 58,
+        "endChannel": 111,
+        "ledCount": 18,
+        "cubeSection": "corner_top_diag"
+      },
+      {
+        "fixture": "CTop-bot-4",
+        "startChannel": 112,
+        "endChannel": 165,
+        "ledCount": 18,
+        "cubeSection": "corner_top_bot"
+      },
+      {
+        "fixture": "CTop-left-4",
+        "startChannel": 166,
+        "endChannel": 240,
+        "ledCount": 25,
+        "cubeSection": "corner_top_left"
+      },
+      {
+        "fixture": "CTop-diag-right-4",
+        "startChannel": 241,
+        "endChannel": 294,
+        "ledCount": 18,
+        "cubeSection": "corner_top_diag"
+      }
+    ],
+    "35": [
+      {
+        "fixture": "Left-5",
+        "startChannel": 91,
+        "endChannel": 144,
+        "ledCount": 18,
+        "cubeSection": "vertical_left"
+      },
+      {
+        "fixture": "CLeft-top-5",
+        "startChannel": 145,
+        "endChannel": 219,
+        "ledCount": 25,
+        "cubeSection": "corner_left_top"
+      },
+      {
+        "fixture": "CLeft-diag-left-5",
+        "startChannel": 220,
+        "endChannel": 273,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "CLeft-bot-5",
+        "startChannel": 274,
+        "endChannel": 327,
+        "ledCount": 18,
+        "cubeSection": "corner_left_bot"
+      },
+      {
+        "fixture": "CLeft-left-5",
+        "startChannel": 328,
+        "endChannel": 402,
+        "ledCount": 25,
+        "cubeSection": "corner_left_left"
+      },
+      {
+        "fixture": "CLeft-diag-right-5",
+        "startChannel": 403,
+        "endChannel": 456,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "Right-5",
+        "startChannel": 457,
+        "endChannel": 510,
+        "ledCount": 18,
+        "cubeSection": "vertical_right"
+      },
+      {
+        "fixture": "CRight-top-5",
+        "startChannel": 511,
+        "endChannel": 585,
+        "ledCount": 25,
+        "cubeSection": "corner_right_top"
+      }
+    ],
+    "36": [
+      {
+        "fixture": "CRight-diag-left-5",
+        "startChannel": 76,
+        "endChannel": 129,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      },
+      {
+        "fixture": "CRight-bot-5",
+        "startChannel": 130,
+        "endChannel": 183,
+        "ledCount": 18,
+        "cubeSection": "corner_right_bot"
+      },
+      {
+        "fixture": "CRight-left-5",
+        "startChannel": 184,
+        "endChannel": 258,
+        "ledCount": 25,
+        "cubeSection": "corner_right_left"
+      },
+      {
+        "fixture": "CRight-diag-right-5",
+        "startChannel": 259,
+        "endChannel": 312,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      }
+    ],
+    "45": [
+      {
+        "fixture": "Left-6",
+        "startChannel": 7,
+        "endChannel": 60,
+        "ledCount": 18,
+        "cubeSection": "vertical_left"
+      },
+      {
+        "fixture": "CLeft-top-6",
+        "startChannel": 61,
+        "endChannel": 135,
+        "ledCount": 25,
+        "cubeSection": "corner_left_top"
+      },
+      {
+        "fixture": "CLeft-diag-left-6",
+        "startChannel": 136,
+        "endChannel": 189,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "CLeft-bot-6",
+        "startChannel": 190,
+        "endChannel": 243,
+        "ledCount": 18,
+        "cubeSection": "corner_left_bot"
+      },
+      {
+        "fixture": "CLeft-left-6",
+        "startChannel": 244,
+        "endChannel": 318,
+        "ledCount": 25,
+        "cubeSection": "corner_left_left"
+      },
+      {
+        "fixture": "CLeft-diag-right-6",
+        "startChannel": 319,
+        "endChannel": 372,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "Right-6",
+        "startChannel": 373,
+        "endChannel": 426,
+        "ledCount": 18,
+        "cubeSection": "vertical_right"
+      },
+      {
+        "fixture": "CRight-top-6",
+        "startChannel": 427,
+        "endChannel": 501,
+        "ledCount": 25,
+        "cubeSection": "corner_right_top"
+      },
+      {
+        "fixture": "CRight-diag-left-6",
+        "startChannel": 502,
+        "endChannel": 555,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      }
+    ],
+    "46": [
+      {
+        "fixture": "CRight-bot-6",
+        "startChannel": 46,
+        "endChannel": 99,
+        "ledCount": 18,
+        "cubeSection": "corner_right_bot"
+      },
+      {
+        "fixture": "CRight-left-6",
+        "startChannel": 100,
+        "endChannel": 174,
+        "ledCount": 25,
+        "cubeSection": "corner_right_left"
+      },
+      {
+        "fixture": "CRight-diag-right-6",
+        "startChannel": 175,
+        "endChannel": 228,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      },
+      {
+        "fixture": "Top-6",
+        "startChannel": 229,
+        "endChannel": 282,
+        "ledCount": 18,
+        "cubeSection": "vertical_top"
+      },
+      {
+        "fixture": "CTop-top-6",
+        "startChannel": 283,
+        "endChannel": 357,
+        "ledCount": 25,
+        "cubeSection": "corner_top_top"
+      },
+      {
+        "fixture": "CTop-diag-left-6",
+        "startChannel": 358,
+        "endChannel": 411,
+        "ledCount": 18,
+        "cubeSection": "corner_top_diag"
+      },
+      {
+        "fixture": "CTop-bot-6",
+        "startChannel": 412,
+        "endChannel": 465,
+        "ledCount": 18,
+        "cubeSection": "corner_top_bot"
+      },
+      {
+        "fixture": "CTop-left-6",
+        "startChannel": 466,
+        "endChannel": 540,
+        "ledCount": 25,
+        "cubeSection": "corner_top_left"
+      }
+    ],
+    "47": [
+      {
+        "fixture": "CTop-diag-right-6",
+        "startChannel": 31,
+        "endChannel": 84,
+        "ledCount": 18,
+        "cubeSection": "corner_top_diag"
+      }
+    ],
+    "52": [
+      {
+        "fixture": "Left-7",
+        "startChannel": 391,
+        "endChannel": 444,
+        "ledCount": 18,
+        "cubeSection": "vertical_left"
+      },
+      {
+        "fixture": "CLeft-top-7",
+        "startChannel": 445,
+        "endChannel": 519,
+        "ledCount": 25,
+        "cubeSection": "corner_left_top"
+      }
+    ],
+    "53": [
+      {
+        "fixture": "CLeft-diag-left-7",
+        "startChannel": 10,
+        "endChannel": 63,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "CLeft-bot-7",
+        "startChannel": 64,
+        "endChannel": 117,
+        "ledCount": 18,
+        "cubeSection": "corner_left_bot"
+      },
+      {
+        "fixture": "CLeft-left-7",
+        "startChannel": 118,
+        "endChannel": 192,
+        "ledCount": 25,
+        "cubeSection": "corner_left_left"
+      },
+      {
+        "fixture": "CLeft-diag-right-7",
+        "startChannel": 193,
+        "endChannel": 246,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "Right-7",
+        "startChannel": 247,
+        "endChannel": 300,
+        "ledCount": 18,
+        "cubeSection": "vertical_right"
+      },
+      {
+        "fixture": "CRight-top-7",
+        "startChannel": 301,
+        "endChannel": 375,
+        "ledCount": 25,
+        "cubeSection": "corner_right_top"
+      },
+      {
+        "fixture": "CRight-diag-left-7",
+        "startChannel": 376,
+        "endChannel": 429,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      },
+      {
+        "fixture": "CRight-bot-7",
+        "startChannel": 430,
+        "endChannel": 483,
+        "ledCount": 18,
+        "cubeSection": "corner_right_bot"
+      },
+      {
+        "fixture": "CRight-left-7",
+        "startChannel": 484,
+        "endChannel": 558,
+        "ledCount": 25,
+        "cubeSection": "corner_right_left"
+      }
+    ],
+    "54": [
+      {
+        "fixture": "CRight-diag-right-7",
+        "startChannel": 49,
+        "endChannel": 102,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      }
+    ],
+    "62": [
+      {
+        "fixture": "Left-8",
+        "startChannel": 307,
+        "endChannel": 360,
+        "ledCount": 18,
+        "cubeSection": "vertical_left"
+      },
+      {
+        "fixture": "CLeft-top-8",
+        "startChannel": 361,
+        "endChannel": 435,
+        "ledCount": 25,
+        "cubeSection": "corner_left_top"
+      },
+      {
+        "fixture": "CLeft-diag-left-8",
+        "startChannel": 436,
+        "endChannel": 489,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "CLeft-bot-8",
+        "startChannel": 490,
+        "endChannel": 543,
+        "ledCount": 18,
+        "cubeSection": "corner_left_bot"
+      }
+    ],
+    "63": [
+      {
+        "fixture": "CLeft-left-8",
+        "startChannel": 34,
+        "endChannel": 108,
+        "ledCount": 25,
+        "cubeSection": "corner_left_left"
+      },
+      {
+        "fixture": "CLeft-diag-right-8",
+        "startChannel": 109,
+        "endChannel": 162,
+        "ledCount": 18,
+        "cubeSection": "corner_left_diag"
+      },
+      {
+        "fixture": "Right-8",
+        "startChannel": 163,
+        "endChannel": 216,
+        "ledCount": 18,
+        "cubeSection": "vertical_right"
+      },
+      {
+        "fixture": "CRight-top-8",
+        "startChannel": 217,
+        "endChannel": 291,
+        "ledCount": 25,
+        "cubeSection": "corner_right_top"
+      },
+      {
+        "fixture": "CRight-diag-left-8",
+        "startChannel": 292,
+        "endChannel": 345,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      },
+      {
+        "fixture": "CRight-bot-8",
+        "startChannel": 346,
+        "endChannel": 399,
+        "ledCount": 18,
+        "cubeSection": "corner_right_bot"
+      },
+      {
+        "fixture": "CRight-left-8",
+        "startChannel": 400,
+        "endChannel": 474,
+        "ledCount": 25,
+        "cubeSection": "corner_right_left"
+      },
+      {
+        "fixture": "CRight-diag-right-8",
+        "startChannel": 475,
+        "endChannel": 528,
+        "ledCount": 18,
+        "cubeSection": "corner_right_diag"
+      }
+    ],
+    "64": [
+      {
+        "fixture": "Top-8",
+        "startChannel": 19,
+        "endChannel": 72,
+        "ledCount": 18,
+        "cubeSection": "vertical_top"
+      },
+      {
+        "fixture": "CTop-top-8",
+        "startChannel": 73,
+        "endChannel": 147,
+        "ledCount": 25,
+        "cubeSection": "corner_top_top"
+      },
+      {
+        "fixture": "CTop-diag-left-8",
+        "startChannel": 148,
+        "endChannel": 201,
+        "ledCount": 18,
+        "cubeSection": "corner_top_diag"
+      },
+      {
+        "fixture": "CTop-bot-8",
+        "startChannel": 202,
+        "endChannel": 255,
+        "ledCount": 18,
+        "cubeSection": "corner_top_bot"
+      },
+      {
+        "fixture": "CTop-left-8",
+        "startChannel": 256,
+        "endChannel": 330,
+        "ledCount": 25,
+        "cubeSection": "corner_top_left"
+      },
+      {
+        "fixture": "CTop-diag-right-8",
+        "startChannel": 331,
+        "endChannel": 384,
+        "ledCount": 18,
+        "cubeSection": "corner_top_diag"
+      }
+    ],
+    "71": [
+      {
+        "fixture": "HTop-Top-inside-8",
+        "startChannel": 1,
+        "endChannel": 3,
+        "ledCount": 1,
+        "cubeSection": "horizontal_top"
+      },
+      {
+        "fixture": "Channel 6",
+        "startChannel": 7,
+        "endChannel": 9,
+        "ledCount": 1,
+        "cubeSection": "channel"
+      }
+    ]
+  },
+  "structuralFixtures": [
+    {
+      "name": "HorizBot-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 1,
+        "startChannel": 223,
+        "endChannel": 223,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bar_bottom"
+    },
+    {
+      "name": "HBot-Outside-bottom-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 2,
+        "startChannel": 70,
+        "endChannel": 70,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "HBot-Outside-top-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 2,
+        "startChannel": 427,
+        "endChannel": 427,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "HBot-Inside-outside-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 3,
+        "startChannel": 274,
+        "endChannel": 274,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "Column-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 4,
+        "startChannel": 121,
+        "endChannel": 121,
+        "channelCount": 0
+      },
+      "cubeSection": "column"
+    },
+    {
+      "name": "C-Inside-right-left-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 4,
+        "startChannel": 478,
+        "endChannel": 478,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "C-Inside-right-right-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 5,
+        "startChannel": 325,
+        "endChannel": 325,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "C-Outside-left-left-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 6,
+        "startChannel": 172,
+        "endChannel": 172,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-left-right-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 7,
+        "startChannel": 19,
+        "endChannel": 19,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-right-left-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 7,
+        "startChannel": 376,
+        "endChannel": 376,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-right-right-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 8,
+        "startChannel": 223,
+        "endChannel": 223,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Inside-left-left-1",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 9,
+        "startChannel": 70,
+        "endChannel": 70,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "HorizTop-2",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 11,
+        "startChannel": 505,
+        "endChannel": 505,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bar_top"
+    },
+    {
+      "name": "HTop-Inside-top-2",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 12,
+        "startChannel": 352,
+        "endChannel": 352,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Inside-bot-2",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 13,
+        "startChannel": 199,
+        "endChannel": 199,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Bottom-inside-2",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 14,
+        "startChannel": 46,
+        "endChannel": 46,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Bottom-outside-2",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 14,
+        "startChannel": 403,
+        "endChannel": 403,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Outside-bot-2",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 15,
+        "startChannel": 250,
+        "endChannel": 250,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Outside-top-2",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 16,
+        "startChannel": 97,
+        "endChannel": 97,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Top-outside-2",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 16,
+        "startChannel": 454,
+        "endChannel": 454,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HorizBot-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 19,
+        "startChannel": 13,
+        "endChannel": 13,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bar_bottom"
+    },
+    {
+      "name": "HBot-Outside-bottom-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 19,
+        "startChannel": 370,
+        "endChannel": 370,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "HBot-Outside-top-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 20,
+        "startChannel": 217,
+        "endChannel": 217,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "HBot-Inside-outside-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 21,
+        "startChannel": 64,
+        "endChannel": 64,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "Column-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 21,
+        "startChannel": 421,
+        "endChannel": 421,
+        "channelCount": 0
+      },
+      "cubeSection": "column"
+    },
+    {
+      "name": "C-Inside-right-left-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 22,
+        "startChannel": 268,
+        "endChannel": 268,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "C-Inside-right-right-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 23,
+        "startChannel": 115,
+        "endChannel": 115,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "C-Outside-left-left-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 23,
+        "startChannel": 472,
+        "endChannel": 472,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-left-right-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 24,
+        "startChannel": 319,
+        "endChannel": 319,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-right-left-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 25,
+        "startChannel": 166,
+        "endChannel": 166,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-right-right-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 26,
+        "startChannel": 13,
+        "endChannel": 13,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Inside-left-left-3",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 26,
+        "startChannel": 370,
+        "endChannel": 370,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "HorizTop-4",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 29,
+        "startChannel": 295,
+        "endChannel": 295,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bar_top"
+    },
+    {
+      "name": "HTop-Inside-top-4",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 30,
+        "startChannel": 142,
+        "endChannel": 142,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Inside-bot-4",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 30,
+        "startChannel": 499,
+        "endChannel": 499,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Bottom-inside-4",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 31,
+        "startChannel": 346,
+        "endChannel": 346,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Bottom-outside-4",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 32,
+        "startChannel": 193,
+        "endChannel": 193,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Outside-bot-4",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 33,
+        "startChannel": 40,
+        "endChannel": 40,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Outside-top-4",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 33,
+        "startChannel": 397,
+        "endChannel": 397,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Top-outside-4",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 34,
+        "startChannel": 244,
+        "endChannel": 244,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HorizBot-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 36,
+        "startChannel": 313,
+        "endChannel": 313,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bar_bottom"
+    },
+    {
+      "name": "HBot-Outside-bottom-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 37,
+        "startChannel": 160,
+        "endChannel": 160,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "HBot-Outside-top-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 38,
+        "startChannel": 7,
+        "endChannel": 7,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "HBot-Inside-outside-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 38,
+        "startChannel": 364,
+        "endChannel": 364,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "Column-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 39,
+        "startChannel": 211,
+        "endChannel": 211,
+        "channelCount": 0
+      },
+      "cubeSection": "column"
+    },
+    {
+      "name": "C-Inside-right-left-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 40,
+        "startChannel": 58,
+        "endChannel": 58,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "C-Inside-right-right-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 40,
+        "startChannel": 415,
+        "endChannel": 415,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "C-Outside-left-left-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 41,
+        "startChannel": 262,
+        "endChannel": 262,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-left-right-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 42,
+        "startChannel": 109,
+        "endChannel": 109,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-right-left-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 42,
+        "startChannel": 466,
+        "endChannel": 466,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-right-right-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 43,
+        "startChannel": 313,
+        "endChannel": 313,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Inside-left-left-5",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 44,
+        "startChannel": 160,
+        "endChannel": 160,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "HorizTop-6",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 47,
+        "startChannel": 85,
+        "endChannel": 85,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bar_top"
+    },
+    {
+      "name": "HTop-Inside-top-6",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 47,
+        "startChannel": 442,
+        "endChannel": 442,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Inside-bot-6",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 48,
+        "startChannel": 289,
+        "endChannel": 289,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Bottom-inside-6",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 49,
+        "startChannel": 136,
+        "endChannel": 136,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Bottom-outside-6",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 49,
+        "startChannel": 493,
+        "endChannel": 493,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Outside-bot-6",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 50,
+        "startChannel": 340,
+        "endChannel": 340,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Outside-top-6",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 51,
+        "startChannel": 187,
+        "endChannel": 187,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Top-outside-6",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 52,
+        "startChannel": 34,
+        "endChannel": 34,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HorizBot-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 54,
+        "startChannel": 103,
+        "endChannel": 103,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bar_bottom"
+    },
+    {
+      "name": "HBot-Outside-bottom-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 54,
+        "startChannel": 460,
+        "endChannel": 460,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "HBot-Outside-top-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 55,
+        "startChannel": 307,
+        "endChannel": 307,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "HBot-Inside-outside-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 56,
+        "startChannel": 154,
+        "endChannel": 154,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bottom"
+    },
+    {
+      "name": "Column-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 57,
+        "startChannel": 1,
+        "endChannel": 1,
+        "channelCount": 0
+      },
+      "cubeSection": "column"
+    },
+    {
+      "name": "C-Inside-right-left-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 57,
+        "startChannel": 358,
+        "endChannel": 358,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "C-Inside-right-right-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 58,
+        "startChannel": 205,
+        "endChannel": 205,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "C-Outside-left-left-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 59,
+        "startChannel": 52,
+        "endChannel": 52,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-left-right-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 59,
+        "startChannel": 409,
+        "endChannel": 409,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-right-left-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 60,
+        "startChannel": 256,
+        "endChannel": 256,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Outside-right-right-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 61,
+        "startChannel": 103,
+        "endChannel": 103,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_outside"
+    },
+    {
+      "name": "C-Inside-left-left-7",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 61,
+        "startChannel": 460,
+        "endChannel": 460,
+        "channelCount": 0
+      },
+      "cubeSection": "corner_inside"
+    },
+    {
+      "name": "HorizTop-8",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 64,
+        "startChannel": 385,
+        "endChannel": 385,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_bar_top"
+    },
+    {
+      "name": "HTop-Inside-top-8",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 65,
+        "startChannel": 232,
+        "endChannel": 232,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Inside-bot-8",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 66,
+        "startChannel": 79,
+        "endChannel": 79,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Bottom-inside-8",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 66,
+        "startChannel": 436,
+        "endChannel": 436,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Bottom-outside-8",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 67,
+        "startChannel": 283,
+        "endChannel": 283,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Outside-bot-8",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 68,
+        "startChannel": 130,
+        "endChannel": 130,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Outside-top-8",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 68,
+        "startChannel": 487,
+        "endChannel": 487,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    },
+    {
+      "name": "HTop-Top-outside-8",
+      "ledCount": 0,
+      "artnet": {
+        "universe": 69,
+        "startChannel": 334,
+        "endChannel": 334,
+        "channelCount": 0
+      },
+      "cubeSection": "horizontal_top"
+    }
+  ],
+  "cubeSections": {
+    "channel": {
+      "fixtureCount": 2,
+      "totalLEDs": 2,
+      "fixtureNames": [
+        "Channel 6",
+        "Channel 6"
+      ]
+    },
+    "column": {
+      "fixtureCount": 4,
+      "totalLEDs": 0,
+      "fixtureNames": [
+        "Column-1",
+        "Column-3",
+        "Column-5",
+        "Column-7"
+      ]
+    },
+    "corner_inside": {
+      "fixtureCount": 12,
+      "totalLEDs": 0,
+      "fixtureNames": [
+        "C-Inside-left-left-1",
+        "C-Inside-left-left-3",
+        "C-Inside-left-left-5",
+        "C-Inside-left-left-7",
+        "C-Inside-right-left-1",
+        "C-Inside-right-left-3",
+        "C-Inside-right-left-5",
+        "C-Inside-right-left-7",
+        "C-Inside-right-right-1",
+        "C-Inside-right-right-3",
+        "C-Inside-right-right-5",
+        "C-Inside-right-right-7"
+      ]
+    },
+    "corner_left_bot": {
+      "fixtureCount": 8,
+      "totalLEDs": 144,
+      "fixtureNames": [
+        "CLeft-bot-1",
+        "CLeft-bot-2",
+        "CLeft-bot-3",
+        "CLeft-bot-4",
+        "CLeft-bot-5",
+        "CLeft-bot-6",
+        "CLeft-bot-7",
+        "CLeft-bot-8"
+      ]
+    },
+    "corner_left_diag": {
+      "fixtureCount": 16,
+      "totalLEDs": 288,
+      "fixtureNames": [
+        "CLeft-diag-left-1",
+        "CLeft-diag-left-2",
+        "CLeft-diag-left-3",
+        "CLeft-diag-left-4",
+        "CLeft-diag-left-5",
+        "CLeft-diag-left-6",
+        "CLeft-diag-left-7",
+        "CLeft-diag-left-8",
+        "CLeft-diag-right-1",
+        "CLeft-diag-right-2",
+        "CLeft-diag-right-3",
+        "CLeft-diag-right-4",
+        "CLeft-diag-right-5",
+        "CLeft-diag-right-6",
+        "CLeft-diag-right-7",
+        "CLeft-diag-right-8"
+      ]
+    },
+    "corner_left_left": {
+      "fixtureCount": 8,
+      "totalLEDs": 200,
+      "fixtureNames": [
+        "CLeft-left-1",
+        "CLeft-left-2",
+        "CLeft-left-3",
+        "CLeft-left-4",
+        "CLeft-left-5",
+        "CLeft-left-6",
+        "CLeft-left-7",
+        "CLeft-left-8"
+      ]
+    },
+    "corner_left_top": {
+      "fixtureCount": 8,
+      "totalLEDs": 200,
+      "fixtureNames": [
+        "CLeft-top-1",
+        "CLeft-top-2",
+        "CLeft-top-3",
+        "CLeft-top-4",
+        "CLeft-top-5",
+        "CLeft-top-6",
+        "CLeft-top-7",
+        "CLeft-top-8"
+      ]
+    },
+    "corner_outside": {
+      "fixtureCount": 16,
+      "totalLEDs": 0,
+      "fixtureNames": [
+        "C-Outside-left-left-1",
+        "C-Outside-left-left-3",
+        "C-Outside-left-left-5",
+        "C-Outside-left-left-7",
+        "C-Outside-left-right-1",
+        "C-Outside-left-right-3",
+        "C-Outside-left-right-5",
+        "C-Outside-left-right-7",
+        "C-Outside-right-left-1",
+        "C-Outside-right-left-3",
+        "C-Outside-right-left-5",
+        "C-Outside-right-left-7",
+        "C-Outside-right-right-1",
+        "C-Outside-right-right-3",
+        "C-Outside-right-right-5",
+        "C-Outside-right-right-7"
+      ]
+    },
+    "corner_right_bot": {
+      "fixtureCount": 8,
+      "totalLEDs": 144,
+      "fixtureNames": [
+        "CRight-bot-1",
+        "CRight-bot-2",
+        "CRight-bot-3",
+        "CRight-bot-4",
+        "CRight-bot-5",
+        "CRight-bot-6",
+        "CRight-bot-7",
+        "CRight-bot-8"
+      ]
+    },
+    "corner_right_diag": {
+      "fixtureCount": 16,
+      "totalLEDs": 288,
+      "fixtureNames": [
+        "CRight-diag-left-1",
+        "CRight-diag-left-2",
+        "CRight-diag-left-3",
+        "CRight-diag-left-4",
+        "CRight-diag-left-5",
+        "CRight-diag-left-6",
+        "CRight-diag-left-7",
+        "CRight-diag-left-8",
+        "CRight-diag-right-1",
+        "CRight-diag-right-2",
+        "CRight-diag-right-3",
+        "CRight-diag-right-4",
+        "CRight-diag-right-5",
+        "CRight-diag-right-6",
+        "CRight-diag-right-7",
+        "CRight-diag-right-8"
+      ]
+    },
+    "corner_right_left": {
+      "fixtureCount": 8,
+      "totalLEDs": 200,
+      "fixtureNames": [
+        "CRight-left-1",
+        "CRight-left-2",
+        "CRight-left-3",
+        "CRight-left-4",
+        "CRight-left-5",
+        "CRight-left-6",
+        "CRight-left-7",
+        "CRight-left-8"
+      ]
+    },
+    "corner_right_top": {
+      "fixtureCount": 8,
+      "totalLEDs": 200,
+      "fixtureNames": [
+        "CRight-top-1",
+        "CRight-top-2",
+        "CRight-top-3",
+        "CRight-top-4",
+        "CRight-top-5",
+        "CRight-top-6",
+        "CRight-top-7",
+        "CRight-top-8"
+      ]
+    },
+    "corner_top_bot": {
+      "fixtureCount": 4,
+      "totalLEDs": 72,
+      "fixtureNames": [
+        "CTop-bot-2",
+        "CTop-bot-4",
+        "CTop-bot-6",
+        "CTop-bot-8"
+      ]
+    },
+    "corner_top_diag": {
+      "fixtureCount": 8,
+      "totalLEDs": 144,
+      "fixtureNames": [
+        "CTop-diag-left-2",
+        "CTop-diag-left-4",
+        "CTop-diag-left-6",
+        "CTop-diag-left-8",
+        "CTop-diag-right-2",
+        "CTop-diag-right-4",
+        "CTop-diag-right-6",
+        "CTop-diag-right-8"
+      ]
+    },
+    "corner_top_left": {
+      "fixtureCount": 4,
+      "totalLEDs": 100,
+      "fixtureNames": [
+        "CTop-left-2",
+        "CTop-left-4",
+        "CTop-left-6",
+        "CTop-left-8"
+      ]
+    },
+    "corner_top_top": {
+      "fixtureCount": 4,
+      "totalLEDs": 100,
+      "fixtureNames": [
+        "CTop-top-2",
+        "CTop-top-4",
+        "CTop-top-6",
+        "CTop-top-8"
+      ]
+    },
+    "horizontal_bar_bottom": {
+      "fixtureCount": 4,
+      "totalLEDs": 0,
+      "fixtureNames": [
+        "HorizBot-1",
+        "HorizBot-3",
+        "HorizBot-5",
+        "HorizBot-7"
+      ]
+    },
+    "horizontal_bar_top": {
+      "fixtureCount": 4,
+      "totalLEDs": 0,
+      "fixtureNames": [
+        "HorizTop-2",
+        "HorizTop-4",
+        "HorizTop-6",
+        "HorizTop-8"
+      ]
+    },
+    "horizontal_bottom": {
+      "fixtureCount": 12,
+      "totalLEDs": 0,
+      "fixtureNames": [
+        "HBot-Inside-outside-1",
+        "HBot-Inside-outside-3",
+        "HBot-Inside-outside-5",
+        "HBot-Inside-outside-7",
+        "HBot-Outside-bottom-1",
+        "HBot-Outside-bottom-3",
+        "HBot-Outside-bottom-5",
+        "HBot-Outside-bottom-7",
+        "HBot-Outside-top-1",
+        "HBot-Outside-top-3",
+        "HBot-Outside-top-5",
+        "HBot-Outside-top-7"
+      ]
+    },
+    "horizontal_top": {
+      "fixtureCount": 29,
+      "totalLEDs": 1,
+      "fixtureNames": [
+        "HTop-Bottom-inside-2",
+        "HTop-Bottom-inside-4",
+        "HTop-Bottom-inside-6",
+        "HTop-Bottom-inside-8",
+        "HTop-Bottom-outside-2",
+        "HTop-Bottom-outside-4",
+        "HTop-Bottom-outside-6",
+        "HTop-Bottom-outside-8",
+        "HTop-Inside-bot-2",
+        "HTop-Inside-bot-4",
+        "HTop-Inside-bot-6",
+        "HTop-Inside-bot-8",
+        "HTop-Inside-top-2",
+        "HTop-Inside-top-4",
+        "HTop-Inside-top-6",
+        "HTop-Inside-top-8",
+        "HTop-Outside-bot-2",
+        "HTop-Outside-bot-4",
+        "HTop-Outside-bot-6",
+        "HTop-Outside-bot-8",
+        "HTop-Outside-top-2",
+        "HTop-Outside-top-4",
+        "HTop-Outside-top-6",
+        "HTop-Outside-top-8",
+        "HTop-Top-inside-8",
+        "HTop-Top-outside-2",
+        "HTop-Top-outside-4",
+        "HTop-Top-outside-6",
+        "HTop-Top-outside-8"
+      ]
+    },
+    "vertical_left": {
+      "fixtureCount": 8,
+      "totalLEDs": 144,
+      "fixtureNames": [
+        "Left-1",
+        "Left-2",
+        "Left-3",
+        "Left-4",
+        "Left-5",
+        "Left-6",
+        "Left-7",
+        "Left-8"
+      ]
+    },
+    "vertical_right": {
+      "fixtureCount": 8,
+      "totalLEDs": 144,
+      "fixtureNames": [
+        "Right-1",
+        "Right-2",
+        "Right-3",
+        "Right-4",
+        "Right-5",
+        "Right-6",
+        "Right-7",
+        "Right-8"
+      ]
+    },
+    "vertical_top": {
+      "fixtureCount": 4,
+      "totalLEDs": 72,
+      "fixtureNames": [
+        "Top-2",
+        "Top-4",
+        "Top-6",
+        "Top-8"
+      ]
+    }
+  }
+}
