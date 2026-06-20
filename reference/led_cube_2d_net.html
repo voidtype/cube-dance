@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LED Cube – MadMapper 2D Canvas Net</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #111;
+    color: #eee;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    overflow: hidden;
+}
+#header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(17,17,17,0.92);
+    border-bottom: 1px solid #333;
+    padding: 8px 16px;
+    display: flex; align-items: center; gap: 16px;
+    backdrop-filter: blur(8px);
+}
+#header h1 { font-size: 14px; font-weight: 600; white-space: nowrap; }
+#header .stats { font-size: 11px; color: #888; }
+#controls {
+    display: flex; gap: 8px; align-items: center; margin-left: auto;
+}
+#controls label { font-size: 11px; color: #aaa; }
+#controls input[type=checkbox] { accent-color: #4af; }
+#controls select { background: #222; color: #eee; border: 1px solid #444; padding: 2px 6px; font-size: 11px; border-radius: 3px; }
+
+#canvas-container {
+    position: absolute;
+    top: 40px; left: 0; right: 0; bottom: 0;
+    overflow: auto;
+}
+#canvas {
+    position: relative;
+    width: 3200px;
+    height: 2000px;
+    background: #0a0a0a;
+    transform-origin: 0 0;
+}
+.fixture {
+    position: absolute;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.fixture .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.3);
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+}
+.fixture.structural .dot {
+    width: 6px; height: 6px;
+    border-radius: 1px;
+    opacity: 0.5;
+}
+.fixture .label {
+    position: absolute;
+    left: 12px; top: -4px;
+    font-size: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    text-shadow: 0 0 4px #000, 0 0 8px #000;
+    line-height: 1.3;
+}
+.fixture:hover .label, .fixture.show-label .label { opacity: 1; }
+.fixture .label .universe-info { color: #888; font-size: 7px; }
+
+#tooltip {
+    display: none;
+    position: fixed;
+    background: rgba(0,0,0,0.95);
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 11px;
+    z-index: 200;
+    pointer-events: none;
+    max-width: 280px;
+    line-height: 1.5;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+#tooltip .tt-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+#tooltip .tt-row { display: flex; justify-content: space-between; gap: 16px; }
+#tooltip .tt-key { color: #888; }
+#tooltip .tt-val { color: #fff; }
+
+#legend {
+    position: fixed;
+    bottom: 8px; left: 8px;
+    background: rgba(17,17,17,0.92);
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 10px;
+    max-height: 180px;
+    overflow-y: auto;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+}
+#legend h3 { font-size: 11px; margin-bottom: 4px; color: #aaa; }
+.legend-item { display: flex; align-items: center; gap: 6px; margin: 2px 0; cursor: pointer; }
+.legend-item:hover { color: #fff; }
+.legend-swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+#inventory {
+    position: fixed;
+    bottom: 8px; right: 8px;
+    background: rgba(17,17,17,0.92);
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 10px;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    max-width: 300px;
+}
+#inventory h3 { font-size: 11px; margin-bottom: 4px; color: #aaa; }
+.inv-row { display: flex; justify-content: space-between; gap: 12px; }
+.inv-key { color: #888; }
+.inv-val { color: #ccc; text-align: right; }
+
+.vertex-label {
+    position: absolute;
+    font-size: 20px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.06);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    letter-spacing: 2px;
+}
+
+.edge-group-border {
+    position: absolute;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 4px;
+    pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+    <h1>LED Cube — MadMapper 2D Canvas</h1>
+    <span class="stats" id="statsText"></span>
+    <div id="controls">
+        <label><input type="checkbox" id="showLabels"> Labels</label>
+        <label><input type="checkbox" id="showStructural" checked> Structural</label>
+        <label>
+            Highlight:
+            <select id="highlightSection">
+                <option value="">All</option>
+            </select>
+        </label>
+        <label>
+            Zoom:
+            <select id="zoomLevel">
+                <option value="0.6">60%</option>
+                <option value="0.8">80%</option>
+                <option value="1" selected>100%</option>
+                <option value="1.5">150%</option>
+                <option value="2">200%</option>
+            </select>
+        </label>
+    </div>
+</div>
+
+<div id="canvas-container">
+    <div id="canvas"></div>
+</div>
+
+<div id="tooltip"></div>
+
+<div id="legend"><h3>Vertex Groups</h3></div>
+
+<div id="inventory">
+    <h3>Fixture Inventory</h3>
+</div>
+
+<script>
+const FIXTURES = [{"name": "Left-1", "ledCount": 18, "universe": 0, "startChannel": 1, "cubeSection": "vertical_left", "x": 0.9793763307762633, "y": 0.42453972887749575, "type": "led"}, {"name": "Channel 6", "ledCount": 1, "universe": 0, "startChannel": 13, "cubeSection": "channel", "x": 1.0, "y": 1.0, "type": "led"}, {"name": "CLeft-top-1", "ledCount": 25, "universe": 0, "startChannel": 55, "cubeSection": "corner_left_top", "x": 0.9788823505123211, "y": 0.40949729317816297, "type": "led"}, {"name": "CLeft-diag-left-1", "ledCount": 18, "universe": 0, "startChannel": 130, "cubeSection": "corner_left_diag", "x": 0.9792487563038246, "y": 0.3936772922996286, "type": "led"}, {"name": "CLeft-bot-1", "ledCount": 18, "universe": 0, "startChannel": 184, "cubeSection": "corner_left_bot", "x": 0.9638138565797538, "y": 0.40904149936209083, "type": "led"}, {"name": "CLeft-left-1", "ledCount": 25, "universe": 0, "startChannel": 238, "cubeSection": "corner_left_left", "x": 0.9789346271841949, "y": 0.4091060150969277, "type": "led"}, {"name": "CLeft-diag-right-1", "ledCount": 18, "universe": 0, "startChannel": 313, "cubeSection": "corner_left_diag", "x": 0.9947931400216751, "y": 0.4093224865640805, "type": "led"}, {"name": "Right-1", "ledCount": 18, "universe": 0, "startChannel": 367, "cubeSection": "vertical_right", "x": 0.029764016056603004, "y": 0.42581252266480063, "type": "led"}, {"name": "CRight-top-1", "ledCount": 25, "universe": 0, "startChannel": 421, "cubeSection": "corner_right_top", "x": 0.029730908430704105, "y": 0.41071331307871667, "type": "led"}, {"name": "CRight-diag-left-1", "ledCount": 18, "universe": 0, "startChannel": 496, "cubeSection": "corner_right_diag", "x": 0.02983292561962317, "y": 0.39530418321047206, "type": "led"}, {"name": "CRight-bot-1", "ledCount": 18, "universe": 1, "startChannel": 40, "cubeSection": "corner_right_bot", "x": 0.014245712448530151, "y": 0.41045573393475066, "type": "led"}, {"name": "CRight-left-1", "ledCount": 25, "universe": 1, "startChannel": 94, "cubeSection": "corner_right_left", "x": 0.02967672234004803, "y": 0.41063183980430595, "type": "led"}, {"name": "CRight-diag-right-1", "ledCount": 18, "universe": 1, "startChannel": 169, "cubeSection": "corner_right_diag", "x": 0.04509600294320018, "y": 0.4105598755663095, "type": "led"}, {"name": "Left-2", "ledCount": 18, "universe": 9, "startChannel": 427, "cubeSection": "vertical_left", "x": 0.9800928021313227, "y": 0.6353511675799778, "type": "led"}, {"name": "CLeft-top-2", "ledCount": 25, "universe": 9, "startChannel": 481, "cubeSection": "corner_left_top", "x": 0.9798805728175535, "y": 0.6199674866624625, "type": "led"}, {"name": "CLeft-diag-left-2", "ledCount": 18, "universe": 10, "startChannel": 46, "cubeSection": "corner_left_diag", "x": 0.9802145613648781, "y": 0.604911359190651, "type": "led"}, {"name": "CLeft-bot-2", "ledCount": 18, "universe": 10, "startChannel": 100, "cubeSection": "corner_left_bot", "x": 0.9645147729016512, "y": 0.6201312633853169, "type": "led"}, {"name": "CLeft-left-2", "ledCount": 25, "universe": 10, "startChannel": 154, "cubeSection": "corner_left_left", "x": 0.9796892614022646, "y": 0.6201955770667116, "type": "led"}, {"name": "CLeft-diag-right-2", "ledCount": 18, "universe": 10, "startChannel": 229, "cubeSection": "corner_left_diag", "x": 0.995328770472809, "y": 0.6201312633853165, "type": "led"}, {"name": "Right-2", "ledCount": 18, "universe": 10, "startChannel": 283, "cubeSection": "vertical_right", "x": 0.02954263563195393, "y": 0.6354104067733101, "type": "led"}, {"name": "CRight-top-2", "ledCount": 25, "universe": 10, "startChannel": 337, "cubeSection": "corner_right_top", "x": 0.029521862697189517, "y": 0.6202654783738575, "type": "led"}, {"name": "CRight-diag-left-2", "ledCount": 18, "universe": 10, "startChannel": 412, "cubeSection": "corner_right_diag", "x": 0.02976401605660267, "y": 0.6049705983839815, "type": "led"}, {"name": "CRight-bot-2", "ledCount": 18, "universe": 10, "startChannel": 466, "cubeSection": "corner_right_bot", "x": 0.014156696118800632, "y": 0.620190502578647, "type": "led"}, {"name": "CRight-left-2", "ledCount": 25, "universe": 11, "startChannel": 10, "cubeSection": "corner_right_left", "x": 0.02942837314288645, "y": 0.620425859884928, "type": "led"}, {"name": "CRight-diag-right-2", "ledCount": 18, "universe": 11, "startChannel": 85, "cubeSection": "corner_right_diag", "x": 0.04487323003894167, "y": 0.6201905025786466, "type": "led"}, {"name": "Top-2", "ledCount": 18, "universe": 11, "startChannel": 139, "cubeSection": "vertical_top", "x": 0.979783281230277, "y": 0.6684501724278514, "type": "led"}, {"name": "CTop-top-2", "ledCount": 25, "universe": 11, "startChannel": 193, "cubeSection": "corner_top_top", "x": 0.9797625082955309, "y": 0.6533052440283976, "type": "led"}, {"name": "CTop-diag-left-2", "ledCount": 18, "universe": 11, "startChannel": 268, "cubeSection": "corner_top_diag", "x": 0.9800046616549248, "y": 0.6380103640385242, "type": "led"}, {"name": "CTop-bot-2", "ledCount": 18, "universe": 11, "startChannel": 322, "cubeSection": "corner_top_bot", "x": 0.9643973417171205, "y": 0.6532302682331923, "type": "led"}, {"name": "CTop-left-2", "ledCount": 25, "universe": 11, "startChannel": 376, "cubeSection": "corner_top_left", "x": 0.9796690187412089, "y": 0.6534656255394768, "type": "led"}, {"name": "CTop-diag-right-2", "ledCount": 18, "universe": 11, "startChannel": 451, "cubeSection": "corner_top_diag", "x": 0.995113875637263, "y": 0.6532302682331907, "type": "led"}, {"name": "Left-3", "ledCount": 18, "universe": 17, "startChannel": 301, "cubeSection": "vertical_left", "x": 0.733659512047065, "y": 0.4255072658755718, "type": "led"}, {"name": "CLeft-top-3", "ledCount": 25, "universe": 17, "startChannel": 355, "cubeSection": "corner_left_top", "x": 0.7335358315749242, "y": 0.41004119015251866, "type": "led"}, {"name": "CLeft-diag-left-3", "ledCount": 18, "universe": 17, "startChannel": 430, "cubeSection": "corner_left_diag", "x": 0.7337259261744582, "y": 0.39472431782803835, "type": "led"}, {"name": "CLeft-bot-3", "ledCount": 18, "universe": 17, "startChannel": 484, "cubeSection": "corner_left_bot", "x": 0.7182292964489669, "y": 0.40973391061929315, "type": "led"}, {"name": "CLeft-left-3", "ledCount": 25, "universe": 18, "startChannel": 28, "cubeSection": "corner_left_left", "x": 0.7335584063037268, "y": 0.4101369859268688, "type": "led"}, {"name": "CLeft-diag-right-3", "ledCount": 18, "universe": 18, "startChannel": 103, "cubeSection": "corner_left_diag", "x": 0.7489790374328066, "y": 0.4097339106192984, "type": "led"}, {"name": "Right-3", "ledCount": 18, "universe": 18, "startChannel": 157, "cubeSection": "vertical_right", "x": 0.7672441033324602, "y": 0.42555419783350273, "type": "led"}, {"name": "CRight-top-3", "ledCount": 25, "universe": 18, "startChannel": 211, "cubeSection": "corner_right_top", "x": 0.7672069776014359, "y": 0.41008048134246183, "type": "led"}, {"name": "CRight-diag-left-3", "ledCount": 18, "universe": 18, "startChannel": 286, "cubeSection": "corner_right_diag", "x": 0.7673105174598538, "y": 0.39477124978596656, "type": "led"}, {"name": "CRight-bot-3", "ledCount": 18, "universe": 18, "startChannel": 340, "cubeSection": "corner_right_bot", "x": 0.7517253355645155, "y": 0.40973656649228524, "type": "led"}, {"name": "CRight-left-3", "ledCount": 25, "universe": 18, "startChannel": 394, "cubeSection": "corner_right_left", "x": 0.7671528857151597, "y": 0.4101369859585449, "type": "led"}, {"name": "CRight-diag-right-3", "ledCount": 18, "universe": 18, "startChannel": 469, "cubeSection": "corner_right_diag", "x": 0.7825746977394469, "y": 0.40978084257721437, "type": "led"}, {"name": "Left-4", "ledCount": 18, "universe": 27, "startChannel": 217, "cubeSection": "vertical_left", "x": 0.7335793558304988, "y": 0.6353511675799777, "type": "led"}, {"name": "CLeft-top-4", "ledCount": 25, "universe": 27, "startChannel": 271, "cubeSection": "corner_left_top", "x": 0.733367126516713, "y": 0.6199674866624448, "type": "led"}, {"name": "CLeft-diag-left-4", "ledCount": 18, "universe": 27, "startChannel": 346, "cubeSection": "corner_left_diag", "x": 0.7337011150640544, "y": 0.604911359190651, "type": "led"}, {"name": "CLeft-bot-4", "ledCount": 18, "universe": 27, "startChannel": 400, "cubeSection": "corner_left_bot", "x": 0.7180013266008295, "y": 0.6201312633853172, "type": "led"}, {"name": "CLeft-left-4", "ledCount": 25, "universe": 27, "startChannel": 454, "cubeSection": "corner_left_left", "x": 0.7331758151014459, "y": 0.6201955770667092, "type": "led"}, {"name": "CLeft-diag-right-4", "ledCount": 18, "universe": 28, "startChannel": 19, "cubeSection": "corner_left_diag", "x": 0.7488153241719843, "y": 0.6201312633853171, "type": "led"}, {"name": "Right-4", "ledCount": 18, "universe": 28, "startChannel": 73, "cubeSection": "vertical_right", "x": 0.7667290852215737, "y": 0.6354062688861694, "type": "led"}, {"name": "CRight-top-4", "ledCount": 25, "universe": 28, "startChannel": 127, "cubeSection": "corner_right_top", "x": 0.766708312286802, "y": 0.6202613404866905, "type": "led"}, {"name": "CRight-diag-left-4", "ledCount": 18, "universe": 28, "startChannel": 202, "cubeSection": "corner_right_diag", "x": 0.7669504656462238, "y": 0.60496646049684, "type": "led"}, {"name": "CRight-bot-4", "ledCount": 18, "universe": 28, "startChannel": 256, "cubeSection": "corner_right_bot", "x": 0.7513431457084191, "y": 0.6201863646915069, "type": "led"}, {"name": "CRight-left-4", "ledCount": 25, "universe": 28, "startChannel": 310, "cubeSection": "corner_right_left", "x": 0.7666148227325039, "y": 0.6204217219977978, "type": "led"}, {"name": "CRight-diag-right-4", "ledCount": 18, "universe": 28, "startChannel": 385, "cubeSection": "corner_right_diag", "x": 0.7820596796285585, "y": 0.6201863646915055, "type": "led"}, {"name": "Top-4", "ledCount": 18, "universe": 28, "startChannel": 439, "cubeSection": "vertical_top", "x": 0.7330484188415958, "y": 0.668442966225246, "type": "led"}, {"name": "CTop-top-4", "ledCount": 25, "universe": 28, "startChannel": 493, "cubeSection": "corner_top_top", "x": 0.7330276459068579, "y": 0.6532980378258002, "type": "led"}, {"name": "CTop-diag-left-4", "ledCount": 18, "universe": 29, "startChannel": 58, "cubeSection": "corner_top_diag", "x": 0.7332697992662442, "y": 0.6380031578359197, "type": "led"}, {"name": "CTop-bot-4", "ledCount": 18, "universe": 29, "startChannel": 112, "cubeSection": "corner_top_bot", "x": 0.7176624793284377, "y": 0.6532230620305859, "type": "led"}, {"name": "CTop-left-4", "ledCount": 25, "universe": 29, "startChannel": 166, "cubeSection": "corner_top_left", "x": 0.7329341563525302, "y": 0.6534584193368721, "type": "led"}, {"name": "CTop-diag-right-4", "ledCount": 18, "universe": 29, "startChannel": 241, "cubeSection": "corner_top_diag", "x": 0.7483790132485765, "y": 0.6532230620305848, "type": "led"}, {"name": "Left-5", "ledCount": 18, "universe": 35, "startChannel": 91, "cubeSection": "vertical_left", "x": 0.4884400314087113, "y": 0.42598369658057506, "type": "led"}, {"name": "CLeft-top-5", "ledCount": 25, "universe": 35, "startChannel": 145, "cubeSection": "corner_left_top", "x": 0.4883187369722674, "y": 0.41051024201429753, "type": "led"}, {"name": "CLeft-diag-left-5", "ledCount": 18, "universe": 35, "startChannel": 220, "cubeSection": "corner_left_diag", "x": 0.48850644553610734, "y": 0.39520074853303816, "type": "led"}, {"name": "CLeft-bot-5", "ledCount": 18, "universe": 35, "startChannel": 274, "cubeSection": "corner_left_bot", "x": 0.47301420665351307, "y": 0.4102085240856704, "type": "led"}, {"name": "CLeft-left-5", "ledCount": 25, "universe": 35, "startChannel": 328, "cubeSection": "corner_left_left", "x": 0.4883427971944342, "y": 0.41055760756143317, "type": "led"}, {"name": "CLeft-diag-right-5", "ledCount": 18, "universe": 35, "startChannel": 403, "cubeSection": "corner_left_diag", "x": 0.5037595567944578, "y": 0.41021034132431805, "type": "led"}, {"name": "Right-5", "ledCount": 18, "universe": 35, "startChannel": 457, "cubeSection": "vertical_right", "x": 0.5217535042904291, "y": 0.4256067041903543, "type": "led"}, {"name": "CRight-top-5", "ledCount": 25, "universe": 35, "startChannel": 511, "cubeSection": "corner_right_top", "x": 0.5217203966645253, "y": 0.4105074946042592, "type": "led"}, {"name": "CRight-diag-left-5", "ledCount": 18, "universe": 36, "startChannel": 76, "cubeSection": "corner_right_diag", "x": 0.521822413853448, "y": 0.3950983647360274, "type": "led"}, {"name": "CRight-bot-5", "ledCount": 18, "universe": 36, "startChannel": 130, "cubeSection": "corner_right_bot", "x": 0.5062352006823538, "y": 0.41024991546030515, "type": "led"}, {"name": "CRight-left-5", "ledCount": 25, "universe": 36, "startChannel": 184, "cubeSection": "corner_right_left", "x": 0.5216662105738682, "y": 0.41042602132986766, "type": "led"}, {"name": "CRight-diag-right-5", "ledCount": 18, "universe": 36, "startChannel": 259, "cubeSection": "corner_right_diag", "x": 0.5370854911770256, "y": 0.41035405709186457, "type": "led"}, {"name": "Left-6", "ledCount": 18, "universe": 45, "startChannel": 7, "cubeSection": "vertical_left", "x": 0.4875564931611252, "y": 0.6353511675799774, "type": "led"}, {"name": "CLeft-top-6", "ledCount": 25, "universe": 45, "startChannel": 61, "cubeSection": "corner_left_top", "x": 0.48734426384735213, "y": 0.6199674866624498, "type": "led"}, {"name": "CLeft-diag-left-6", "ledCount": 18, "universe": 45, "startChannel": 136, "cubeSection": "corner_left_diag", "x": 0.48767825239468104, "y": 0.6049113591906506, "type": "led"}, {"name": "CLeft-bot-6", "ledCount": 18, "universe": 45, "startChannel": 190, "cubeSection": "corner_left_bot", "x": 0.47197846393145404, "y": 0.6201312633853171, "type": "led"}, {"name": "CLeft-left-6", "ledCount": 25, "universe": 45, "startChannel": 244, "cubeSection": "corner_left_left", "x": 0.4871529524320788, "y": 0.6201955770667043, "type": "led"}, {"name": "CLeft-diag-right-6", "ledCount": 18, "universe": 45, "startChannel": 319, "cubeSection": "corner_left_diag", "x": 0.5027924615026103, "y": 0.6201312633853164, "type": "led"}, {"name": "Right-6", "ledCount": 18, "universe": 45, "startChannel": 373, "cubeSection": "vertical_right", "x": 0.5205096679672905, "y": 0.6354062688861687, "type": "led"}, {"name": "CRight-top-6", "ledCount": 25, "universe": 45, "startChannel": 427, "cubeSection": "corner_right_top", "x": 0.5204888950325115, "y": 0.6202613404866832, "type": "led"}, {"name": "CRight-diag-left-6", "ledCount": 18, "universe": 45, "startChannel": 502, "cubeSection": "corner_right_diag", "x": 0.5207310483919398, "y": 0.6049664604968408, "type": "led"}, {"name": "CRight-bot-6", "ledCount": 18, "universe": 46, "startChannel": 46, "cubeSection": "corner_right_bot", "x": 0.5051237284541361, "y": 0.620186364691507, "type": "led"}, {"name": "CRight-left-6", "ledCount": 25, "universe": 46, "startChannel": 100, "cubeSection": "corner_right_left", "x": 0.5203954054782243, "y": 0.6204217219977924, "type": "led"}, {"name": "CRight-diag-right-6", "ledCount": 18, "universe": 46, "startChannel": 175, "cubeSection": "corner_right_diag", "x": 0.5358402623742744, "y": 0.6201863646915069, "type": "led"}, {"name": "Top-6", "ledCount": 18, "universe": 46, "startChannel": 229, "cubeSection": "vertical_top", "x": 0.4867629832534487, "y": 0.6684429662252459, "type": "led"}, {"name": "CTop-top-6", "ledCount": 25, "universe": 46, "startChannel": 283, "cubeSection": "corner_top_top", "x": 0.4867422103187172, "y": 0.6532980378258071, "type": "led"}, {"name": "CTop-diag-left-6", "ledCount": 18, "universe": 46, "startChannel": 358, "cubeSection": "corner_top_diag", "x": 0.4869843636780973, "y": 0.6380031578359197, "type": "led"}, {"name": "CTop-bot-6", "ledCount": 18, "universe": 46, "startChannel": 412, "cubeSection": "corner_top_bot", "x": 0.47137704374029077, "y": 0.6532230620305859, "type": "led"}, {"name": "CTop-left-6", "ledCount": 25, "universe": 46, "startChannel": 466, "cubeSection": "corner_top_left", "x": 0.48664872076438714, "y": 0.6534584193368658, "type": "led"}, {"name": "CTop-diag-right-6", "ledCount": 18, "universe": 47, "startChannel": 31, "cubeSection": "corner_top_diag", "x": 0.5020935776604303, "y": 0.6532230620305856, "type": "led"}, {"name": "Left-7", "ledCount": 18, "universe": 52, "startChannel": 391, "cubeSection": "vertical_left", "x": 0.24334970029148173, "y": 0.4255072658755718, "type": "led"}, {"name": "CLeft-top-7", "ledCount": 25, "universe": 52, "startChannel": 445, "cubeSection": "corner_left_top", "x": 0.24322601981934322, "y": 0.41004119015250107, "type": "led"}, {"name": "CLeft-diag-left-7", "ledCount": 18, "universe": 53, "startChannel": 10, "cubeSection": "corner_left_diag", "x": 0.24341611441887595, "y": 0.39472431782803835, "type": "led"}, {"name": "CLeft-bot-7", "ledCount": 18, "universe": 53, "startChannel": 64, "cubeSection": "corner_left_bot", "x": 0.22791948469338455, "y": 0.4097339106192945, "type": "led"}, {"name": "CLeft-left-7", "ledCount": 25, "universe": 53, "startChannel": 118, "cubeSection": "corner_left_left", "x": 0.24324859454814973, "y": 0.41013698592685927, "type": "led"}, {"name": "CLeft-diag-right-7", "ledCount": 18, "universe": 53, "startChannel": 193, "cubeSection": "corner_left_diag", "x": 0.2586692256772216, "y": 0.40973391061929804, "type": "led"}, {"name": "Right-7", "ledCount": 18, "universe": 53, "startChannel": 247, "cubeSection": "vertical_right", "x": 0.2769342915768751, "y": 0.42555419783350207, "type": "led"}, {"name": "CRight-top-7", "ledCount": 25, "universe": 53, "startChannel": 301, "cubeSection": "corner_right_top", "x": 0.2768971658458315, "y": 0.4100804813424249, "type": "led"}, {"name": "CRight-diag-left-7", "ledCount": 18, "universe": 53, "startChannel": 376, "cubeSection": "corner_right_diag", "x": 0.27700070570426893, "y": 0.39477124978596656, "type": "led"}, {"name": "CRight-bot-7", "ledCount": 18, "universe": 53, "startChannel": 430, "cubeSection": "corner_right_bot", "x": 0.2614155238089297, "y": 0.4097365664922847, "type": "led"}, {"name": "CRight-left-7", "ledCount": 25, "universe": 53, "startChannel": 484, "cubeSection": "corner_right_left", "x": 0.2768430739595715, "y": 0.4101369859585451, "type": "led"}, {"name": "CRight-diag-right-7", "ledCount": 18, "universe": 54, "startChannel": 49, "cubeSection": "corner_right_diag", "x": 0.29226488598386113, "y": 0.4097808425772144, "type": "led"}, {"name": "Left-8", "ledCount": 18, "universe": 62, "startChannel": 307, "cubeSection": "vertical_left", "x": 0.24332251033968788, "y": 0.6353511675799778, "type": "led"}, {"name": "CLeft-top-8", "ledCount": 25, "universe": 62, "startChannel": 361, "cubeSection": "corner_left_top", "x": 0.24311028102591375, "y": 0.6199674866624475, "type": "led"}, {"name": "CLeft-diag-left-8", "ledCount": 18, "universe": 62, "startChannel": 436, "cubeSection": "corner_left_diag", "x": 0.24344426957324405, "y": 0.6049113591906504, "type": "led"}, {"name": "CLeft-bot-8", "ledCount": 18, "universe": 62, "startChannel": 490, "cubeSection": "corner_left_bot", "x": 0.2277444811100174, "y": 0.6201312633853169, "type": "led"}, {"name": "CLeft-left-8", "ledCount": 25, "universe": 63, "startChannel": 34, "cubeSection": "corner_left_left", "x": 0.2429189696106493, "y": 0.6201955770666963, "type": "led"}, {"name": "CLeft-diag-right-8", "ledCount": 18, "universe": 63, "startChannel": 109, "cubeSection": "corner_left_diag", "x": 0.25855847868117354, "y": 0.6201312633853168, "type": "led"}, {"name": "Right-8", "ledCount": 18, "universe": 63, "startChannel": 163, "cubeSection": "vertical_right", "x": 0.2761923286637024, "y": 0.6354062688861688, "type": "led"}, {"name": "CRight-top-8", "ledCount": 25, "universe": 63, "startChannel": 217, "cubeSection": "corner_right_top", "x": 0.2761715557289452, "y": 0.6202613404867068, "type": "led"}, {"name": "CRight-diag-left-8", "ledCount": 18, "universe": 63, "startChannel": 292, "cubeSection": "corner_right_diag", "x": 0.27641370908835344, "y": 0.6049664604968409, "type": "led"}, {"name": "CRight-bot-8", "ledCount": 18, "universe": 63, "startChannel": 346, "cubeSection": "corner_right_bot", "x": 0.2608063891505485, "y": 0.6201863646915069, "type": "led"}, {"name": "CRight-left-8", "ledCount": 25, "universe": 63, "startChannel": 400, "cubeSection": "corner_right_left", "x": 0.2760780661746382, "y": 0.6204217219977911, "type": "led"}, {"name": "CRight-diag-right-8", "ledCount": 18, "universe": 63, "startChannel": 475, "cubeSection": "corner_right_diag", "x": 0.2915229230706881, "y": 0.6201863646915067, "type": "led"}, {"name": "Top-8", "ledCount": 18, "universe": 64, "startChannel": 19, "cubeSection": "vertical_top", "x": 0.24234191143874145, "y": 0.668442966225246, "type": "led"}, {"name": "CTop-top-8", "ledCount": 25, "universe": 64, "startChannel": 73, "cubeSection": "corner_top_top", "x": 0.24232113850402073, "y": 0.6532980378258165, "type": "led"}, {"name": "CTop-diag-left-8", "ledCount": 18, "universe": 64, "startChannel": 148, "cubeSection": "corner_top_diag", "x": 0.24256329186339007, "y": 0.6380031578359181, "type": "led"}, {"name": "CTop-bot-8", "ledCount": 18, "universe": 64, "startChannel": 202, "cubeSection": "corner_top_bot", "x": 0.22695597192558314, "y": 0.6532230620305856, "type": "led"}, {"name": "CTop-left-8", "ledCount": 25, "universe": 64, "startChannel": 256, "cubeSection": "corner_top_left", "x": 0.24222764894968482, "y": 0.6534584193368617, "type": "led"}, {"name": "CTop-diag-right-8", "ledCount": 18, "universe": 64, "startChannel": 331, "cubeSection": "corner_top_diag", "x": 0.2576725058457212, "y": 0.6532230620305857, "type": "led"}, {"name": "HTop-Top-inside-8", "ledCount": 1, "universe": 71, "startChannel": 1, "cubeSection": "horizontal_top", "x": 0.505930017979058, "y": 0.6289778910445076, "type": "led"}, {"name": "Channel 6", "ledCount": 1, "universe": 71, "startChannel": 7, "cubeSection": "channel", "x": 1.0, "y": 1.0, "type": "led"}, {"name": "HorizBot-1", "ledCount": 0, "universe": 1, "startChannel": 223, "cubeSection": "horizontal_bar_bottom", "x": 0.8753995097950514, "y": 0.4014237315466893, "type": "structural"}, {"name": "HBot-Outside-bottom-1", "ledCount": 0, "universe": 2, "startChannel": 70, "cubeSection": "horizontal_bottom", "x": 0.8753995097950514, "y": 0.416920361272165, "type": "structural"}, {"name": "HBot-Outside-top-1", "ledCount": 0, "universe": 2, "startChannel": 427, "cubeSection": "horizontal_bottom", "x": 0.8745139880964556, "y": 0.42473509026229905, "type": "structural"}, {"name": "HBot-Inside-outside-1", "ledCount": 0, "universe": 3, "startChannel": 274, "cubeSection": "horizontal_bottom", "x": 0.8742372625656359, "y": 0.4302696008785397, "type": "structural"}, {"name": "Column-1", "ledCount": 0, "universe": 4, "startChannel": 121, "cubeSection": "column", "x": 0.9580821289245548, "y": 0.5120262365644831, "type": "structural"}, {"name": "C-Inside-right-left-1", "ledCount": 0, "universe": 4, "startChannel": 478, "cubeSection": "corner_inside", "x": 0.9636166395407982, "y": 0.5120262365644982, "type": "structural"}, {"name": "C-Inside-right-right-1", "ledCount": 0, "universe": 5, "startChannel": 325, "cubeSection": "corner_inside", "x": 0.9717539960467522, "y": 0.5135532747249933, "type": "structural"}, {"name": "C-Outside-left-left-1", "ledCount": 0, "universe": 6, "startChannel": 172, "cubeSection": "corner_outside", "x": 0.9855476867583368, "y": 0.5135532747249956, "type": "structural"}, {"name": "C-Outside-left-right-1", "ledCount": 0, "universe": 7, "startChannel": 19, "cubeSection": "corner_outside", "x": 0.024987761796753077, "y": 0.5135529166317442, "type": "structural"}, {"name": "C-Outside-right-left-1", "ledCount": 0, "universe": 7, "startChannel": 376, "cubeSection": "corner_outside", "x": 0.04002637250895813, "y": 0.5135529166317453, "type": "structural"}, {"name": "C-Outside-right-right-1", "ledCount": 0, "universe": 8, "startChannel": 223, "cubeSection": "corner_outside", "x": 0.048858077682635725, "y": 0.5120253917016624, "type": "structural"}, {"name": "C-Inside-left-left-1", "ledCount": 0, "universe": 9, "startChannel": 70, "cubeSection": "corner_inside", "x": 0.05495746574924784, "y": 0.5114941382437415, "type": "structural"}, {"name": "HorizTop-2", "ledCount": 0, "universe": 11, "startChannel": 505, "cubeSection": "horizontal_bar_top", "x": 0.8753996915499233, "y": 0.6285645768116804, "type": "structural"}, {"name": "HTop-Inside-top-2", "ledCount": 0, "universe": 12, "startChannel": 352, "cubeSection": "horizontal_top", "x": 0.8753996915499269, "y": 0.6131712162032232, "type": "structural"}, {"name": "HTop-Inside-bot-2", "ledCount": 0, "universe": 13, "startChannel": 199, "cubeSection": "horizontal_top", "x": 0.8742372625656414, "y": 0.5982862741664027, "type": "structural"}, {"name": "HTop-Bottom-inside-2", "ledCount": 0, "universe": 14, "startChannel": 46, "cubeSection": "horizontal_top", "x": 0.8745110186193079, "y": 0.6038207847826441, "type": "structural"}, {"name": "HTop-Bottom-outside-2", "ledCount": 0, "universe": 14, "startChannel": 403, "cubeSection": "horizontal_top", "x": 0.8753996915499269, "y": 0.6131712162032232, "type": "structural"}, {"name": "HTop-Outside-bot-2", "ledCount": 0, "universe": 15, "startChannel": 250, "cubeSection": "horizontal_top", "x": 0.8753996915499261, "y": 0.6285645768116804, "type": "structural"}, {"name": "HTop-Outside-top-2", "ledCount": 0, "universe": 16, "startChannel": 97, "cubeSection": "horizontal_top", "x": 0.8753995097950522, "y": 0.6446433350880427, "type": "structural"}, {"name": "HTop-Top-outside-2", "ledCount": 0, "universe": 16, "startChannel": 454, "cubeSection": "horizontal_top", "x": 0.8753995097950518, "y": 0.6600403436224267, "type": "structural"}, {"name": "HorizBot-3", "ledCount": 0, "universe": 19, "startChannel": 13, "cubeSection": "horizontal_bar_bottom", "x": 0.629273817111583, "y": 0.40052404915086987, "type": "structural"}, {"name": "HBot-Outside-bottom-3", "ledCount": 0, "universe": 19, "startChannel": 370, "cubeSection": "horizontal_bottom", "x": 0.629273817111583, "y": 0.41602067887634714, "type": "structural"}, {"name": "HBot-Outside-top-3", "ledCount": 0, "universe": 20, "startChannel": 217, "cubeSection": "horizontal_bottom", "x": 0.6283882954129827, "y": 0.4238354078664797, "type": "structural"}, {"name": "HBot-Inside-outside-3", "ledCount": 0, "universe": 21, "startChannel": 64, "cubeSection": "horizontal_bottom", "x": 0.6281115698821564, "y": 0.4293699184827228, "type": "structural"}, {"name": "Column-3", "ledCount": 0, "universe": 21, "startChannel": 421, "cubeSection": "column", "x": 0.7134431909007588, "y": 0.5120262365644829, "type": "structural"}, {"name": "C-Inside-right-left-3", "ledCount": 0, "universe": 22, "startChannel": 268, "cubeSection": "corner_inside", "x": 0.7189777015169992, "y": 0.5120262365644852, "type": "structural"}, {"name": "C-Inside-right-right-3", "ledCount": 0, "universe": 23, "startChannel": 115, "cubeSection": "corner_inside", "x": 0.724748602905586, "y": 0.513553274724993, "type": "structural"}, {"name": "C-Outside-left-left-3", "ledCount": 0, "universe": 23, "startChannel": 472, "cubeSection": "corner_outside", "x": 0.7394743643981929, "y": 0.5135532747250119, "type": "structural"}, {"name": "C-Outside-left-right-3", "ledCount": 0, "universe": 24, "startChannel": 319, "cubeSection": "corner_outside", "x": 0.7600437462163627, "y": 0.5135529166317447, "type": "structural"}, {"name": "C-Outside-right-left-3", "ledCount": 0, "universe": 25, "startChannel": 166, "cubeSection": "corner_outside", "x": 0.7746881568884945, "y": 0.5135529166317447, "type": "structural"}, {"name": "C-Outside-right-right-3", "ledCount": 0, "universe": 26, "startChannel": 13, "cubeSection": "corner_outside", "x": 0.783124345456525, "y": 0.5120253917016636, "type": "structural"}, {"name": "C-Inside-left-left-3", "ledCount": 0, "universe": 26, "startChannel": 370, "cubeSection": "corner_inside", "x": 0.7901526153191905, "y": 0.5120253917016617, "type": "structural"}, {"name": "HorizTop-4", "ledCount": 0, "universe": 29, "startChannel": 295, "cubeSection": "horizontal_bar_top", "x": 0.6284368738977331, "y": 0.628564576811681, "type": "structural"}, {"name": "HTop-Inside-top-4", "ledCount": 0, "universe": 30, "startChannel": 142, "cubeSection": "horizontal_top", "x": 0.628436873897738, "y": 0.6131712162032238, "type": "structural"}, {"name": "HTop-Inside-bot-4", "ledCount": 0, "universe": 30, "startChannel": 499, "cubeSection": "horizontal_top", "x": 0.6272744449134522, "y": 0.5982862741664023, "type": "structural"}, {"name": "HTop-Bottom-inside-4", "ledCount": 0, "universe": 31, "startChannel": 346, "cubeSection": "horizontal_top", "x": 0.6275482009671194, "y": 0.6038207847826436, "type": "structural"}, {"name": "HTop-Bottom-outside-4", "ledCount": 0, "universe": 32, "startChannel": 193, "cubeSection": "horizontal_top", "x": 0.628436873897738, "y": 0.6131712162032238, "type": "structural"}, {"name": "HTop-Outside-bot-4", "ledCount": 0, "universe": 33, "startChannel": 40, "cubeSection": "horizontal_top", "x": 0.6284368738977375, "y": 0.628564576811681, "type": "structural"}, {"name": "HTop-Outside-top-4", "ledCount": 0, "universe": 33, "startChannel": 397, "cubeSection": "horizontal_top", "x": 0.6284366921428617, "y": 0.6446433350880427, "type": "structural"}, {"name": "HTop-Top-outside-4", "ledCount": 0, "universe": 34, "startChannel": 244, "cubeSection": "horizontal_top", "x": 0.628436692142861, "y": 0.6600403436224268, "type": "structural"}, {"name": "HorizBot-5", "ledCount": 0, "universe": 36, "startChannel": 313, "cubeSection": "horizontal_bar_bottom", "x": 0.3846853203031304, "y": 0.40052404915086987, "type": "structural"}, {"name": "HBot-Outside-bottom-5", "ledCount": 0, "universe": 37, "startChannel": 160, "cubeSection": "horizontal_bottom", "x": 0.38468532030313063, "y": 0.41602067887634714, "type": "structural"}, {"name": "HBot-Outside-top-5", "ledCount": 0, "universe": 38, "startChannel": 7, "cubeSection": "horizontal_bottom", "x": 0.38379979860453517, "y": 0.4238354078664795, "type": "structural"}, {"name": "HBot-Inside-outside-5", "ledCount": 0, "universe": 38, "startChannel": 364, "cubeSection": "horizontal_bottom", "x": 0.3835230730737127, "y": 0.4293699184827228, "type": "structural"}, {"name": "Column-5", "ledCount": 0, "universe": 39, "startChannel": 211, "cubeSection": "column", "x": 0.4680998015610421, "y": 0.5116038061790609, "type": "structural"}, {"name": "C-Inside-right-left-5", "ledCount": 0, "universe": 40, "startChannel": 58, "cubeSection": "corner_inside", "x": 0.4736343121772839, "y": 0.5116038061790629, "type": "structural"}, {"name": "C-Inside-right-right-5", "ledCount": 0, "universe": 40, "startChannel": 415, "cubeSection": "corner_inside", "x": 0.4781011065692608, "y": 0.5131308443395695, "type": "structural"}, {"name": "C-Outside-left-left-5", "ledCount": 0, "universe": 41, "startChannel": 262, "cubeSection": "corner_outside", "x": 0.4935008692880775, "y": 0.5131308443396017, "type": "structural"}, {"name": "C-Outside-left-right-5", "ledCount": 0, "universe": 42, "startChannel": 109, "cubeSection": "corner_outside", "x": 0.5153288521255858, "y": 0.513130486246322, "type": "structural"}, {"name": "C-Outside-right-left-5", "ledCount": 0, "universe": 42, "startChannel": 466, "cubeSection": "corner_outside", "x": 0.5293447675487806, "y": 0.513130486246322, "type": "structural"}, {"name": "C-Outside-right-right-5", "ledCount": 0, "universe": 43, "startChannel": 313, "cubeSection": "corner_outside", "x": 0.5377809561168091, "y": 0.5116029613162418, "type": "structural"}, {"name": "C-Inside-left-left-5", "ledCount": 0, "universe": 44, "startChannel": 160, "cubeSection": "corner_inside", "x": 0.5448092259794739, "y": 0.5116029613162398, "type": "structural"}, {"name": "HorizTop-6", "ledCount": 0, "universe": 47, "startChannel": 85, "cubeSection": "horizontal_bar_top", "x": 0.38284456008718404, "y": 0.628564576811681, "type": "structural"}, {"name": "HTop-Inside-top-6", "ledCount": 0, "universe": 47, "startChannel": 442, "cubeSection": "horizontal_top", "x": 0.3828445600871898, "y": 0.6131712162032235, "type": "structural"}, {"name": "HTop-Inside-bot-6", "ledCount": 0, "universe": 48, "startChannel": 289, "cubeSection": "horizontal_top", "x": 0.3816821311029024, "y": 0.5982862741664028, "type": "structural"}, {"name": "HTop-Bottom-inside-6", "ledCount": 0, "universe": 49, "startChannel": 136, "cubeSection": "horizontal_top", "x": 0.38195588715657086, "y": 0.603820784782643, "type": "structural"}, {"name": "HTop-Bottom-outside-6", "ledCount": 0, "universe": 49, "startChannel": 493, "cubeSection": "horizontal_top", "x": 0.3828445600871898, "y": 0.6131712162032235, "type": "structural"}, {"name": "HTop-Outside-bot-6", "ledCount": 0, "universe": 50, "startChannel": 340, "cubeSection": "horizontal_top", "x": 0.3828445600871899, "y": 0.6285645768116807, "type": "structural"}, {"name": "HTop-Outside-top-6", "ledCount": 0, "universe": 51, "startChannel": 187, "cubeSection": "horizontal_top", "x": 0.3828443783323142, "y": 0.6446433350880417, "type": "structural"}, {"name": "HTop-Top-outside-6", "ledCount": 0, "universe": 52, "startChannel": 34, "cubeSection": "horizontal_top", "x": 0.38284437833231433, "y": 0.6600403436224256, "type": "structural"}, {"name": "HorizBot-7", "ledCount": 0, "universe": 54, "startChannel": 103, "cubeSection": "horizontal_bar_bottom", "x": 0.13837027397593055, "y": 0.39979530641025773, "type": "structural"}, {"name": "HBot-Outside-bottom-7", "ledCount": 0, "universe": 54, "startChannel": 460, "cubeSection": "horizontal_bottom", "x": 0.13837027397593094, "y": 0.41529193613573434, "type": "structural"}, {"name": "HBot-Outside-top-7", "ledCount": 0, "universe": 55, "startChannel": 307, "cubeSection": "horizontal_bottom", "x": 0.13748475227733437, "y": 0.42310666512586764, "type": "structural"}, {"name": "HBot-Inside-outside-7", "ledCount": 0, "universe": 56, "startChannel": 154, "cubeSection": "horizontal_bottom", "x": 0.13720802674652124, "y": 0.4286411757421096, "type": "structural"}, {"name": "Column-7", "ledCount": 0, "universe": 57, "startChannel": 1, "cubeSection": "column", "x": 0.22275641222132517, "y": 0.5116038061790615, "type": "structural"}, {"name": "C-Inside-right-left-7", "ledCount": 0, "universe": 57, "startChannel": 358, "cubeSection": "corner_inside", "x": 0.22829092283756855, "y": 0.5116038061790621, "type": "structural"}, {"name": "C-Inside-right-right-7", "ledCount": 0, "universe": 58, "startChannel": 205, "cubeSection": "corner_inside", "x": 0.23452679124437517, "y": 0.5131308443395698, "type": "structural"}, {"name": "C-Outside-left-left-7", "ledCount": 0, "universe": 59, "startChannel": 52, "cubeSection": "corner_outside", "x": 0.25023519514119996, "y": 0.5131308443395958, "type": "structural"}, {"name": "C-Outside-left-right-7", "ledCount": 0, "universe": 59, "startChannel": 409, "cubeSection": "corner_outside", "x": 0.2707503220623365, "y": 0.513130486246323, "type": "structural"}, {"name": "C-Outside-right-left-7", "ledCount": 0, "universe": 60, "startChannel": 256, "cubeSection": "corner_outside", "x": 0.2857226394126839, "y": 0.5131304862463237, "type": "structural"}, {"name": "C-Outside-right-right-7", "ledCount": 0, "universe": 61, "startChannel": 103, "cubeSection": "corner_outside", "x": 0.29243756677709287, "y": 0.5116029613162416, "type": "structural"}, {"name": "C-Inside-left-left-7", "ledCount": 0, "universe": 61, "startChannel": 460, "cubeSection": "corner_inside", "x": 0.2994658366397575, "y": 0.5116029613162406, "type": "structural"}, {"name": "HorizTop-8", "ledCount": 0, "universe": 64, "startChannel": 385, "cubeSection": "horizontal_bar_top", "x": 0.13903063082035988, "y": 0.6285645768116807, "type": "structural"}, {"name": "HTop-Inside-top-8", "ledCount": 0, "universe": 65, "startChannel": 232, "cubeSection": "horizontal_top", "x": 0.13903063082036482, "y": 0.613171216203222, "type": "structural"}, {"name": "HTop-Inside-bot-8", "ledCount": 0, "universe": 66, "startChannel": 79, "cubeSection": "horizontal_top", "x": 0.13786820183607862, "y": 0.5982862741664031, "type": "structural"}, {"name": "HTop-Bottom-inside-8", "ledCount": 0, "universe": 66, "startChannel": 436, "cubeSection": "horizontal_top", "x": 0.1381419578897468, "y": 0.6038207847826433, "type": "structural"}, {"name": "HTop-Bottom-outside-8", "ledCount": 0, "universe": 67, "startChannel": 283, "cubeSection": "horizontal_top", "x": 0.13903063082036482, "y": 0.613171216203222, "type": "structural"}, {"name": "HTop-Outside-bot-8", "ledCount": 0, "universe": 68, "startChannel": 130, "cubeSection": "horizontal_top", "x": 0.13903063082036532, "y": 0.628564576811681, "type": "structural"}, {"name": "HTop-Outside-top-8", "ledCount": 0, "universe": 68, "startChannel": 487, "cubeSection": "horizontal_top", "x": 0.13903044906548978, "y": 0.644643335088042, "type": "structural"}, {"name": "HTop-Top-outside-8", "ledCount": 0, "universe": 69, "startChannel": 334, "cubeSection": "horizontal_top", "x": 0.13903044906549014, "y": 0.6600403436224263, "type": "structural"}];
+
+// Canvas dimensions
+const CW = 3200, CH = 2000;
+const PADDING = 80;
+
+// Compute coordinate transform from UV to canvas pixels
+// UV range from data: x ≈ [0.014, 1.0], y ≈ [0.39, 1.0]
+// We want to map this to fill the canvas with padding
+const uvMinX = 0.005, uvMaxX = 1.005;
+const uvMinY = 0.38, uvMaxY = 1.01;
+
+function uvToCanvas(ux, uy) {
+    const x = PADDING + (ux - uvMinX) / (uvMaxX - uvMinX) * (CW - 2 * PADDING);
+    const y = PADDING + (uy - uvMinY) / (uvMaxY - uvMinY) * (CH - 2 * PADDING);
+    return [x, y];
+}
+
+// Universe color palette - group by vertex for cleaner colors
+// Vertices use universe groups that cluster together
+function universeColor(u) {
+    // Map universe to a hue based on which vertex group it belongs to
+    const vertexGroups = [
+        { unis: [0, 1, 2, 3, 4, 5, 6, 7, 8], hue: 0 },      // Vertex 1: red
+        { unis: [9, 10, 11, 12, 13, 14, 15, 16], hue: 45 },   // Vertex 2: orange
+        { unis: [17, 18, 19, 20, 21, 22, 23, 24, 25, 26], hue: 90 },  // Vertex 3: yellow-green
+        { unis: [27, 28, 29, 30, 31, 32, 33, 34], hue: 135 },  // Vertex 4: green
+        { unis: [35, 36, 37, 38, 39, 40, 41, 42, 43, 44], hue: 180 }, // Vertex 5: cyan
+        { unis: [45, 46, 47, 48, 49, 50, 51, 52], hue: 225 },  // Vertex 6: blue
+        { unis: [53, 54, 55, 56, 57, 58, 59, 60, 61], hue: 270 }, // Vertex 7: purple
+        { unis: [62, 63, 64, 65, 66, 67, 68, 69, 71], hue: 315 }, // Vertex 8: magenta
+    ];
+    for (const g of vertexGroups) {
+        if (g.unis.includes(u)) {
+            // Vary lightness/saturation slightly within group
+            const idx = g.unis.indexOf(u);
+            const sat = 70 + (idx % 3) * 10;
+            const lit = 55 + (idx % 4) * 5;
+            return `hsl(${g.hue}, ${sat}%, ${lit}%)`;
+        }
+    }
+    return `hsl(${(u * 37) % 360}, 70%, 55%)`;
+}
+
+function vertexFromName(name) {
+    const m = name.match(/(\d+)$/);
+    return m ? parseInt(m[1]) : 0;
+}
+
+const vertexNames = ['', 'Vertex 1', 'Vertex 2', 'Vertex 3', 'Vertex 4', 'Vertex 5', 'Vertex 6', 'Vertex 7', 'Vertex 8'];
+const vertexHues = [0, 0, 45, 90, 135, 180, 225, 270, 315];
+
+// Build the canvas
+const canvas = document.getElementById('canvas');
+const tooltip = document.getElementById('tooltip');
+
+// Draw vertex group labels first
+const vertexPositions = {};
+FIXTURES.forEach(f => {
+    const v = vertexFromName(f.name);
+    if (v >= 1 && v <= 8) {
+        if (!vertexPositions[v]) vertexPositions[v] = { xs: [], ys: [] };
+        vertexPositions[v].xs.push(f.x);
+        vertexPositions[v].ys.push(f.y);
+    }
+});
+
+for (const [v, pos] of Object.entries(vertexPositions)) {
+    const cx = pos.xs.reduce((a,b) => a+b, 0) / pos.xs.length;
+    const cy = pos.ys.reduce((a,b) => a+b, 0) / pos.ys.length;
+    const [px, py] = uvToCanvas(cx, cy);
+    const lbl = document.createElement('div');
+    lbl.className = 'vertex-label';
+    lbl.style.left = px + 'px';
+    lbl.style.top = py + 'px';
+    lbl.textContent = 'V' + v;
+    canvas.appendChild(lbl);
+}
+
+// Draw edge-group borders
+for (const [v, pos] of Object.entries(vertexPositions)) {
+    const minX = Math.min(...pos.xs);
+    const maxX = Math.max(...pos.xs);
+    const minY = Math.min(...pos.ys);
+    const maxY = Math.max(...pos.ys);
+    const [x1, y1] = uvToCanvas(minX, minY);
+    const [x2, y2] = uvToCanvas(maxX, maxY);
+    const pad = 14;
+    const border = document.createElement('div');
+    border.className = 'edge-group-border';
+    border.style.left = (x1 - pad) + 'px';
+    border.style.top = (y1 - pad) + 'px';
+    border.style.width = (x2 - x1 + 2 * pad) + 'px';
+    border.style.height = (y2 - y1 + 2 * pad) + 'px';
+    canvas.appendChild(border);
+}
+
+// Draw fixtures
+const fixtureEls = [];
+FIXTURES.forEach((f, i) => {
+    const [px, py] = uvToCanvas(f.x, f.y);
+    const el = document.createElement('div');
+    el.className = 'fixture' + (f.type === 'structural' ? ' structural' : '');
+    el.style.left = px + 'px';
+    el.style.top = py + 'px';
+    el.dataset.index = i;
+    el.dataset.section = f.cubeSection;
+    el.dataset.vertex = vertexFromName(f.name);
+    el.dataset.type = f.type;
+
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.style.background = universeColor(f.universe);
+    if (f.ledCount > 0 && f.type === 'led') {
+        const s = Math.max(6, Math.min(14, 4 + f.ledCount / 5));
+        dot.style.width = s + 'px';
+        dot.style.height = s + 'px';
+    }
+    el.appendChild(dot);
+
+    const label = document.createElement('div');
+    label.className = 'label';
+    label.innerHTML = f.name + '<br><span class="universe-info">U' + f.universe + ' ch' + f.startChannel + (f.ledCount > 0 ? ' · ' + f.ledCount + 'px' : '') + '</span>';
+    label.style.color = universeColor(f.universe);
+    el.appendChild(label);
+
+    el.addEventListener('mouseenter', (e) => showTooltip(e, f));
+    el.addEventListener('mouseleave', hideTooltip);
+
+    canvas.appendChild(el);
+    fixtureEls.push(el);
+});
+
+function showTooltip(e, f) {
+    const v = vertexFromName(f.name);
+    tooltip.innerHTML = `
+        <div class="tt-name" style="color:${universeColor(f.universe)}">${f.name}</div>
+        <div class="tt-row"><span class="tt-key">Type</span><span class="tt-val">${f.type === 'structural' ? 'Structural (beam)' : 'LED Strip'}</span></div>
+        <div class="tt-row"><span class="tt-key">LEDs</span><span class="tt-val">${f.ledCount}</span></div>
+        <div class="tt-row"><span class="tt-key">Universe</span><span class="tt-val">${f.universe}</span></div>
+        <div class="tt-row"><span class="tt-key">Start Ch</span><span class="tt-val">${f.startChannel}</span></div>
+        <div class="tt-row"><span class="tt-key">Section</span><span class="tt-val">${f.cubeSection}</span></div>
+        <div class="tt-row"><span class="tt-key">Vertex</span><span class="tt-val">${v > 0 ? v : '—'}</span></div>
+        <div class="tt-row"><span class="tt-key">Canvas UV</span><span class="tt-val">(${f.x.toFixed(4)}, ${f.y.toFixed(4)})</span></div>
+    `;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 10) + 'px';
+    
+    // Keep tooltip on screen
+    const rect = tooltip.getBoundingClientRect();
+    if (rect.right > window.innerWidth) tooltip.style.left = (e.clientX - rect.width - 16) + 'px';
+    if (rect.bottom > window.innerHeight) tooltip.style.top = (e.clientY - rect.height + 10) + 'px';
+}
+
+function hideTooltip() { tooltip.style.display = 'none'; }
+
+// Controls
+document.getElementById('showLabels').addEventListener('change', (e) => {
+    fixtureEls.forEach(el => el.classList.toggle('show-label', e.target.checked));
+});
+
+document.getElementById('showStructural').addEventListener('change', (e) => {
+    fixtureEls.forEach(el => {
+        if (el.dataset.type === 'structural') {
+            el.style.display = e.target.checked ? '' : 'none';
+        }
+    });
+});
+
+document.getElementById('zoomLevel').addEventListener('change', (e) => {
+    canvas.style.transform = `scale(${e.target.value})`;
+});
+
+// Populate section filter
+const sections = [...new Set(FIXTURES.map(f => f.cubeSection))].sort();
+const select = document.getElementById('highlightSection');
+sections.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    select.appendChild(opt);
+});
+// Also add vertex options
+for (let v = 1; v <= 8; v++) {
+    const opt = document.createElement('option');
+    opt.value = 'vertex_' + v;
+    opt.textContent = 'Vertex ' + v;
+    select.appendChild(opt);
+}
+
+select.addEventListener('change', (e) => {
+    const val = e.target.value;
+    fixtureEls.forEach(el => {
+        if (!val) { el.style.opacity = ''; return; }
+        if (val.startsWith('vertex_')) {
+            el.style.opacity = el.dataset.vertex === val.split('_')[1] ? '' : '0.08';
+        } else {
+            el.style.opacity = el.dataset.section === val ? '' : '0.08';
+        }
+    });
+});
+
+// Legend
+const legend = document.getElementById('legend');
+for (let v = 1; v <= 8; v++) {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    const swatch = document.createElement('div');
+    swatch.className = 'legend-swatch';
+    swatch.style.background = `hsl(${vertexHues[v]}, 70%, 55%)`;
+    item.appendChild(swatch);
+    const label = document.createElement('span');
+    const count = FIXTURES.filter(f => vertexFromName(f.name) === v).length;
+    const ledCount = FIXTURES.filter(f => vertexFromName(f.name) === v && f.ledCount > 0).reduce((s,f) => s + f.ledCount, 0);
+    label.textContent = `V${v}: ${count} fix, ${ledCount} LEDs`;
+    item.appendChild(label);
+    item.addEventListener('click', () => {
+        document.getElementById('highlightSection').value = 'vertex_' + v;
+        document.getElementById('highlightSection').dispatchEvent(new Event('change'));
+    });
+    legend.appendChild(item);
+}
+
+// Inventory
+const inv = document.getElementById('inventory');
+const totalLEDs = FIXTURES.filter(f => f.ledCount > 0).reduce((s,f) => s + f.ledCount, 0);
+const ledFixtures = FIXTURES.filter(f => f.type === 'led').length;
+const structFixtures = FIXTURES.filter(f => f.type === 'structural').length;
+const usedUnis = new Set(FIXTURES.map(f => f.universe));
+
+inv.innerHTML += `
+    <div class="inv-row"><span class="inv-key">Total Fixtures</span><span class="inv-val">${FIXTURES.length}</span></div>
+    <div class="inv-row"><span class="inv-key">LED Fixtures</span><span class="inv-val">${ledFixtures}</span></div>
+    <div class="inv-row"><span class="inv-key">Structural</span><span class="inv-val">${structFixtures}</span></div>
+    <div class="inv-row"><span class="inv-key">Total LEDs</span><span class="inv-val">${totalLEDs.toLocaleString()}</span></div>
+    <div class="inv-row"><span class="inv-key">ArtNet Universes</span><span class="inv-val">${usedUnis.size}</span></div>
+    <div class="inv-row"><span class="inv-key">Cube Vertices</span><span class="inv-val">8</span></div>
+    <div class="inv-row" style="margin-top:6px;border-top:1px solid #333;padding-top:4px">
+        <span class="inv-key">LED Strip-18</span><span class="inv-val">${FIXTURES.filter(f=>f.ledCount===18).length} strips</span>
+    </div>
+    <div class="inv-row"><span class="inv-key">LED Strip-25</span><span class="inv-val">${FIXTURES.filter(f=>f.ledCount===25).length} strips</span></div>
+    <div class="inv-row"><span class="inv-key">LED Strip-119</span><span class="inv-val">${FIXTURES.filter(f=>f.ledCount===119).length} strips</span></div>
+    <div class="inv-row"><span class="inv-key">Single pixel</span><span class="inv-val">${FIXTURES.filter(f=>f.ledCount===1).length}</span></div>
+`;
+
+// Stats text
+document.getElementById('statsText').textContent = 
+    `${FIXTURES.length} fixtures · ${totalLEDs.toLocaleString()} LEDs · ${usedUnis.size} universes · 8 vertices · Extracted from MadMapper .mad binary`;
+
+</script>
+</body>
+</html>
