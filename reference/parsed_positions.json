@@ -1,0 +1,2375 @@
+{
+  "metadata": {
+    "file": "613670b8-led_cube_new_version.mad",
+    "fileSize": 11183314,
+    "magic": "0x0BADBABE",
+    "totalNameFields": 378,
+    "totalPositionUvFields": 244,
+    "totalPerspectiveUvFields": 40,
+    "surfaceCount": 40,
+    "fixtureCount": 200,
+    "totalEntries": 240
+  },
+  "entries": [
+    {
+      "name": "Corner-1",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.70512409618926,
+        0.0,
+        -0.0,
+        -8.00906010485256e-16,
+        20.978846244720355,
+        -8.579310276759876e-17,
+        9.33531932811424,
+        1002.4015483380452,
+        1.0
+      ]
+    },
+    {
+      "name": "Left-1",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        33.36807873001351,
+        0.0,
+        0.0,
+        0.0,
+        33.26435287449635,
+        0.0,
+        985.0463676799055,
+        588.1716149538788,
+        1.0
+      ]
+    },
+    {
+      "name": "CLeft-top-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9793763307762633,
+        "y": 0.42453972887749575
+      }
+    },
+    {
+      "name": "CLeft-diag-left-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9788823505123211,
+        "y": 0.40949729317816297
+      }
+    },
+    {
+      "name": "CLeft-bot-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9792487563038246,
+        "y": 0.3936772922996286
+      }
+    },
+    {
+      "name": "CLeft-left-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9638138565797538,
+        "y": 0.40904149936209083
+      }
+    },
+    {
+      "name": "CLeft-diag-right-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9789346271841949,
+        "y": 0.4091060150969277
+      }
+    },
+    {
+      "name": "CLeft-right-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9947931400216751,
+        "y": 0.4093224865640805
+      }
+    },
+    {
+      "name": "Right-1",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        28.294711749216226,
+        0.0,
+        0.0,
+        0.0,
+        28.668768396063115,
+        0.0,
+        46.00283352876607,
+        611.2322211278816,
+        1.0
+      ]
+    },
+    {
+      "name": "CRight-top-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.029764016056603004,
+        "y": 0.42581252266480063
+      }
+    },
+    {
+      "name": "CRight-diag-left-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.029730908430704105,
+        "y": 0.41071331307871667
+      }
+    },
+    {
+      "name": "CRight-bot-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.02983292561962317,
+        "y": 0.39530418321047206
+      }
+    },
+    {
+      "name": "CRight-left-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.014245712448530151,
+        "y": 0.41045573393475066
+      }
+    },
+    {
+      "name": "CRight-diag-right-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.02967672234004803,
+        "y": 0.41063183980430595
+      }
+    },
+    {
+      "name": "CRight-right-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.04509600294320018,
+        "y": 0.4105598755663095
+      }
+    },
+    {
+      "name": "HorizBot-1",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "HBot-Outside-bottom-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8753995097950514,
+        "y": 0.4014237315466893
+      }
+    },
+    {
+      "name": "HBot-Outside-top-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8753995097950514,
+        "y": 0.416920361272165
+      }
+    },
+    {
+      "name": "HBot-Inside-outside-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8745139880964556,
+        "y": 0.42473509026229905
+      }
+    },
+    {
+      "name": "HBot-Inside-inside-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8742372625656359,
+        "y": 0.4302696008785397
+      }
+    },
+    {
+      "name": "Column-1",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "C-Inside-right-left-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9580821289245548,
+        "y": 0.5120262365644831
+      }
+    },
+    {
+      "name": "C-Inside-right-right-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9636166395407982,
+        "y": 0.5120262365644982
+      }
+    },
+    {
+      "name": "C-Outside-left-left-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9717539960467522,
+        "y": 0.5135532747249933
+      }
+    },
+    {
+      "name": "C-Outside-left-right-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9855476867583368,
+        "y": 0.5135532747249956
+      }
+    },
+    {
+      "name": "C-Outside-right-left-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.024987761796753077,
+        "y": 0.5135529166317442
+      }
+    },
+    {
+      "name": "C-Outside-right-right-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.04002637250895813,
+        "y": 0.5135529166317453
+      }
+    },
+    {
+      "name": "C-Inside-left-left-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.048858077682635725,
+        "y": 0.5120253917016624
+      }
+    },
+    {
+      "name": "C-Inside-left-right-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.05495746574924784,
+        "y": 0.5114941382437415
+      }
+    },
+    {
+      "name": "Corner-2",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        61.010339498054904,
+        -4.4676769118967644e-12,
+        -1.0023854163892088e-14,
+        -1.7424863825088197e-13,
+        62.37896095108896,
+        -1.048164077507644e-14,
+        16.624175736418636,
+        383.32553941865666,
+        1.0
+      ]
+    },
+    {
+      "name": "Left-2",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "CLeft-top-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9800928021313227,
+        "y": 0.6353511675799778
+      }
+    },
+    {
+      "name": "CLeft-diag-left-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9798805728175535,
+        "y": 0.6199674866624625
+      }
+    },
+    {
+      "name": "CLeft-bot-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9802145613648781,
+        "y": 0.604911359190651
+      }
+    },
+    {
+      "name": "CLeft-left-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9645147729016512,
+        "y": 0.6201312633853169
+      }
+    },
+    {
+      "name": "CLeft-diag-right-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9796892614022646,
+        "y": 0.6201955770667116
+      }
+    },
+    {
+      "name": "CLeft-Left-right-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.995328770472809,
+        "y": 0.6201312633853165
+      }
+    },
+    {
+      "name": "Right-2",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.705124096189408,
+        0.0,
+        0.0,
+        0.0,
+        20.978846244720444,
+        0.0,
+        54.71974137308496,
+        947.1712035514835,
+        1.0
+      ]
+    },
+    {
+      "name": "CRight-top-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.02954263563195393,
+        "y": 0.6354104067733101
+      }
+    },
+    {
+      "name": "CRight-diag-left-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.029521862697189517,
+        "y": 0.6202654783738575
+      }
+    },
+    {
+      "name": "CRight-bot-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.02976401605660267,
+        "y": 0.6049705983839815
+      }
+    },
+    {
+      "name": "CRight-left-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.014156696118800632,
+        "y": 0.620190502578647
+      }
+    },
+    {
+      "name": "CRight-diag-right-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.02942837314288645,
+        "y": 0.620425859884928
+      }
+    },
+    {
+      "name": "CRight-right-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.04487323003894167,
+        "y": 0.6201905025786466
+      }
+    },
+    {
+      "name": "Top-2",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.705124096189408,
+        0.0,
+        0.0,
+        0.0,
+        20.978846244720444,
+        0.0,
+        54.71974137308496,
+        947.1712035514835,
+        1.0
+      ]
+    },
+    {
+      "name": "CTop-top-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.979783281230277,
+        "y": 0.6684501724278514
+      }
+    },
+    {
+      "name": "CTop-diag-left-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9797625082955309,
+        "y": 0.6533052440283976
+      }
+    },
+    {
+      "name": "CTop-bot-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9800046616549248,
+        "y": 0.6380103640385242
+      }
+    },
+    {
+      "name": "CTop-left-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9643973417171205,
+        "y": 0.6532302682331923
+      }
+    },
+    {
+      "name": "CTop-diag-right-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.9796690187412089,
+        "y": 0.6534656255394768
+      }
+    },
+    {
+      "name": "CTop-right-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.995113875637263,
+        "y": 0.6532302682331907
+      }
+    },
+    {
+      "name": "HorizTop-2",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        120.24950317797152,
+        0.0,
+        0.0,
+        0.0,
+        13.259753632634101,
+        0.0,
+        892.8597963065916,
+        850.4870426063737,
+        1.0
+      ]
+    },
+    {
+      "name": "HTop-Inside-top-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8753996915499233,
+        "y": 0.6285645768116804
+      }
+    },
+    {
+      "name": "HTop-Inside-bot-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8753996915499269,
+        "y": 0.6131712162032232
+      }
+    },
+    {
+      "name": "HTop-Bottom-inside-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8742372625656414,
+        "y": 0.5982862741664027
+      }
+    },
+    {
+      "name": "HTop-Bottom-outside-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8745110186193079,
+        "y": 0.6038207847826441
+      }
+    },
+    {
+      "name": "HTop-Outside-bot-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8753996915499269,
+        "y": 0.6131712162032232
+      }
+    },
+    {
+      "name": "HTop-Outside-top-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8753996915499261,
+        "y": 0.6285645768116804
+      }
+    },
+    {
+      "name": "HTop-Top-outside-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8753995097950522,
+        "y": 0.6446433350880427
+      }
+    },
+    {
+      "name": "HTop-Top-inside-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.8753995097950518,
+        "y": 0.6600403436224267
+      }
+    },
+    {
+      "name": "Corner-3",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.70512409618926,
+        0.0,
+        -0.0,
+        -8.00906010485256e-16,
+        20.978846244720355,
+        -8.579310276759876e-17,
+        9.33531932811424,
+        1002.4015483380452,
+        1.0
+      ]
+    },
+    {
+      "name": "Left-3",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        29.212639094129752,
+        0.0,
+        0.0,
+        0.0,
+        28.809584211778883,
+        0.0,
+        15.038281688075788,
+        611.4166539904517,
+        1.0
+      ]
+    },
+    {
+      "name": "CLeft-top-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.733659512047065,
+        "y": 0.4255072658755718
+      }
+    },
+    {
+      "name": "CLeft-diag-left-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7335358315749242,
+        "y": 0.41004119015251866
+      }
+    },
+    {
+      "name": "CLeft-bot-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7337259261744582,
+        "y": 0.39472431782803835
+      }
+    },
+    {
+      "name": "CLeft-left-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7182292964489669,
+        "y": 0.40973391061929315
+      }
+    },
+    {
+      "name": "CLeft-diag-right-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7335584063037268,
+        "y": 0.4101369859268688
+      }
+    },
+    {
+      "name": "CLeft-right-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7489790374328066,
+        "y": 0.4097339106192984
+      }
+    },
+    {
+      "name": "Right-3",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        28.294711749216226,
+        0.0,
+        0.0,
+        0.0,
+        28.668768396063115,
+        0.0,
+        46.00283352876607,
+        611.2322211278816,
+        1.0
+      ]
+    },
+    {
+      "name": "CRight-top-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7672441033324602,
+        "y": 0.42555419783350273
+      }
+    },
+    {
+      "name": "CRight-diag-left-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7672069776014359,
+        "y": 0.41008048134246183
+      }
+    },
+    {
+      "name": "CRight-bot-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7673105174598538,
+        "y": 0.39477124978596656
+      }
+    },
+    {
+      "name": "CRight-left-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7517253355645155,
+        "y": 0.40973656649228524
+      }
+    },
+    {
+      "name": "CRight-diag-right-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7671528857151597,
+        "y": 0.4101369859585449
+      }
+    },
+    {
+      "name": "CRight-right-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7825746977394469,
+        "y": 0.40978084257721437
+      }
+    },
+    {
+      "name": "HorizBot-3",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "HBot-Outside-bottom-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.629273817111583,
+        "y": 0.40052404915086987
+      }
+    },
+    {
+      "name": "HBot-Outside-top-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.629273817111583,
+        "y": 0.41602067887634714
+      }
+    },
+    {
+      "name": "HBot-Inside-outside-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.6283882954129827,
+        "y": 0.4238354078664797
+      }
+    },
+    {
+      "name": "HBot-Inside-inside-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.6281115698821564,
+        "y": 0.4293699184827228
+      }
+    },
+    {
+      "name": "Column-3",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "C-Inside-right-left-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7134431909007588,
+        "y": 0.5120262365644829
+      }
+    },
+    {
+      "name": "C-Inside-right-right-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7189777015169992,
+        "y": 0.5120262365644852
+      }
+    },
+    {
+      "name": "C-Outside-left-left-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.724748602905586,
+        "y": 0.513553274724993
+      }
+    },
+    {
+      "name": "C-Outside-left-right-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7394743643981929,
+        "y": 0.5135532747250119
+      }
+    },
+    {
+      "name": "C-Outside-right-left-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7600437462163627,
+        "y": 0.5135529166317447
+      }
+    },
+    {
+      "name": "C-Outside-right-right-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7746881568884945,
+        "y": 0.5135529166317447
+      }
+    },
+    {
+      "name": "C-Inside-left-left-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.783124345456525,
+        "y": 0.5120253917016636
+      }
+    },
+    {
+      "name": "C-Inside-left-right-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7901526153191905,
+        "y": 0.5120253917016617
+      }
+    },
+    {
+      "name": "Corner-4",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        61.010339498054904,
+        -4.4676769118967644e-12,
+        -1.0023854163892088e-14,
+        -1.7424863825088197e-13,
+        62.37896095108896,
+        -1.048164077507644e-14,
+        16.624175736418636,
+        383.32553941865666,
+        1.0
+      ]
+    },
+    {
+      "name": "Left-4",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "CLeft-top-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7335793558304988,
+        "y": 0.6353511675799777
+      }
+    },
+    {
+      "name": "CLeft-diag-left-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.733367126516713,
+        "y": 0.6199674866624448
+      }
+    },
+    {
+      "name": "CLeft-bot-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7337011150640544,
+        "y": 0.604911359190651
+      }
+    },
+    {
+      "name": "CLeft-left-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7180013266008295,
+        "y": 0.6201312633853172
+      }
+    },
+    {
+      "name": "CLeft-diag-right-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7331758151014459,
+        "y": 0.6201955770667092
+      }
+    },
+    {
+      "name": "CLeft-Left-right-1",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7488153241719843,
+        "y": 0.6201312633853171
+      }
+    },
+    {
+      "name": "Right-4",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.705124096189408,
+        0.0,
+        0.0,
+        0.0,
+        20.978846244720444,
+        0.0,
+        54.71974137308496,
+        947.1712035514835,
+        1.0
+      ]
+    },
+    {
+      "name": "CRight-top-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7667290852215737,
+        "y": 0.6354062688861694
+      }
+    },
+    {
+      "name": "CRight-diag-left-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.766708312286802,
+        "y": 0.6202613404866905
+      }
+    },
+    {
+      "name": "CRight-bot-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7669504656462238,
+        "y": 0.60496646049684
+      }
+    },
+    {
+      "name": "CRight-left-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7513431457084191,
+        "y": 0.6201863646915069
+      }
+    },
+    {
+      "name": "CRight-diag-right-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7666148227325039,
+        "y": 0.6204217219977978
+      }
+    },
+    {
+      "name": "CRight-right-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7820596796285585,
+        "y": 0.6201863646915055
+      }
+    },
+    {
+      "name": "Top-4",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.705124096189408,
+        0.0,
+        0.0,
+        0.0,
+        20.978846244720444,
+        0.0,
+        54.71974137308496,
+        947.1712035514835,
+        1.0
+      ]
+    },
+    {
+      "name": "CTop-top-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7330484188415958,
+        "y": 0.668442966225246
+      }
+    },
+    {
+      "name": "CTop-diag-left-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7330276459068579,
+        "y": 0.6532980378258002
+      }
+    },
+    {
+      "name": "CTop-bot-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7332697992662442,
+        "y": 0.6380031578359197
+      }
+    },
+    {
+      "name": "CTop-left-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7176624793284377,
+        "y": 0.6532230620305859
+      }
+    },
+    {
+      "name": "CTop-diag-right-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7329341563525302,
+        "y": 0.6534584193368721
+      }
+    },
+    {
+      "name": "CTop-right-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.7483790132485765,
+        "y": 0.6532230620305848
+      }
+    },
+    {
+      "name": "HorizTop-4",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        120.24950317797152,
+        0.0,
+        0.0,
+        0.0,
+        13.259753632634101,
+        0.0,
+        892.8597963065916,
+        850.4870426063737,
+        1.0
+      ]
+    },
+    {
+      "name": "HTop-Inside-top-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.6284368738977331,
+        "y": 0.628564576811681
+      }
+    },
+    {
+      "name": "HTop-Inside-bot-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.628436873897738,
+        "y": 0.6131712162032238
+      }
+    },
+    {
+      "name": "HTop-Bottom-inside-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.6272744449134522,
+        "y": 0.5982862741664023
+      }
+    },
+    {
+      "name": "HTop-Bottom-outside-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.6275482009671194,
+        "y": 0.6038207847826436
+      }
+    },
+    {
+      "name": "HTop-Outside-bot-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.628436873897738,
+        "y": 0.6131712162032238
+      }
+    },
+    {
+      "name": "HTop-Outside-top-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.6284368738977375,
+        "y": 0.628564576811681
+      }
+    },
+    {
+      "name": "HTop-Top-outside-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.6284366921428617,
+        "y": 0.6446433350880427
+      }
+    },
+    {
+      "name": "HTop-Top-inside-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.628436692142861,
+        "y": 0.6600403436224268
+      }
+    },
+    {
+      "name": "Corner-5",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.70512409618926,
+        0.0,
+        -0.0,
+        -8.00906010485256e-16,
+        20.978846244720355,
+        -8.579310276759876e-17,
+        9.33531932811424,
+        1002.4015483380452,
+        1.0
+      ]
+    },
+    {
+      "name": "Left-5",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        29.212639094129752,
+        0.0,
+        0.0,
+        0.0,
+        28.809584211778883,
+        0.0,
+        15.038281688075788,
+        611.4166539904517,
+        1.0
+      ]
+    },
+    {
+      "name": "CLeft-top-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4884400314087113,
+        "y": 0.42598369658057506
+      }
+    },
+    {
+      "name": "CLeft-diag-left-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4883187369722674,
+        "y": 0.41051024201429753
+      }
+    },
+    {
+      "name": "CLeft-bot-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.48850644553610734,
+        "y": 0.39520074853303816
+      }
+    },
+    {
+      "name": "CLeft-left-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.47301420665351307,
+        "y": 0.4102085240856704
+      }
+    },
+    {
+      "name": "CLeft-diag-right-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4883427971944342,
+        "y": 0.41055760756143317
+      }
+    },
+    {
+      "name": "CLeft-right-2",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5037595567944578,
+        "y": 0.41021034132431805
+      }
+    },
+    {
+      "name": "Right-5",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        28.294711749216226,
+        0.0,
+        0.0,
+        0.0,
+        28.668768396063115,
+        0.0,
+        46.00283352876607,
+        611.2322211278816,
+        1.0
+      ]
+    },
+    {
+      "name": "CRight-top-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5217535042904291,
+        "y": 0.4256067041903543
+      }
+    },
+    {
+      "name": "CRight-diag-left-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5217203966645253,
+        "y": 0.4105074946042592
+      }
+    },
+    {
+      "name": "CRight-bot-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.521822413853448,
+        "y": 0.3950983647360274
+      }
+    },
+    {
+      "name": "CRight-left-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5062352006823538,
+        "y": 0.41024991546030515
+      }
+    },
+    {
+      "name": "CRight-diag-right-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5216662105738682,
+        "y": 0.41042602132986766
+      }
+    },
+    {
+      "name": "CRight-right-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5370854911770256,
+        "y": 0.41035405709186457
+      }
+    },
+    {
+      "name": "HorizBot-5",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "HBot-Outside-bottom-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.3846853203031304,
+        "y": 0.40052404915086987
+      }
+    },
+    {
+      "name": "HBot-Outside-top-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.38468532030313063,
+        "y": 0.41602067887634714
+      }
+    },
+    {
+      "name": "HBot-Inside-outside-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.38379979860453517,
+        "y": 0.4238354078664795
+      }
+    },
+    {
+      "name": "HBot-Inside-inside-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.3835230730737127,
+        "y": 0.4293699184827228
+      }
+    },
+    {
+      "name": "Column-5",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "C-Inside-right-left-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4680998015610421,
+        "y": 0.5116038061790609
+      }
+    },
+    {
+      "name": "C-Inside-right-right-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4736343121772839,
+        "y": 0.5116038061790629
+      }
+    },
+    {
+      "name": "C-Outside-left-left-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4781011065692608,
+        "y": 0.5131308443395695
+      }
+    },
+    {
+      "name": "C-Outside-left-right-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4935008692880775,
+        "y": 0.5131308443396017
+      }
+    },
+    {
+      "name": "C-Outside-right-left-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5153288521255858,
+        "y": 0.513130486246322
+      }
+    },
+    {
+      "name": "C-Outside-right-right-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5293447675487806,
+        "y": 0.513130486246322
+      }
+    },
+    {
+      "name": "C-Inside-left-left-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5377809561168091,
+        "y": 0.5116029613162418
+      }
+    },
+    {
+      "name": "C-Inside-left-right-5",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5448092259794739,
+        "y": 0.5116029613162398
+      }
+    },
+    {
+      "name": "Corner-6",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        61.010339498054904,
+        -4.4676769118967644e-12,
+        -1.0023854163892088e-14,
+        -1.7424863825088197e-13,
+        62.37896095108896,
+        -1.048164077507644e-14,
+        16.624175736418636,
+        383.32553941865666,
+        1.0
+      ]
+    },
+    {
+      "name": "Left-6",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "CLeft-top-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4875564931611252,
+        "y": 0.6353511675799774
+      }
+    },
+    {
+      "name": "CLeft-diag-left-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.48734426384735213,
+        "y": 0.6199674866624498
+      }
+    },
+    {
+      "name": "CLeft-bot-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.48767825239468104,
+        "y": 0.6049113591906506
+      }
+    },
+    {
+      "name": "CLeft-left-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.47197846393145404,
+        "y": 0.6201312633853171
+      }
+    },
+    {
+      "name": "CLeft-diag-right-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4871529524320788,
+        "y": 0.6201955770667043
+      }
+    },
+    {
+      "name": "CLeft-Left-right-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5027924615026103,
+        "y": 0.6201312633853164
+      }
+    },
+    {
+      "name": "Right-6",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.705124096189408,
+        0.0,
+        0.0,
+        0.0,
+        20.978846244720444,
+        0.0,
+        54.71974137308496,
+        947.1712035514835,
+        1.0
+      ]
+    },
+    {
+      "name": "CRight-top-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5205096679672905,
+        "y": 0.6354062688861687
+      }
+    },
+    {
+      "name": "CRight-diag-left-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5204888950325115,
+        "y": 0.6202613404866832
+      }
+    },
+    {
+      "name": "CRight-bot-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5207310483919398,
+        "y": 0.6049664604968408
+      }
+    },
+    {
+      "name": "CRight-left-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5051237284541361,
+        "y": 0.620186364691507
+      }
+    },
+    {
+      "name": "CRight-diag-right-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5203954054782243,
+        "y": 0.6204217219977924
+      }
+    },
+    {
+      "name": "CRight-right-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5358402623742744,
+        "y": 0.6201863646915069
+      }
+    },
+    {
+      "name": "Top-6",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.705124096189408,
+        0.0,
+        0.0,
+        0.0,
+        20.978846244720444,
+        0.0,
+        54.71974137308496,
+        947.1712035514835,
+        1.0
+      ]
+    },
+    {
+      "name": "CTop-top-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4867629832534487,
+        "y": 0.6684429662252459
+      }
+    },
+    {
+      "name": "CTop-diag-left-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4867422103187172,
+        "y": 0.6532980378258071
+      }
+    },
+    {
+      "name": "CTop-bot-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.4869843636780973,
+        "y": 0.6380031578359197
+      }
+    },
+    {
+      "name": "CTop-left-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.47137704374029077,
+        "y": 0.6532230620305859
+      }
+    },
+    {
+      "name": "CTop-diag-right-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.48664872076438714,
+        "y": 0.6534584193368658
+      }
+    },
+    {
+      "name": "CTop-right-3",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.5020935776604303,
+        "y": 0.6532230620305856
+      }
+    },
+    {
+      "name": "HorizTop-6",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        120.24950317797152,
+        0.0,
+        0.0,
+        0.0,
+        13.259753632634101,
+        0.0,
+        892.8597963065916,
+        850.4870426063737,
+        1.0
+      ]
+    },
+    {
+      "name": "HTop-Inside-top-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.38284456008718404,
+        "y": 0.628564576811681
+      }
+    },
+    {
+      "name": "HTop-Inside-bot-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.3828445600871898,
+        "y": 0.6131712162032235
+      }
+    },
+    {
+      "name": "HTop-Bottom-inside-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.3816821311029024,
+        "y": 0.5982862741664028
+      }
+    },
+    {
+      "name": "HTop-Bottom-outside-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.38195588715657086,
+        "y": 0.603820784782643
+      }
+    },
+    {
+      "name": "HTop-Outside-bot-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.3828445600871898,
+        "y": 0.6131712162032235
+      }
+    },
+    {
+      "name": "HTop-Outside-top-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.3828445600871899,
+        "y": 0.6285645768116807
+      }
+    },
+    {
+      "name": "HTop-Top-outside-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.3828443783323142,
+        "y": 0.6446433350880417
+      }
+    },
+    {
+      "name": "HTop-Top-inside-6",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.38284437833231433,
+        "y": 0.6600403436224256
+      }
+    },
+    {
+      "name": "Corner-7",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.70512409618926,
+        0.0,
+        -0.0,
+        -8.00906010485256e-16,
+        20.978846244720355,
+        -8.579310276759876e-17,
+        9.33531932811424,
+        1002.4015483380452,
+        1.0
+      ]
+    },
+    {
+      "name": "Left-7",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        29.212639094129752,
+        0.0,
+        0.0,
+        0.0,
+        28.809584211778883,
+        0.0,
+        15.038281688075788,
+        611.4166539904517,
+        1.0
+      ]
+    },
+    {
+      "name": "CLeft-top-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24334970029148173,
+        "y": 0.4255072658755718
+      }
+    },
+    {
+      "name": "CLeft-diag-left-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24322601981934322,
+        "y": 0.41004119015250107
+      }
+    },
+    {
+      "name": "CLeft-bot-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24341611441887595,
+        "y": 0.39472431782803835
+      }
+    },
+    {
+      "name": "CLeft-left-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.22791948469338455,
+        "y": 0.4097339106192945
+      }
+    },
+    {
+      "name": "CLeft-diag-right-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24324859454814973,
+        "y": 0.41013698592685927
+      }
+    },
+    {
+      "name": "CLeft-right-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2586692256772216,
+        "y": 0.40973391061929804
+      }
+    },
+    {
+      "name": "Right-7",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        28.294711749216226,
+        0.0,
+        0.0,
+        0.0,
+        28.668768396063115,
+        0.0,
+        46.00283352876607,
+        611.2322211278816,
+        1.0
+      ]
+    },
+    {
+      "name": "CRight-top-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2769342915768751,
+        "y": 0.42555419783350207
+      }
+    },
+    {
+      "name": "CRight-diag-left-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2768971658458315,
+        "y": 0.4100804813424249
+      }
+    },
+    {
+      "name": "CRight-bot-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.27700070570426893,
+        "y": 0.39477124978596656
+      }
+    },
+    {
+      "name": "CRight-left-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2614155238089297,
+        "y": 0.4097365664922847
+      }
+    },
+    {
+      "name": "CRight-diag-right-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2768430739595715,
+        "y": 0.4101369859585451
+      }
+    },
+    {
+      "name": "CRight-right-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.29226488598386113,
+        "y": 0.4097808425772144
+      }
+    },
+    {
+      "name": "HorizBot-7",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "HBot-Outside-bottom-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13837027397593055,
+        "y": 0.39979530641025773
+      }
+    },
+    {
+      "name": "HBot-Outside-top-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13837027397593094,
+        "y": 0.41529193613573434
+      }
+    },
+    {
+      "name": "HBot-Inside-outside-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13748475227733437,
+        "y": 0.42310666512586764
+      }
+    },
+    {
+      "name": "HBot-Inside-inside-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13720802674652124,
+        "y": 0.4286411757421096
+      }
+    },
+    {
+      "name": "Column-7",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "C-Inside-right-left-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.22275641222132517,
+        "y": 0.5116038061790615
+      }
+    },
+    {
+      "name": "C-Inside-right-right-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.22829092283756855,
+        "y": 0.5116038061790621
+      }
+    },
+    {
+      "name": "C-Outside-left-left-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.23452679124437517,
+        "y": 0.5131308443395698
+      }
+    },
+    {
+      "name": "C-Outside-left-right-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.25023519514119996,
+        "y": 0.5131308443395958
+      }
+    },
+    {
+      "name": "C-Outside-right-left-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2707503220623365,
+        "y": 0.513130486246323
+      }
+    },
+    {
+      "name": "C-Outside-right-right-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2857226394126839,
+        "y": 0.5131304862463237
+      }
+    },
+    {
+      "name": "C-Inside-left-left-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.29243756677709287,
+        "y": 0.5116029613162416
+      }
+    },
+    {
+      "name": "C-Inside-left-right-7",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2994658366397575,
+        "y": 0.5116029613162406
+      }
+    },
+    {
+      "name": "Corner-8",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        61.010339498054904,
+        -4.4676769118967644e-12,
+        -1.0023854163892088e-14,
+        -1.7424863825088197e-13,
+        62.37896095108896,
+        -1.048164077507644e-14,
+        16.624175736418636,
+        383.32553941865666,
+        1.0
+      ]
+    },
+    {
+      "name": "Left-8",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "CLeft-top-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24332251033968788,
+        "y": 0.6353511675799778
+      }
+    },
+    {
+      "name": "CLeft-diag-left-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24311028102591375,
+        "y": 0.6199674866624475
+      }
+    },
+    {
+      "name": "CLeft-bot-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24344426957324405,
+        "y": 0.6049113591906504
+      }
+    },
+    {
+      "name": "CLeft-left-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2277444811100174,
+        "y": 0.6201312633853169
+      }
+    },
+    {
+      "name": "CLeft-diag-right-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2429189696106493,
+        "y": 0.6201955770666963
+      }
+    },
+    {
+      "name": "CLeft-Left-right-4",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.25855847868117354,
+        "y": 0.6201312633853168
+      }
+    },
+    {
+      "name": "Right-8",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.705124096189408,
+        0.0,
+        0.0,
+        0.0,
+        20.978846244720444,
+        0.0,
+        54.71974137308496,
+        947.1712035514835,
+        1.0
+      ]
+    },
+    {
+      "name": "CRight-top-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2761923286637024,
+        "y": 0.6354062688861688
+      }
+    },
+    {
+      "name": "CRight-diag-left-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2761715557289452,
+        "y": 0.6202613404867068
+      }
+    },
+    {
+      "name": "CRight-bot-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.27641370908835344,
+        "y": 0.6049664604968409
+      }
+    },
+    {
+      "name": "CRight-left-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2608063891505485,
+        "y": 0.6201863646915069
+      }
+    },
+    {
+      "name": "CRight-diag-right-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2760780661746382,
+        "y": 0.6204217219977911
+      }
+    },
+    {
+      "name": "CRight-right-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2915229230706881,
+        "y": 0.6201863646915067
+      }
+    },
+    {
+      "name": "Top-8",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        20.705124096189408,
+        0.0,
+        0.0,
+        0.0,
+        20.978846244720444,
+        0.0,
+        54.71974137308496,
+        947.1712035514835,
+        1.0
+      ]
+    },
+    {
+      "name": "CTop-top-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24234191143874145,
+        "y": 0.668442966225246
+      }
+    },
+    {
+      "name": "CTop-diag-left-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24232113850402073,
+        "y": 0.6532980378258165
+      }
+    },
+    {
+      "name": "CTop-bot-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24256329186339007,
+        "y": 0.6380031578359181
+      }
+    },
+    {
+      "name": "CTop-left-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.22695597192558314,
+        "y": 0.6532230620305856
+      }
+    },
+    {
+      "name": "CTop-diag-right-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.24222764894968482,
+        "y": 0.6534584193368617
+      }
+    },
+    {
+      "name": "CTop-right-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.2576725058457212,
+        "y": 0.6532230620305857
+      }
+    },
+    {
+      "name": "HorizTop-8",
+      "type": "surface",
+      "positionUv": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "perspectiveUv": [
+        120.24950317797152,
+        0.0,
+        0.0,
+        0.0,
+        13.259753632634101,
+        0.0,
+        892.8597963065916,
+        850.4870426063737,
+        1.0
+      ]
+    },
+    {
+      "name": "HTop-Inside-top-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13903063082035988,
+        "y": 0.6285645768116807
+      }
+    },
+    {
+      "name": "HTop-Inside-bot-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13903063082036482,
+        "y": 0.613171216203222
+      }
+    },
+    {
+      "name": "HTop-Bottom-inside-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13786820183607862,
+        "y": 0.5982862741664031
+      }
+    },
+    {
+      "name": "HTop-Bottom-outside-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.1381419578897468,
+        "y": 0.6038207847826433
+      }
+    },
+    {
+      "name": "HTop-Outside-bot-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13903063082036482,
+        "y": 0.613171216203222
+      }
+    },
+    {
+      "name": "HTop-Outside-top-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13903063082036532,
+        "y": 0.628564576811681
+      }
+    },
+    {
+      "name": "HTop-Top-outside-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13903044906548978,
+        "y": 0.644643335088042
+      }
+    },
+    {
+      "name": "HTop-Top-inside-8",
+      "type": "fixture",
+      "positionUv": {
+        "x": 0.13903044906549014,
+        "y": 0.6600403436224263
+      }
+    }
+  ]
+}

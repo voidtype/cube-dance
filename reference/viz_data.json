@@ -1,0 +1,1994 @@
+{
+  "fixtures": [
+    {
+      "name": "CLeft-top-1",
+      "x": 0.9793763307762633,
+      "y": 0.42453972887749575,
+      "universe": 0,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-left-1",
+      "x": 0.9788823505123211,
+      "y": 0.40949729317816297,
+      "universe": 0,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-bot-1",
+      "x": 0.9792487563038246,
+      "y": 0.3936772922996286,
+      "universe": 0,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-left-1",
+      "x": 0.9638138565797538,
+      "y": 0.40904149936209083,
+      "universe": 0,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-right-1",
+      "x": 0.9789346271841949,
+      "y": 0.4091060150969277,
+      "universe": 0,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-right-1",
+      "x": 0.9947931400216751,
+      "y": 0.4093224865640805,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-top-1",
+      "x": 0.029764016056603004,
+      "y": 0.42581252266480063,
+      "universe": 0,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-left-1",
+      "x": 0.029730908430704105,
+      "y": 0.41071331307871667,
+      "universe": 0,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-bot-1",
+      "x": 0.02983292561962317,
+      "y": 0.39530418321047206,
+      "universe": 1,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-left-1",
+      "x": 0.014245712448530151,
+      "y": 0.41045573393475066,
+      "universe": 1,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-right-1",
+      "x": 0.02967672234004803,
+      "y": 0.41063183980430595,
+      "universe": 1,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-right-1",
+      "x": 0.04509600294320018,
+      "y": 0.4105598755663095,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "HBot-Outside-bottom-1",
+      "x": 0.8753995097950514,
+      "y": 0.4014237315466893,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Outside-top-1",
+      "x": 0.8753995097950514,
+      "y": 0.416920361272165,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Inside-outside-1",
+      "x": 0.8745139880964556,
+      "y": 0.42473509026229905,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Inside-inside-1",
+      "x": 0.8742372625656359,
+      "y": 0.4302696008785397,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "C-Inside-right-left-1",
+      "x": 0.9580821289245548,
+      "y": 0.5120262365644831,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-right-right-1",
+      "x": 0.9636166395407982,
+      "y": 0.5120262365644982,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-left-left-1",
+      "x": 0.9717539960467522,
+      "y": 0.5135532747249933,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-left-right-1",
+      "x": 0.9855476867583368,
+      "y": 0.5135532747249956,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-right-left-1",
+      "x": 0.024987761796753077,
+      "y": 0.5135529166317442,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-right-right-1",
+      "x": 0.04002637250895813,
+      "y": 0.5135529166317453,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-left-left-1",
+      "x": 0.048858077682635725,
+      "y": 0.5120253917016624,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-left-right-1",
+      "x": 0.05495746574924784,
+      "y": 0.5114941382437415,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "CLeft-top-2",
+      "x": 0.9800928021313227,
+      "y": 0.6353511675799778,
+      "universe": 9,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-left-2",
+      "x": 0.9798805728175535,
+      "y": 0.6199674866624625,
+      "universe": 10,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-bot-2",
+      "x": 0.9802145613648781,
+      "y": 0.604911359190651,
+      "universe": 10,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-left-2",
+      "x": 0.9645147729016512,
+      "y": 0.6201312633853169,
+      "universe": 10,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-right-2",
+      "x": 0.9796892614022646,
+      "y": 0.6201955770667116,
+      "universe": 10,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-Left-right-2",
+      "x": 0.995328770472809,
+      "y": 0.6201312633853165,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-top-2",
+      "x": 0.02954263563195393,
+      "y": 0.6354104067733101,
+      "universe": 10,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-left-2",
+      "x": 0.029521862697189517,
+      "y": 0.6202654783738575,
+      "universe": 10,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-bot-2",
+      "x": 0.02976401605660267,
+      "y": 0.6049705983839815,
+      "universe": 10,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-left-2",
+      "x": 0.014156696118800632,
+      "y": 0.620190502578647,
+      "universe": 11,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-right-2",
+      "x": 0.02942837314288645,
+      "y": 0.620425859884928,
+      "universe": 11,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-right-2",
+      "x": 0.04487323003894167,
+      "y": 0.6201905025786466,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-top-2",
+      "x": 0.979783281230277,
+      "y": 0.6684501724278514,
+      "universe": 11,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-diag-left-2",
+      "x": 0.9797625082955309,
+      "y": 0.6533052440283976,
+      "universe": 11,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-bot-2",
+      "x": 0.9800046616549248,
+      "y": 0.6380103640385242,
+      "universe": 11,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-left-2",
+      "x": 0.9643973417171205,
+      "y": 0.6532302682331923,
+      "universe": 11,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-diag-right-2",
+      "x": 0.9796690187412089,
+      "y": 0.6534656255394768,
+      "universe": 11,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-right-2",
+      "x": 0.995113875637263,
+      "y": 0.6532302682331907,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "HTop-Inside-top-2",
+      "x": 0.8753996915499233,
+      "y": 0.6285645768116804,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Inside-bot-2",
+      "x": 0.8753996915499269,
+      "y": 0.6131712162032232,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Bottom-inside-2",
+      "x": 0.8742372625656414,
+      "y": 0.5982862741664027,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Bottom-outside-2",
+      "x": 0.8745110186193079,
+      "y": 0.6038207847826441,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Outside-bot-2",
+      "x": 0.8753996915499269,
+      "y": 0.6131712162032232,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Outside-top-2",
+      "x": 0.8753996915499261,
+      "y": 0.6285645768116804,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Top-outside-2",
+      "x": 0.8753995097950522,
+      "y": 0.6446433350880427,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Top-inside-2",
+      "x": 0.8753995097950518,
+      "y": 0.6600403436224267,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "CLeft-top-3",
+      "x": 0.733659512047065,
+      "y": 0.4255072658755718,
+      "universe": 17,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-left-3",
+      "x": 0.7335358315749242,
+      "y": 0.41004119015251866,
+      "universe": 17,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-bot-3",
+      "x": 0.7337259261744582,
+      "y": 0.39472431782803835,
+      "universe": 17,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-left-3",
+      "x": 0.7182292964489669,
+      "y": 0.40973391061929315,
+      "universe": 18,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-right-3",
+      "x": 0.7335584063037268,
+      "y": 0.4101369859268688,
+      "universe": 18,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-right-3",
+      "x": 0.7489790374328066,
+      "y": 0.4097339106192984,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-top-3",
+      "x": 0.7672441033324602,
+      "y": 0.42555419783350273,
+      "universe": 18,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-left-3",
+      "x": 0.7672069776014359,
+      "y": 0.41008048134246183,
+      "universe": 18,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-bot-3",
+      "x": 0.7673105174598538,
+      "y": 0.39477124978596656,
+      "universe": 18,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-left-3",
+      "x": 0.7517253355645155,
+      "y": 0.40973656649228524,
+      "universe": 18,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-right-3",
+      "x": 0.7671528857151597,
+      "y": 0.4101369859585449,
+      "universe": 18,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-right-3",
+      "x": 0.7825746977394469,
+      "y": 0.40978084257721437,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "HBot-Outside-bottom-3",
+      "x": 0.629273817111583,
+      "y": 0.40052404915086987,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Outside-top-3",
+      "x": 0.629273817111583,
+      "y": 0.41602067887634714,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Inside-outside-3",
+      "x": 0.6283882954129827,
+      "y": 0.4238354078664797,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Inside-inside-3",
+      "x": 0.6281115698821564,
+      "y": 0.4293699184827228,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "C-Inside-right-left-3",
+      "x": 0.7134431909007588,
+      "y": 0.5120262365644829,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-right-right-3",
+      "x": 0.7189777015169992,
+      "y": 0.5120262365644852,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-left-left-3",
+      "x": 0.724748602905586,
+      "y": 0.513553274724993,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-left-right-3",
+      "x": 0.7394743643981929,
+      "y": 0.5135532747250119,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-right-left-3",
+      "x": 0.7600437462163627,
+      "y": 0.5135529166317447,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-right-right-3",
+      "x": 0.7746881568884945,
+      "y": 0.5135529166317447,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-left-left-3",
+      "x": 0.783124345456525,
+      "y": 0.5120253917016636,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-left-right-3",
+      "x": 0.7901526153191905,
+      "y": 0.5120253917016617,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "CLeft-top-4",
+      "x": 0.7335793558304988,
+      "y": 0.6353511675799777,
+      "universe": 27,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-left-4",
+      "x": 0.733367126516713,
+      "y": 0.6199674866624448,
+      "universe": 27,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-bot-4",
+      "x": 0.7337011150640544,
+      "y": 0.604911359190651,
+      "universe": 27,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-left-4",
+      "x": 0.7180013266008295,
+      "y": 0.6201312633853172,
+      "universe": 27,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-right-4",
+      "x": 0.7331758151014459,
+      "y": 0.6201955770667092,
+      "universe": 28,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-Left-right-1",
+      "x": 0.7488153241719843,
+      "y": 0.6201312633853171,
+      "universe": 0,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-top-4",
+      "x": 0.7667290852215737,
+      "y": 0.6354062688861694,
+      "universe": 28,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-left-4",
+      "x": 0.766708312286802,
+      "y": 0.6202613404866905,
+      "universe": 28,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-bot-4",
+      "x": 0.7669504656462238,
+      "y": 0.60496646049684,
+      "universe": 28,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-left-4",
+      "x": 0.7513431457084191,
+      "y": 0.6201863646915069,
+      "universe": 28,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-right-4",
+      "x": 0.7666148227325039,
+      "y": 0.6204217219977978,
+      "universe": 28,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-right-4",
+      "x": 0.7820596796285585,
+      "y": 0.6201863646915055,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-top-4",
+      "x": 0.7330484188415958,
+      "y": 0.668442966225246,
+      "universe": 28,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-diag-left-4",
+      "x": 0.7330276459068579,
+      "y": 0.6532980378258002,
+      "universe": 29,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-bot-4",
+      "x": 0.7332697992662442,
+      "y": 0.6380031578359197,
+      "universe": 29,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-left-4",
+      "x": 0.7176624793284377,
+      "y": 0.6532230620305859,
+      "universe": 29,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-diag-right-4",
+      "x": 0.7329341563525302,
+      "y": 0.6534584193368721,
+      "universe": 29,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-right-4",
+      "x": 0.7483790132485765,
+      "y": 0.6532230620305848,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "HTop-Inside-top-4",
+      "x": 0.6284368738977331,
+      "y": 0.628564576811681,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Inside-bot-4",
+      "x": 0.628436873897738,
+      "y": 0.6131712162032238,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Bottom-inside-4",
+      "x": 0.6272744449134522,
+      "y": 0.5982862741664023,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Bottom-outside-4",
+      "x": 0.6275482009671194,
+      "y": 0.6038207847826436,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Outside-bot-4",
+      "x": 0.628436873897738,
+      "y": 0.6131712162032238,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Outside-top-4",
+      "x": 0.6284368738977375,
+      "y": 0.628564576811681,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Top-outside-4",
+      "x": 0.6284366921428617,
+      "y": 0.6446433350880427,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Top-inside-4",
+      "x": 0.628436692142861,
+      "y": 0.6600403436224268,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "CLeft-top-5",
+      "x": 0.4884400314087113,
+      "y": 0.42598369658057506,
+      "universe": 35,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-left-5",
+      "x": 0.4883187369722674,
+      "y": 0.41051024201429753,
+      "universe": 35,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-bot-5",
+      "x": 0.48850644553610734,
+      "y": 0.39520074853303816,
+      "universe": 35,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-left-5",
+      "x": 0.47301420665351307,
+      "y": 0.4102085240856704,
+      "universe": 35,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-right-5",
+      "x": 0.4883427971944342,
+      "y": 0.41055760756143317,
+      "universe": 35,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-right-2",
+      "x": 0.5037595567944578,
+      "y": 0.41021034132431805,
+      "universe": 9,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-top-5",
+      "x": 0.5217535042904291,
+      "y": 0.4256067041903543,
+      "universe": 35,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-left-5",
+      "x": 0.5217203966645253,
+      "y": 0.4105074946042592,
+      "universe": 36,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-bot-5",
+      "x": 0.521822413853448,
+      "y": 0.3950983647360274,
+      "universe": 36,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-left-5",
+      "x": 0.5062352006823538,
+      "y": 0.41024991546030515,
+      "universe": 36,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-right-5",
+      "x": 0.5216662105738682,
+      "y": 0.41042602132986766,
+      "universe": 36,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-right-5",
+      "x": 0.5370854911770256,
+      "y": 0.41035405709186457,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "HBot-Outside-bottom-5",
+      "x": 0.3846853203031304,
+      "y": 0.40052404915086987,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Outside-top-5",
+      "x": 0.38468532030313063,
+      "y": 0.41602067887634714,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Inside-outside-5",
+      "x": 0.38379979860453517,
+      "y": 0.4238354078664795,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Inside-inside-5",
+      "x": 0.3835230730737127,
+      "y": 0.4293699184827228,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "C-Inside-right-left-5",
+      "x": 0.4680998015610421,
+      "y": 0.5116038061790609,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-right-right-5",
+      "x": 0.4736343121772839,
+      "y": 0.5116038061790629,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-left-left-5",
+      "x": 0.4781011065692608,
+      "y": 0.5131308443395695,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-left-right-5",
+      "x": 0.4935008692880775,
+      "y": 0.5131308443396017,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-right-left-5",
+      "x": 0.5153288521255858,
+      "y": 0.513130486246322,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-right-right-5",
+      "x": 0.5293447675487806,
+      "y": 0.513130486246322,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-left-left-5",
+      "x": 0.5377809561168091,
+      "y": 0.5116029613162418,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-left-right-5",
+      "x": 0.5448092259794739,
+      "y": 0.5116029613162398,
+      "universe": 35,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "CLeft-top-6",
+      "x": 0.4875564931611252,
+      "y": 0.6353511675799774,
+      "universe": 45,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-left-6",
+      "x": 0.48734426384735213,
+      "y": 0.6199674866624498,
+      "universe": 45,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-bot-6",
+      "x": 0.48767825239468104,
+      "y": 0.6049113591906506,
+      "universe": 45,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-left-6",
+      "x": 0.47197846393145404,
+      "y": 0.6201312633853171,
+      "universe": 45,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-right-6",
+      "x": 0.4871529524320788,
+      "y": 0.6201955770667043,
+      "universe": 45,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-Left-right-3",
+      "x": 0.5027924615026103,
+      "y": 0.6201312633853164,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-top-6",
+      "x": 0.5205096679672905,
+      "y": 0.6354062688861687,
+      "universe": 45,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-left-6",
+      "x": 0.5204888950325115,
+      "y": 0.6202613404866832,
+      "universe": 45,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-bot-6",
+      "x": 0.5207310483919398,
+      "y": 0.6049664604968408,
+      "universe": 46,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-left-6",
+      "x": 0.5051237284541361,
+      "y": 0.620186364691507,
+      "universe": 46,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-right-6",
+      "x": 0.5203954054782243,
+      "y": 0.6204217219977924,
+      "universe": 46,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-right-6",
+      "x": 0.5358402623742744,
+      "y": 0.6201863646915069,
+      "universe": 45,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-top-6",
+      "x": 0.4867629832534487,
+      "y": 0.6684429662252459,
+      "universe": 46,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-diag-left-6",
+      "x": 0.4867422103187172,
+      "y": 0.6532980378258071,
+      "universe": 46,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-bot-6",
+      "x": 0.4869843636780973,
+      "y": 0.6380031578359197,
+      "universe": 46,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-left-6",
+      "x": 0.47137704374029077,
+      "y": 0.6532230620305859,
+      "universe": 46,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-diag-right-6",
+      "x": 0.48664872076438714,
+      "y": 0.6534584193368658,
+      "universe": 47,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-right-3",
+      "x": 0.5020935776604303,
+      "y": 0.6532230620305856,
+      "universe": 17,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "HTop-Inside-top-6",
+      "x": 0.38284456008718404,
+      "y": 0.628564576811681,
+      "universe": 45,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Inside-bot-6",
+      "x": 0.3828445600871898,
+      "y": 0.6131712162032235,
+      "universe": 45,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Bottom-inside-6",
+      "x": 0.3816821311029024,
+      "y": 0.5982862741664028,
+      "universe": 45,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Bottom-outside-6",
+      "x": 0.38195588715657086,
+      "y": 0.603820784782643,
+      "universe": 45,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Outside-bot-6",
+      "x": 0.3828445600871898,
+      "y": 0.6131712162032235,
+      "universe": 45,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Outside-top-6",
+      "x": 0.3828445600871899,
+      "y": 0.6285645768116807,
+      "universe": 45,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Top-outside-6",
+      "x": 0.3828443783323142,
+      "y": 0.6446433350880417,
+      "universe": 45,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Top-inside-6",
+      "x": 0.38284437833231433,
+      "y": 0.6600403436224256,
+      "universe": 45,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "CLeft-top-7",
+      "x": 0.24334970029148173,
+      "y": 0.4255072658755718,
+      "universe": 52,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-left-7",
+      "x": 0.24322601981934322,
+      "y": 0.41004119015250107,
+      "universe": 53,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-bot-7",
+      "x": 0.24341611441887595,
+      "y": 0.39472431782803835,
+      "universe": 53,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-left-7",
+      "x": 0.22791948469338455,
+      "y": 0.4097339106192945,
+      "universe": 53,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-right-7",
+      "x": 0.24324859454814973,
+      "y": 0.41013698592685927,
+      "universe": 53,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-right-4",
+      "x": 0.2586692256772216,
+      "y": 0.40973391061929804,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-top-7",
+      "x": 0.2769342915768751,
+      "y": 0.42555419783350207,
+      "universe": 53,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-left-7",
+      "x": 0.2768971658458315,
+      "y": 0.4100804813424249,
+      "universe": 53,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-bot-7",
+      "x": 0.27700070570426893,
+      "y": 0.39477124978596656,
+      "universe": 53,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-left-7",
+      "x": 0.2614155238089297,
+      "y": 0.4097365664922847,
+      "universe": 53,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-right-7",
+      "x": 0.2768430739595715,
+      "y": 0.4101369859585451,
+      "universe": 54,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-right-7",
+      "x": 0.29226488598386113,
+      "y": 0.4097808425772144,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "HBot-Outside-bottom-7",
+      "x": 0.13837027397593055,
+      "y": 0.39979530641025773,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Outside-top-7",
+      "x": 0.13837027397593094,
+      "y": 0.41529193613573434,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Inside-outside-7",
+      "x": 0.13748475227733437,
+      "y": 0.42310666512586764,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HBot-Inside-inside-7",
+      "x": 0.13720802674652124,
+      "y": 0.4286411757421096,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "C-Inside-right-left-7",
+      "x": 0.22275641222132517,
+      "y": 0.5116038061790615,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-right-right-7",
+      "x": 0.22829092283756855,
+      "y": 0.5116038061790621,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-left-left-7",
+      "x": 0.23452679124437517,
+      "y": 0.5131308443395698,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-left-right-7",
+      "x": 0.25023519514119996,
+      "y": 0.5131308443395958,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-right-left-7",
+      "x": 0.2707503220623365,
+      "y": 0.513130486246323,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Outside-right-right-7",
+      "x": 0.2857226394126839,
+      "y": 0.5131304862463237,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-left-left-7",
+      "x": 0.29243756677709287,
+      "y": 0.5116029613162416,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "C-Inside-left-right-7",
+      "x": 0.2994658366397575,
+      "y": 0.5116029613162406,
+      "universe": 52,
+      "ledCount": 0,
+      "orientation": "horizontal",
+      "category": "column"
+    },
+    {
+      "name": "CLeft-top-8",
+      "x": 0.24332251033968788,
+      "y": 0.6353511675799778,
+      "universe": 62,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-left-8",
+      "x": 0.24311028102591375,
+      "y": 0.6199674866624475,
+      "universe": 62,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-bot-8",
+      "x": 0.24344426957324405,
+      "y": 0.6049113591906504,
+      "universe": 62,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-left-8",
+      "x": 0.2277444811100174,
+      "y": 0.6201312633853169,
+      "universe": 63,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-diag-right-8",
+      "x": 0.2429189696106493,
+      "y": 0.6201955770666963,
+      "universe": 63,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CLeft-Left-right-4",
+      "x": 0.25855847868117354,
+      "y": 0.6201312633853168,
+      "universe": 27,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-top-8",
+      "x": 0.2761923286637024,
+      "y": 0.6354062688861688,
+      "universe": 63,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-left-8",
+      "x": 0.2761715557289452,
+      "y": 0.6202613404867068,
+      "universe": 63,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-bot-8",
+      "x": 0.27641370908835344,
+      "y": 0.6049664604968409,
+      "universe": 63,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-left-8",
+      "x": 0.2608063891505485,
+      "y": 0.6201863646915069,
+      "universe": 63,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-diag-right-8",
+      "x": 0.2760780661746382,
+      "y": 0.6204217219977911,
+      "universe": 63,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CRight-right-8",
+      "x": 0.2915229230706881,
+      "y": 0.6201863646915067,
+      "universe": 62,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-top-8",
+      "x": 0.24234191143874145,
+      "y": 0.668442966225246,
+      "universe": 64,
+      "ledCount": 25,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-diag-left-8",
+      "x": 0.24232113850402073,
+      "y": 0.6532980378258165,
+      "universe": 64,
+      "ledCount": 18,
+      "orientation": "diag-left",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-bot-8",
+      "x": 0.24256329186339007,
+      "y": 0.6380031578359181,
+      "universe": 64,
+      "ledCount": 18,
+      "orientation": "horizontal",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-left-8",
+      "x": 0.22695597192558314,
+      "y": 0.6532230620305856,
+      "universe": 64,
+      "ledCount": 25,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-diag-right-8",
+      "x": 0.24222764894968482,
+      "y": 0.6534584193368617,
+      "universe": 64,
+      "ledCount": 18,
+      "orientation": "diag-right",
+      "category": "corner"
+    },
+    {
+      "name": "CTop-right-8",
+      "x": 0.2576725058457212,
+      "y": 0.6532230620305857,
+      "universe": 62,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "corner"
+    },
+    {
+      "name": "HTop-Inside-top-8",
+      "x": 0.13903063082035988,
+      "y": 0.6285645768116807,
+      "universe": 62,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Inside-bot-8",
+      "x": 0.13903063082036482,
+      "y": 0.613171216203222,
+      "universe": 62,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Bottom-inside-8",
+      "x": 0.13786820183607862,
+      "y": 0.5982862741664031,
+      "universe": 62,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Bottom-outside-8",
+      "x": 0.1381419578897468,
+      "y": 0.6038207847826433,
+      "universe": 62,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Outside-bot-8",
+      "x": 0.13903063082036482,
+      "y": 0.613171216203222,
+      "universe": 62,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Outside-top-8",
+      "x": 0.13903063082036532,
+      "y": 0.628564576811681,
+      "universe": 62,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Top-outside-8",
+      "x": 0.13903044906548978,
+      "y": 0.644643335088042,
+      "universe": 62,
+      "ledCount": 0,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "HTop-Top-inside-8",
+      "x": 0.13903044906549014,
+      "y": 0.6600403436224263,
+      "universe": 71,
+      "ledCount": 1,
+      "orientation": "vertical",
+      "category": "beam"
+    },
+    {
+      "name": "Left-1",
+      "x": 0.8718875675630485,
+      "y": 0.5069042778424728,
+      "universe": 0,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Right-1",
+      "x": 0.8778875675630485,
+      "y": 0.5069042778424728,
+      "universe": 0,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Left-2",
+      "x": 0.8721432583718446,
+      "y": 0.522572158696304,
+      "universe": 9,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Right-2",
+      "x": 0.8781432583718446,
+      "y": 0.522572158696304,
+      "universe": 10,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Top-2",
+      "x": 0.8751432583718446,
+      "y": 0.522572158696304,
+      "universe": 11,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Left-3",
+      "x": 0.6257618748795762,
+      "y": 0.5069042778424728,
+      "universe": 17,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Right-3",
+      "x": 0.6317618748795762,
+      "y": 0.5069042778424728,
+      "universe": 18,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Left-4",
+      "x": 0.6251804407196551,
+      "y": 0.522572158696304,
+      "universe": 27,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Right-4",
+      "x": 0.6311804407196551,
+      "y": 0.522572158696304,
+      "universe": 28,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Top-4",
+      "x": 0.6281804407196551,
+      "y": 0.522572158696304,
+      "universe": 28,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Left-5",
+      "x": 0.3811733780711272,
+      "y": 0.5069042778424728,
+      "universe": 35,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Right-5",
+      "x": 0.3871733780711272,
+      "y": 0.5069042778424728,
+      "universe": 35,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Left-6",
+      "x": 0.3795881269091069,
+      "y": 0.522572158696304,
+      "universe": 45,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Right-6",
+      "x": 0.38558812690910693,
+      "y": 0.522572158696304,
+      "universe": 45,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Top-6",
+      "x": 0.38258812690910693,
+      "y": 0.522572158696304,
+      "universe": 46,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Left-7",
+      "x": 0.13485833174392928,
+      "y": 0.5069042778424728,
+      "universe": 52,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Right-7",
+      "x": 0.14085833174392928,
+      "y": 0.5069042778424728,
+      "universe": 53,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Left-8",
+      "x": 0.13577419764228252,
+      "y": 0.522572158696304,
+      "universe": 62,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Right-8",
+      "x": 0.14177419764228252,
+      "y": 0.522572158696304,
+      "universe": 63,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    },
+    {
+      "name": "Top-8",
+      "x": 0.13877419764228252,
+      "y": 0.522572158696304,
+      "universe": 64,
+      "ledCount": 18,
+      "orientation": "vertical",
+      "category": "beam_edge"
+    }
+  ],
+  "stats": {
+    "total": 220,
+    "with_universe": 220,
+    "categories": {
+      "corner": 120,
+      "beam": 48,
+      "column": 32,
+      "beam_edge": 20
+    }
+  }
+}

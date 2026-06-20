@@ -2,1377 +2,386 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LED Cube 2D Net - ArtNet Universe Mapping</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=10.0, user-scalable=yes">
+<title>LED Cube Net — MadMapper 2D Layout</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  background: #0d0d1a;
+  background: #0a0a0f;
   color: #e0e0e0;
-  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  overflow: auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', sans-serif;
+  overflow: hidden;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  height: 100vh;
+  width: 100vw;
 }
-#container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-}
-h1 {
-  font-size: 22px;
-  font-weight: 300;
-  letter-spacing: 2px;
-  color: #a0a0c0;
-  margin-bottom: 4px;
-  text-transform: uppercase;
-}
-.subtitle {
-  font-size: 12px;
-  color: #606080;
-  margin-bottom: 16px;
-  letter-spacing: 1px;
-}
-#controls {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-#controls label {
-  font-size: 11px;
-  color: #808090;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-}
-#controls input[type="checkbox"] {
-  accent-color: #6060a0;
-}
-#controls select {
-  background: #1a1a2e;
-  color: #c0c0d0;
-  border: 1px solid #303050;
-  border-radius: 3px;
-  padding: 2px 6px;
-  font-size: 11px;
-}
-svg {
-  display: block;
-}
-.face-rect {
-  fill: #1a1a2e;
-  stroke: #404060;
-  stroke-width: 1.5;
-}
-.face-label {
-  fill: #303050;
-  font-size: 42px;
-  font-weight: 700;
-  letter-spacing: 4px;
-  text-anchor: middle;
-  dominant-baseline: central;
-  pointer-events: none;
-  opacity: 0.4;
-}
-.vertex-label {
-  fill: #808098;
-  font-size: 10px;
-  font-weight: 600;
-  text-anchor: middle;
-  dominant-baseline: central;
-  pointer-events: none;
-}
-.corner-panel {
-  fill: #141425;
-  stroke: #2a2a45;
-  stroke-width: 0.5;
-}
-.strip-line {
-  stroke-linecap: round;
-  cursor: pointer;
-  transition: opacity 0.15s, stroke-width 0.15s;
-}
-.strip-line:hover {
-  opacity: 1 !important;
-  stroke-width: 4 !important;
-  filter: brightness(1.4) drop-shadow(0 0 4px currentColor);
-}
-.beam-line {
-  stroke-linecap: round;
-  cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.15s, stroke-width 0.15s;
-}
-.beam-line:hover {
-  opacity: 1 !important;
-  stroke-width: 3 !important;
-  filter: brightness(1.4) drop-shadow(0 0 3px currentColor);
-}
-.strip-label {
-  font-size: 6px;
-  fill: #909090;
-  pointer-events: none;
-  opacity: 0.7;
-}
-.fold-line {
-  stroke: #505070;
-  stroke-width: 1;
-  stroke-dasharray: 6,4;
-}
-.free-edge {
-  stroke: #404060;
-  stroke-width: 1.5;
-}
-.edge-label {
-  font-size: 7px;
-  fill: #606080;
-  text-anchor: middle;
-  dominant-baseline: central;
-  pointer-events: none;
-}
-#legend {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px 10px;
-  justify-content: center;
-  max-width: 1700px;
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 9px;
-  color: #808098;
-  cursor: pointer;
-}
-.legend-item:hover {
-  color: #c0c0d0;
-}
-.legend-swatch {
-  width: 12px;
-  height: 8px;
-  border-radius: 1px;
-}
-#info-panel {
+#toolbar {
   position: fixed;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1a1a30ee;
-  border: 1px solid #404060;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 11px;
-  color: #c0c0d0;
-  display: none;
+  top: 0; left: 0; right: 0;
   z-index: 100;
-  max-width: 600px;
+  background: rgba(10,10,15,0.92);
   backdrop-filter: blur(8px);
-}
-.stats-bar {
+  -webkit-backdrop-filter: blur(8px);
+  padding: 8px 12px;
   display: flex;
-  gap: 20px;
-  justify-content: center;
-  font-size: 10px;
-  color: #606080;
-  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.stats-bar span {
-  color: #8080a0;
+#toolbar h1 { font-size: 14px; font-weight: 600; color: #fff; margin-right: 12px; }
+.btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #ddd; padding: 4px 10px;
+  border-radius: 6px; font-size: 12px; cursor: pointer;
+  transition: all 0.15s;
 }
+.btn:hover { background: rgba(255,255,255,0.2); }
+.btn.active { background: rgba(78,205,196,0.3); border-color: #4ECDC4; color: #4ECDC4; }
+#info { font-size: 11px; color: #888; margin-left: auto; }
+canvas { display: block; }
+#tooltip {
+  position: fixed; display: none;
+  background: rgba(20,20,30,0.95);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 12px; pointer-events: none; z-index: 200;
+  max-width: 280px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+#tooltip .name { font-weight: 600; color: #fff; font-size: 13px; }
+#tooltip .detail { color: #aaa; margin-top: 3px; line-height: 1.4; }
+#legend {
+  position: fixed; bottom: 8px; left: 8px;
+  z-index: 100;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 8px 10px;
+  max-height: 50vh; overflow-y: auto;
+  font-size: 11px; display: none;
+}
+#legend.show { display: block; }
+#legend h3 { font-size: 12px; margin-bottom: 4px; color: #fff; }
+.legend-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 2px 0; cursor: pointer;
+}
+.legend-item:hover { opacity: 0.8; }
+.legend-swatch { width: 14px; height: 4px; border-radius: 2px; flex-shrink: 0; }
+.legend-item.dimmed .legend-swatch { opacity: 0.15; }
+.legend-item.dimmed { color: #444; }
 </style>
 </head>
 <body>
-<div id="container">
-  <h1>LED Cube -- 2D Unfolded Net</h1>
-  <div class="subtitle">ArtNet Universe Mapping | 8 Vertices, 12 Edges, 6 Faces | 72 Universes</div>
-  <div class="stats-bar">
-    <div>LED Fixtures: <span>121</span></div>
-    <div>Structural Fixtures: <span>80</span></div>
-    <div>Total Fixtures: <span>201</span></div>
-    <div>Universes: <span>0-71</span></div>
-  </div>
-  <div id="controls">
-    <label><input type="checkbox" id="showLabels" checked> Strip Labels</label>
-    <label><input type="checkbox" id="showBeams" checked> Beam Strips</label>
-    <label><input type="checkbox" id="showCornerStructural" checked> Corner Structural</label>
-    <label><input type="checkbox" id="showVertexLabels" checked> Vertex Labels</label>
-    <label>Highlight Vertex:
-      <select id="highlightVertex">
-        <option value="">All</option>
-        <option value="1">V1 (u0-u9)</option>
-        <option value="2">V2 (u9-u16)</option>
-        <option value="3">V3 (u17-u26)</option>
-        <option value="4">V4 (u27-u34)</option>
-        <option value="5">V5 (u35-u44)</option>
-        <option value="6">V6 (u45-u52)</option>
-        <option value="7">V7 (u52-u61)</option>
-        <option value="8">V8 (u62-u71)</option>
-      </select>
-    </label>
-  </div>
-  <svg id="cube-svg" xmlns="http://www.w3.org/2000/svg"></svg>
-  <div id="legend"></div>
+<div id="toolbar">
+  <h1>LED Cube Net</h1>
+  <button class="btn active" id="btn-labels" onclick="toggleLabels()">Labels</button>
+  <button class="btn" id="btn-legend" onclick="toggleLegend()">Legend</button>
+  <button class="btn" id="btn-corners" onclick="toggleFilter('corner')">Corners</button>
+  <button class="btn" id="btn-beams" onclick="toggleFilter('beam')">Beams</button>
+  <button class="btn" id="btn-columns" onclick="toggleFilter('column')">Columns</button>
+  <button class="btn" id="btn-reset" onclick="resetView()">Reset</button>
+  <span id="info">220 fixtures · scroll/pinch to zoom · drag to pan</span>
 </div>
-<div id="info-panel"></div>
+<div id="tooltip">
+  <div class="name" id="tt-name"></div>
+  <div class="detail" id="tt-detail"></div>
+</div>
+<div id="legend"></div>
+<canvas id="c"></canvas>
 
 <script>
-// ============================================================
-// FIXTURE DATA (from fixtures_compact.json)
-// ============================================================
-const fixtures = [
-  // V1 LED fixtures
-  {name:"Left-1",leds:18,universe:0,startCh:1,endCh:54,type:"led",section:"vertical_left"},
-  {name:"CLeft-top-1",leds:25,universe:0,startCh:55,endCh:129,type:"led",section:"corner_left_top"},
-  {name:"CLeft-diag-left-1",leds:18,universe:0,startCh:130,endCh:183,type:"led",section:"corner_left_diag"},
-  {name:"CLeft-bot-1",leds:18,universe:0,startCh:184,endCh:237,type:"led",section:"corner_left_bot"},
-  {name:"CLeft-left-1",leds:25,universe:0,startCh:238,endCh:312,type:"led",section:"corner_left_left"},
-  {name:"CLeft-diag-right-1",leds:18,universe:0,startCh:313,endCh:366,type:"led",section:"corner_left_diag"},
-  {name:"Right-1",leds:18,universe:0,startCh:367,endCh:420,type:"led",section:"vertical_right"},
-  {name:"CRight-top-1",leds:25,universe:0,startCh:421,endCh:495,type:"led",section:"corner_right_top"},
-  {name:"CRight-diag-left-1",leds:18,universe:0,startCh:496,endCh:549,type:"led",section:"corner_right_diag"},
-  {name:"CRight-bot-1",leds:18,universe:1,startCh:40,endCh:93,type:"led",section:"corner_right_bot"},
-  {name:"CRight-left-1",leds:25,universe:1,startCh:94,endCh:168,type:"led",section:"corner_right_left"},
-  {name:"CRight-diag-right-1",leds:18,universe:1,startCh:169,endCh:222,type:"led",section:"corner_right_diag"},
-  // V2 LED fixtures
-  {name:"Left-2",leds:18,universe:9,startCh:427,endCh:480,type:"led",section:"vertical_left"},
-  {name:"CLeft-top-2",leds:25,universe:9,startCh:481,endCh:555,type:"led",section:"corner_left_top"},
-  {name:"CLeft-diag-left-2",leds:18,universe:10,startCh:46,endCh:99,type:"led",section:"corner_left_diag"},
-  {name:"CLeft-bot-2",leds:18,universe:10,startCh:100,endCh:153,type:"led",section:"corner_left_bot"},
-  {name:"CLeft-left-2",leds:25,universe:10,startCh:154,endCh:228,type:"led",section:"corner_left_left"},
-  {name:"CLeft-diag-right-2",leds:18,universe:10,startCh:229,endCh:282,type:"led",section:"corner_left_diag"},
-  {name:"Right-2",leds:18,universe:10,startCh:283,endCh:336,type:"led",section:"vertical_right"},
-  {name:"CRight-top-2",leds:25,universe:10,startCh:337,endCh:411,type:"led",section:"corner_right_top"},
-  {name:"CRight-diag-left-2",leds:18,universe:10,startCh:412,endCh:465,type:"led",section:"corner_right_diag"},
-  {name:"CRight-bot-2",leds:18,universe:10,startCh:466,endCh:519,type:"led",section:"corner_right_bot"},
-  {name:"CRight-left-2",leds:25,universe:11,startCh:10,endCh:84,type:"led",section:"corner_right_left"},
-  {name:"CRight-diag-right-2",leds:18,universe:11,startCh:85,endCh:138,type:"led",section:"corner_right_diag"},
-  {name:"Top-2",leds:18,universe:11,startCh:139,endCh:192,type:"led",section:"vertical_top"},
-  {name:"CTop-top-2",leds:25,universe:11,startCh:193,endCh:267,type:"led",section:"corner_top_top"},
-  {name:"CTop-diag-left-2",leds:18,universe:11,startCh:268,endCh:321,type:"led",section:"corner_top_diag"},
-  {name:"CTop-bot-2",leds:18,universe:11,startCh:322,endCh:375,type:"led",section:"corner_top_bot"},
-  {name:"CTop-left-2",leds:25,universe:11,startCh:376,endCh:450,type:"led",section:"corner_top_left"},
-  {name:"CTop-diag-right-2",leds:18,universe:11,startCh:451,endCh:504,type:"led",section:"corner_top_diag"},
-  // V3 LED fixtures
-  {name:"Left-3",leds:18,universe:17,startCh:301,endCh:354,type:"led",section:"vertical_left"},
-  {name:"CLeft-top-3",leds:25,universe:17,startCh:355,endCh:429,type:"led",section:"corner_left_top"},
-  {name:"CLeft-diag-left-3",leds:18,universe:17,startCh:430,endCh:483,type:"led",section:"corner_left_diag"},
-  {name:"CLeft-bot-3",leds:18,universe:17,startCh:484,endCh:537,type:"led",section:"corner_left_bot"},
-  {name:"CLeft-left-3",leds:25,universe:18,startCh:28,endCh:102,type:"led",section:"corner_left_left"},
-  {name:"CLeft-diag-right-3",leds:18,universe:18,startCh:103,endCh:156,type:"led",section:"corner_left_diag"},
-  {name:"Right-3",leds:18,universe:18,startCh:157,endCh:210,type:"led",section:"vertical_right"},
-  {name:"CRight-top-3",leds:25,universe:18,startCh:211,endCh:285,type:"led",section:"corner_right_top"},
-  {name:"CRight-diag-left-3",leds:18,universe:18,startCh:286,endCh:339,type:"led",section:"corner_right_diag"},
-  {name:"CRight-bot-3",leds:18,universe:18,startCh:340,endCh:393,type:"led",section:"corner_right_bot"},
-  {name:"CRight-left-3",leds:25,universe:18,startCh:394,endCh:468,type:"led",section:"corner_right_left"},
-  {name:"CRight-diag-right-3",leds:18,universe:18,startCh:469,endCh:522,type:"led",section:"corner_right_diag"},
-  // V4 LED fixtures
-  {name:"Left-4",leds:18,universe:27,startCh:217,endCh:270,type:"led",section:"vertical_left"},
-  {name:"CLeft-top-4",leds:25,universe:27,startCh:271,endCh:345,type:"led",section:"corner_left_top"},
-  {name:"CLeft-diag-left-4",leds:18,universe:27,startCh:346,endCh:399,type:"led",section:"corner_left_diag"},
-  {name:"CLeft-bot-4",leds:18,universe:27,startCh:400,endCh:453,type:"led",section:"corner_left_bot"},
-  {name:"CLeft-left-4",leds:25,universe:27,startCh:454,endCh:528,type:"led",section:"corner_left_left"},
-  {name:"CLeft-diag-right-4",leds:18,universe:28,startCh:19,endCh:72,type:"led",section:"corner_left_diag"},
-  {name:"Right-4",leds:18,universe:28,startCh:73,endCh:126,type:"led",section:"vertical_right"},
-  {name:"CRight-top-4",leds:25,universe:28,startCh:127,endCh:201,type:"led",section:"corner_right_top"},
-  {name:"CRight-diag-left-4",leds:18,universe:28,startCh:202,endCh:255,type:"led",section:"corner_right_diag"},
-  {name:"CRight-bot-4",leds:18,universe:28,startCh:256,endCh:309,type:"led",section:"corner_right_bot"},
-  {name:"CRight-left-4",leds:25,universe:28,startCh:310,endCh:384,type:"led",section:"corner_right_left"},
-  {name:"CRight-diag-right-4",leds:18,universe:28,startCh:385,endCh:438,type:"led",section:"corner_right_diag"},
-  {name:"Top-4",leds:18,universe:28,startCh:439,endCh:492,type:"led",section:"vertical_top"},
-  {name:"CTop-top-4",leds:25,universe:28,startCh:493,endCh:567,type:"led",section:"corner_top_top"},
-  {name:"CTop-diag-left-4",leds:18,universe:29,startCh:58,endCh:111,type:"led",section:"corner_top_diag"},
-  {name:"CTop-bot-4",leds:18,universe:29,startCh:112,endCh:165,type:"led",section:"corner_top_bot"},
-  {name:"CTop-left-4",leds:25,universe:29,startCh:166,endCh:240,type:"led",section:"corner_top_left"},
-  {name:"CTop-diag-right-4",leds:18,universe:29,startCh:241,endCh:294,type:"led",section:"corner_top_diag"},
-  // V5 LED fixtures
-  {name:"Left-5",leds:18,universe:35,startCh:91,endCh:144,type:"led",section:"vertical_left"},
-  {name:"CLeft-top-5",leds:25,universe:35,startCh:145,endCh:219,type:"led",section:"corner_left_top"},
-  {name:"CLeft-diag-left-5",leds:18,universe:35,startCh:220,endCh:273,type:"led",section:"corner_left_diag"},
-  {name:"CLeft-bot-5",leds:18,universe:35,startCh:274,endCh:327,type:"led",section:"corner_left_bot"},
-  {name:"CLeft-left-5",leds:25,universe:35,startCh:328,endCh:402,type:"led",section:"corner_left_left"},
-  {name:"CLeft-diag-right-5",leds:18,universe:35,startCh:403,endCh:456,type:"led",section:"corner_left_diag"},
-  {name:"Right-5",leds:18,universe:35,startCh:457,endCh:510,type:"led",section:"vertical_right"},
-  {name:"CRight-top-5",leds:25,universe:35,startCh:511,endCh:585,type:"led",section:"corner_right_top"},
-  {name:"CRight-diag-left-5",leds:18,universe:36,startCh:76,endCh:129,type:"led",section:"corner_right_diag"},
-  {name:"CRight-bot-5",leds:18,universe:36,startCh:130,endCh:183,type:"led",section:"corner_right_bot"},
-  {name:"CRight-left-5",leds:25,universe:36,startCh:184,endCh:258,type:"led",section:"corner_right_left"},
-  {name:"CRight-diag-right-5",leds:18,universe:36,startCh:259,endCh:312,type:"led",section:"corner_right_diag"},
-  // V6 LED fixtures
-  {name:"Left-6",leds:18,universe:45,startCh:7,endCh:60,type:"led",section:"vertical_left"},
-  {name:"CLeft-top-6",leds:25,universe:45,startCh:61,endCh:135,type:"led",section:"corner_left_top"},
-  {name:"CLeft-diag-left-6",leds:18,universe:45,startCh:136,endCh:189,type:"led",section:"corner_left_diag"},
-  {name:"CLeft-bot-6",leds:18,universe:45,startCh:190,endCh:243,type:"led",section:"corner_left_bot"},
-  {name:"CLeft-left-6",leds:25,universe:45,startCh:244,endCh:318,type:"led",section:"corner_left_left"},
-  {name:"CLeft-diag-right-6",leds:18,universe:45,startCh:319,endCh:372,type:"led",section:"corner_left_diag"},
-  {name:"Right-6",leds:18,universe:45,startCh:373,endCh:426,type:"led",section:"vertical_right"},
-  {name:"CRight-top-6",leds:25,universe:45,startCh:427,endCh:501,type:"led",section:"corner_right_top"},
-  {name:"CRight-diag-left-6",leds:18,universe:45,startCh:502,endCh:555,type:"led",section:"corner_right_diag"},
-  {name:"CRight-bot-6",leds:18,universe:46,startCh:46,endCh:99,type:"led",section:"corner_right_bot"},
-  {name:"CRight-left-6",leds:25,universe:46,startCh:100,endCh:174,type:"led",section:"corner_right_left"},
-  {name:"CRight-diag-right-6",leds:18,universe:46,startCh:175,endCh:228,type:"led",section:"corner_right_diag"},
-  {name:"Top-6",leds:18,universe:46,startCh:229,endCh:282,type:"led",section:"vertical_top"},
-  {name:"CTop-top-6",leds:25,universe:46,startCh:283,endCh:357,type:"led",section:"corner_top_top"},
-  {name:"CTop-diag-left-6",leds:18,universe:46,startCh:358,endCh:411,type:"led",section:"corner_top_diag"},
-  {name:"CTop-bot-6",leds:18,universe:46,startCh:412,endCh:465,type:"led",section:"corner_top_bot"},
-  {name:"CTop-left-6",leds:25,universe:46,startCh:466,endCh:540,type:"led",section:"corner_top_left"},
-  {name:"CTop-diag-right-6",leds:18,universe:47,startCh:31,endCh:84,type:"led",section:"corner_top_diag"},
-  // V7 LED fixtures
-  {name:"Left-7",leds:18,universe:52,startCh:391,endCh:444,type:"led",section:"vertical_left"},
-  {name:"CLeft-top-7",leds:25,universe:52,startCh:445,endCh:519,type:"led",section:"corner_left_top"},
-  {name:"CLeft-diag-left-7",leds:18,universe:53,startCh:10,endCh:63,type:"led",section:"corner_left_diag"},
-  {name:"CLeft-bot-7",leds:18,universe:53,startCh:64,endCh:117,type:"led",section:"corner_left_bot"},
-  {name:"CLeft-left-7",leds:25,universe:53,startCh:118,endCh:192,type:"led",section:"corner_left_left"},
-  {name:"CLeft-diag-right-7",leds:18,universe:53,startCh:193,endCh:246,type:"led",section:"corner_left_diag"},
-  {name:"Right-7",leds:18,universe:53,startCh:247,endCh:300,type:"led",section:"vertical_right"},
-  {name:"CRight-top-7",leds:25,universe:53,startCh:301,endCh:375,type:"led",section:"corner_right_top"},
-  {name:"CRight-diag-left-7",leds:18,universe:53,startCh:376,endCh:429,type:"led",section:"corner_right_diag"},
-  {name:"CRight-bot-7",leds:18,universe:53,startCh:430,endCh:483,type:"led",section:"corner_right_bot"},
-  {name:"CRight-left-7",leds:25,universe:53,startCh:484,endCh:558,type:"led",section:"corner_right_left"},
-  {name:"CRight-diag-right-7",leds:18,universe:54,startCh:49,endCh:102,type:"led",section:"corner_right_diag"},
-  // V8 LED fixtures
-  {name:"Left-8",leds:18,universe:62,startCh:307,endCh:360,type:"led",section:"vertical_left"},
-  {name:"CLeft-top-8",leds:25,universe:62,startCh:361,endCh:435,type:"led",section:"corner_left_top"},
-  {name:"CLeft-diag-left-8",leds:18,universe:62,startCh:436,endCh:489,type:"led",section:"corner_left_diag"},
-  {name:"CLeft-bot-8",leds:18,universe:62,startCh:490,endCh:543,type:"led",section:"corner_left_bot"},
-  {name:"CLeft-left-8",leds:25,universe:63,startCh:34,endCh:108,type:"led",section:"corner_left_left"},
-  {name:"CLeft-diag-right-8",leds:18,universe:63,startCh:109,endCh:162,type:"led",section:"corner_left_diag"},
-  {name:"Right-8",leds:18,universe:63,startCh:163,endCh:216,type:"led",section:"vertical_right"},
-  {name:"CRight-top-8",leds:25,universe:63,startCh:217,endCh:291,type:"led",section:"corner_right_top"},
-  {name:"CRight-diag-left-8",leds:18,universe:63,startCh:292,endCh:345,type:"led",section:"corner_right_diag"},
-  {name:"CRight-bot-8",leds:18,universe:63,startCh:346,endCh:399,type:"led",section:"corner_right_bot"},
-  {name:"CRight-left-8",leds:25,universe:63,startCh:400,endCh:474,type:"led",section:"corner_right_left"},
-  {name:"CRight-diag-right-8",leds:18,universe:63,startCh:475,endCh:528,type:"led",section:"corner_right_diag"},
-  {name:"Top-8",leds:18,universe:64,startCh:19,endCh:72,type:"led",section:"vertical_top"},
-  {name:"CTop-top-8",leds:25,universe:64,startCh:73,endCh:147,type:"led",section:"corner_top_top"},
-  {name:"CTop-diag-left-8",leds:18,universe:64,startCh:148,endCh:201,type:"led",section:"corner_top_diag"},
-  {name:"CTop-bot-8",leds:18,universe:64,startCh:202,endCh:255,type:"led",section:"corner_top_bot"},
-  {name:"CTop-left-8",leds:25,universe:64,startCh:256,endCh:330,type:"led",section:"corner_top_left"},
-  {name:"CTop-diag-right-8",leds:18,universe:64,startCh:331,endCh:384,type:"led",section:"corner_top_diag"},
-  {name:"HTop-Top-inside-8",leds:1,universe:71,startCh:1,endCh:3,type:"led",section:"horizontal_top"},
-];
+const FIXTURES = [{"name": "CLeft-top-1", "x": 0.9793763307762633, "y": 0.42453972887749575, "universe": 0, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-left-1", "x": 0.9788823505123211, "y": 0.40949729317816297, "universe": 0, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-bot-1", "x": 0.9792487563038246, "y": 0.3936772922996286, "universe": 0, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-left-1", "x": 0.9638138565797538, "y": 0.40904149936209083, "universe": 0, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-right-1", "x": 0.9789346271841949, "y": 0.4091060150969277, "universe": 0, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-right-1", "x": 0.9947931400216751, "y": 0.4093224865640805, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-top-1", "x": 0.029764016056603004, "y": 0.42581252266480063, "universe": 0, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-left-1", "x": 0.029730908430704105, "y": 0.41071331307871667, "universe": 0, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CRight-bot-1", "x": 0.02983292561962317, "y": 0.39530418321047206, "universe": 1, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-left-1", "x": 0.014245712448530151, "y": 0.41045573393475066, "universe": 1, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-right-1", "x": 0.02967672234004803, "y": 0.41063183980430595, "universe": 1, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CRight-right-1", "x": 0.04509600294320018, "y": 0.4105598755663095, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "HBot-Outside-bottom-1", "x": 0.8753995097950514, "y": 0.4014237315466893, "universe": 0, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Outside-top-1", "x": 0.8753995097950514, "y": 0.416920361272165, "universe": 0, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Inside-outside-1", "x": 0.8745139880964556, "y": 0.42473509026229905, "universe": 0, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Inside-inside-1", "x": 0.8742372625656359, "y": 0.4302696008785397, "universe": 0, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "C-Inside-right-left-1", "x": 0.9580821289245548, "y": 0.5120262365644831, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-right-right-1", "x": 0.9636166395407982, "y": 0.5120262365644982, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-left-left-1", "x": 0.9717539960467522, "y": 0.5135532747249933, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-left-right-1", "x": 0.9855476867583368, "y": 0.5135532747249956, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-right-left-1", "x": 0.024987761796753077, "y": 0.5135529166317442, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-right-right-1", "x": 0.04002637250895813, "y": 0.5135529166317453, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-left-left-1", "x": 0.048858077682635725, "y": 0.5120253917016624, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-left-right-1", "x": 0.05495746574924784, "y": 0.5114941382437415, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "CLeft-top-2", "x": 0.9800928021313227, "y": 0.6353511675799778, "universe": 9, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-left-2", "x": 0.9798805728175535, "y": 0.6199674866624625, "universe": 10, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-bot-2", "x": 0.9802145613648781, "y": 0.604911359190651, "universe": 10, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-left-2", "x": 0.9645147729016512, "y": 0.6201312633853169, "universe": 10, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-right-2", "x": 0.9796892614022646, "y": 0.6201955770667116, "universe": 10, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-Left-right-2", "x": 0.995328770472809, "y": 0.6201312633853165, "universe": 9, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-top-2", "x": 0.02954263563195393, "y": 0.6354104067733101, "universe": 10, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-left-2", "x": 0.029521862697189517, "y": 0.6202654783738575, "universe": 10, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CRight-bot-2", "x": 0.02976401605660267, "y": 0.6049705983839815, "universe": 10, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-left-2", "x": 0.014156696118800632, "y": 0.620190502578647, "universe": 11, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-right-2", "x": 0.02942837314288645, "y": 0.620425859884928, "universe": 11, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CRight-right-2", "x": 0.04487323003894167, "y": 0.6201905025786466, "universe": 9, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CTop-top-2", "x": 0.979783281230277, "y": 0.6684501724278514, "universe": 11, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CTop-diag-left-2", "x": 0.9797625082955309, "y": 0.6533052440283976, "universe": 11, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CTop-bot-2", "x": 0.9800046616549248, "y": 0.6380103640385242, "universe": 11, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CTop-left-2", "x": 0.9643973417171205, "y": 0.6532302682331923, "universe": 11, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CTop-diag-right-2", "x": 0.9796690187412089, "y": 0.6534656255394768, "universe": 11, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CTop-right-2", "x": 0.995113875637263, "y": 0.6532302682331907, "universe": 9, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "HTop-Inside-top-2", "x": 0.8753996915499233, "y": 0.6285645768116804, "universe": 9, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Inside-bot-2", "x": 0.8753996915499269, "y": 0.6131712162032232, "universe": 9, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Bottom-inside-2", "x": 0.8742372625656414, "y": 0.5982862741664027, "universe": 9, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Bottom-outside-2", "x": 0.8745110186193079, "y": 0.6038207847826441, "universe": 9, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Outside-bot-2", "x": 0.8753996915499269, "y": 0.6131712162032232, "universe": 9, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Outside-top-2", "x": 0.8753996915499261, "y": 0.6285645768116804, "universe": 9, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Top-outside-2", "x": 0.8753995097950522, "y": 0.6446433350880427, "universe": 9, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Top-inside-2", "x": 0.8753995097950518, "y": 0.6600403436224267, "universe": 9, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "CLeft-top-3", "x": 0.733659512047065, "y": 0.4255072658755718, "universe": 17, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-left-3", "x": 0.7335358315749242, "y": 0.41004119015251866, "universe": 17, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-bot-3", "x": 0.7337259261744582, "y": 0.39472431782803835, "universe": 17, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-left-3", "x": 0.7182292964489669, "y": 0.40973391061929315, "universe": 18, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-right-3", "x": 0.7335584063037268, "y": 0.4101369859268688, "universe": 18, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-right-3", "x": 0.7489790374328066, "y": 0.4097339106192984, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-top-3", "x": 0.7672441033324602, "y": 0.42555419783350273, "universe": 18, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-left-3", "x": 0.7672069776014359, "y": 0.41008048134246183, "universe": 18, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CRight-bot-3", "x": 0.7673105174598538, "y": 0.39477124978596656, "universe": 18, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-left-3", "x": 0.7517253355645155, "y": 0.40973656649228524, "universe": 18, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-right-3", "x": 0.7671528857151597, "y": 0.4101369859585449, "universe": 18, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CRight-right-3", "x": 0.7825746977394469, "y": 0.40978084257721437, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "HBot-Outside-bottom-3", "x": 0.629273817111583, "y": 0.40052404915086987, "universe": 17, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Outside-top-3", "x": 0.629273817111583, "y": 0.41602067887634714, "universe": 17, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Inside-outside-3", "x": 0.6283882954129827, "y": 0.4238354078664797, "universe": 17, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Inside-inside-3", "x": 0.6281115698821564, "y": 0.4293699184827228, "universe": 17, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "C-Inside-right-left-3", "x": 0.7134431909007588, "y": 0.5120262365644829, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-right-right-3", "x": 0.7189777015169992, "y": 0.5120262365644852, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-left-left-3", "x": 0.724748602905586, "y": 0.513553274724993, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-left-right-3", "x": 0.7394743643981929, "y": 0.5135532747250119, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-right-left-3", "x": 0.7600437462163627, "y": 0.5135529166317447, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-right-right-3", "x": 0.7746881568884945, "y": 0.5135529166317447, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-left-left-3", "x": 0.783124345456525, "y": 0.5120253917016636, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-left-right-3", "x": 0.7901526153191905, "y": 0.5120253917016617, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "CLeft-top-4", "x": 0.7335793558304988, "y": 0.6353511675799777, "universe": 27, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-left-4", "x": 0.733367126516713, "y": 0.6199674866624448, "universe": 27, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-bot-4", "x": 0.7337011150640544, "y": 0.604911359190651, "universe": 27, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-left-4", "x": 0.7180013266008295, "y": 0.6201312633853172, "universe": 27, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-right-4", "x": 0.7331758151014459, "y": 0.6201955770667092, "universe": 28, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-Left-right-1", "x": 0.7488153241719843, "y": 0.6201312633853171, "universe": 0, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-top-4", "x": 0.7667290852215737, "y": 0.6354062688861694, "universe": 28, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-left-4", "x": 0.766708312286802, "y": 0.6202613404866905, "universe": 28, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CRight-bot-4", "x": 0.7669504656462238, "y": 0.60496646049684, "universe": 28, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-left-4", "x": 0.7513431457084191, "y": 0.6201863646915069, "universe": 28, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-right-4", "x": 0.7666148227325039, "y": 0.6204217219977978, "universe": 28, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CRight-right-4", "x": 0.7820596796285585, "y": 0.6201863646915055, "universe": 27, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CTop-top-4", "x": 0.7330484188415958, "y": 0.668442966225246, "universe": 28, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CTop-diag-left-4", "x": 0.7330276459068579, "y": 0.6532980378258002, "universe": 29, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CTop-bot-4", "x": 0.7332697992662442, "y": 0.6380031578359197, "universe": 29, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CTop-left-4", "x": 0.7176624793284377, "y": 0.6532230620305859, "universe": 29, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CTop-diag-right-4", "x": 0.7329341563525302, "y": 0.6534584193368721, "universe": 29, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CTop-right-4", "x": 0.7483790132485765, "y": 0.6532230620305848, "universe": 27, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "HTop-Inside-top-4", "x": 0.6284368738977331, "y": 0.628564576811681, "universe": 27, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Inside-bot-4", "x": 0.628436873897738, "y": 0.6131712162032238, "universe": 27, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Bottom-inside-4", "x": 0.6272744449134522, "y": 0.5982862741664023, "universe": 27, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Bottom-outside-4", "x": 0.6275482009671194, "y": 0.6038207847826436, "universe": 27, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Outside-bot-4", "x": 0.628436873897738, "y": 0.6131712162032238, "universe": 27, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Outside-top-4", "x": 0.6284368738977375, "y": 0.628564576811681, "universe": 27, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Top-outside-4", "x": 0.6284366921428617, "y": 0.6446433350880427, "universe": 27, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Top-inside-4", "x": 0.628436692142861, "y": 0.6600403436224268, "universe": 27, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "CLeft-top-5", "x": 0.4884400314087113, "y": 0.42598369658057506, "universe": 35, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-left-5", "x": 0.4883187369722674, "y": 0.41051024201429753, "universe": 35, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-bot-5", "x": 0.48850644553610734, "y": 0.39520074853303816, "universe": 35, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-left-5", "x": 0.47301420665351307, "y": 0.4102085240856704, "universe": 35, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-right-5", "x": 0.4883427971944342, "y": 0.41055760756143317, "universe": 35, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-right-2", "x": 0.5037595567944578, "y": 0.41021034132431805, "universe": 9, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-top-5", "x": 0.5217535042904291, "y": 0.4256067041903543, "universe": 35, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-left-5", "x": 0.5217203966645253, "y": 0.4105074946042592, "universe": 36, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CRight-bot-5", "x": 0.521822413853448, "y": 0.3950983647360274, "universe": 36, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-left-5", "x": 0.5062352006823538, "y": 0.41024991546030515, "universe": 36, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-right-5", "x": 0.5216662105738682, "y": 0.41042602132986766, "universe": 36, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CRight-right-5", "x": 0.5370854911770256, "y": 0.41035405709186457, "universe": 35, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "HBot-Outside-bottom-5", "x": 0.3846853203031304, "y": 0.40052404915086987, "universe": 35, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Outside-top-5", "x": 0.38468532030313063, "y": 0.41602067887634714, "universe": 35, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Inside-outside-5", "x": 0.38379979860453517, "y": 0.4238354078664795, "universe": 35, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Inside-inside-5", "x": 0.3835230730737127, "y": 0.4293699184827228, "universe": 35, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "C-Inside-right-left-5", "x": 0.4680998015610421, "y": 0.5116038061790609, "universe": 35, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-right-right-5", "x": 0.4736343121772839, "y": 0.5116038061790629, "universe": 35, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-left-left-5", "x": 0.4781011065692608, "y": 0.5131308443395695, "universe": 35, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-left-right-5", "x": 0.4935008692880775, "y": 0.5131308443396017, "universe": 35, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-right-left-5", "x": 0.5153288521255858, "y": 0.513130486246322, "universe": 35, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-right-right-5", "x": 0.5293447675487806, "y": 0.513130486246322, "universe": 35, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-left-left-5", "x": 0.5377809561168091, "y": 0.5116029613162418, "universe": 35, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-left-right-5", "x": 0.5448092259794739, "y": 0.5116029613162398, "universe": 35, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "CLeft-top-6", "x": 0.4875564931611252, "y": 0.6353511675799774, "universe": 45, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-left-6", "x": 0.48734426384735213, "y": 0.6199674866624498, "universe": 45, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-bot-6", "x": 0.48767825239468104, "y": 0.6049113591906506, "universe": 45, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-left-6", "x": 0.47197846393145404, "y": 0.6201312633853171, "universe": 45, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-right-6", "x": 0.4871529524320788, "y": 0.6201955770667043, "universe": 45, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-Left-right-3", "x": 0.5027924615026103, "y": 0.6201312633853164, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-top-6", "x": 0.5205096679672905, "y": 0.6354062688861687, "universe": 45, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-left-6", "x": 0.5204888950325115, "y": 0.6202613404866832, "universe": 45, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CRight-bot-6", "x": 0.5207310483919398, "y": 0.6049664604968408, "universe": 46, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-left-6", "x": 0.5051237284541361, "y": 0.620186364691507, "universe": 46, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-right-6", "x": 0.5203954054782243, "y": 0.6204217219977924, "universe": 46, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CRight-right-6", "x": 0.5358402623742744, "y": 0.6201863646915069, "universe": 45, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CTop-top-6", "x": 0.4867629832534487, "y": 0.6684429662252459, "universe": 46, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CTop-diag-left-6", "x": 0.4867422103187172, "y": 0.6532980378258071, "universe": 46, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CTop-bot-6", "x": 0.4869843636780973, "y": 0.6380031578359197, "universe": 46, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CTop-left-6", "x": 0.47137704374029077, "y": 0.6532230620305859, "universe": 46, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CTop-diag-right-6", "x": 0.48664872076438714, "y": 0.6534584193368658, "universe": 47, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CTop-right-3", "x": 0.5020935776604303, "y": 0.6532230620305856, "universe": 17, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "HTop-Inside-top-6", "x": 0.38284456008718404, "y": 0.628564576811681, "universe": 45, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Inside-bot-6", "x": 0.3828445600871898, "y": 0.6131712162032235, "universe": 45, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Bottom-inside-6", "x": 0.3816821311029024, "y": 0.5982862741664028, "universe": 45, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Bottom-outside-6", "x": 0.38195588715657086, "y": 0.603820784782643, "universe": 45, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Outside-bot-6", "x": 0.3828445600871898, "y": 0.6131712162032235, "universe": 45, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Outside-top-6", "x": 0.3828445600871899, "y": 0.6285645768116807, "universe": 45, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Top-outside-6", "x": 0.3828443783323142, "y": 0.6446433350880417, "universe": 45, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Top-inside-6", "x": 0.38284437833231433, "y": 0.6600403436224256, "universe": 45, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "CLeft-top-7", "x": 0.24334970029148173, "y": 0.4255072658755718, "universe": 52, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-left-7", "x": 0.24322601981934322, "y": 0.41004119015250107, "universe": 53, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-bot-7", "x": 0.24341611441887595, "y": 0.39472431782803835, "universe": 53, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-left-7", "x": 0.22791948469338455, "y": 0.4097339106192945, "universe": 53, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-right-7", "x": 0.24324859454814973, "y": 0.41013698592685927, "universe": 53, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-right-4", "x": 0.2586692256772216, "y": 0.40973391061929804, "universe": 27, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-top-7", "x": 0.2769342915768751, "y": 0.42555419783350207, "universe": 53, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-left-7", "x": 0.2768971658458315, "y": 0.4100804813424249, "universe": 53, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CRight-bot-7", "x": 0.27700070570426893, "y": 0.39477124978596656, "universe": 53, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-left-7", "x": 0.2614155238089297, "y": 0.4097365664922847, "universe": 53, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-right-7", "x": 0.2768430739595715, "y": 0.4101369859585451, "universe": 54, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CRight-right-7", "x": 0.29226488598386113, "y": 0.4097808425772144, "universe": 52, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "HBot-Outside-bottom-7", "x": 0.13837027397593055, "y": 0.39979530641025773, "universe": 52, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Outside-top-7", "x": 0.13837027397593094, "y": 0.41529193613573434, "universe": 52, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Inside-outside-7", "x": 0.13748475227733437, "y": 0.42310666512586764, "universe": 52, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HBot-Inside-inside-7", "x": 0.13720802674652124, "y": 0.4286411757421096, "universe": 52, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "C-Inside-right-left-7", "x": 0.22275641222132517, "y": 0.5116038061790615, "universe": 52, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-right-right-7", "x": 0.22829092283756855, "y": 0.5116038061790621, "universe": 52, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-left-left-7", "x": 0.23452679124437517, "y": 0.5131308443395698, "universe": 52, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-left-right-7", "x": 0.25023519514119996, "y": 0.5131308443395958, "universe": 52, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-right-left-7", "x": 0.2707503220623365, "y": 0.513130486246323, "universe": 52, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Outside-right-right-7", "x": 0.2857226394126839, "y": 0.5131304862463237, "universe": 52, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-left-left-7", "x": 0.29243756677709287, "y": 0.5116029613162416, "universe": 52, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "C-Inside-left-right-7", "x": 0.2994658366397575, "y": 0.5116029613162406, "universe": 52, "ledCount": 0, "orientation": "vertical", "category": "column", "halfLen": 0.06}, {"name": "CLeft-top-8", "x": 0.24332251033968788, "y": 0.6353511675799778, "universe": 62, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-left-8", "x": 0.24311028102591375, "y": 0.6199674866624475, "universe": 62, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-bot-8", "x": 0.24344426957324405, "y": 0.6049113591906504, "universe": 62, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-left-8", "x": 0.2277444811100174, "y": 0.6201312633853169, "universe": 63, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-diag-right-8", "x": 0.2429189696106493, "y": 0.6201955770666963, "universe": 63, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CLeft-Left-right-4", "x": 0.25855847868117354, "y": 0.6201312633853168, "universe": 27, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-top-8", "x": 0.2761923286637024, "y": 0.6354062688861688, "universe": 63, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-left-8", "x": 0.2761715557289452, "y": 0.6202613404867068, "universe": 63, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CRight-bot-8", "x": 0.27641370908835344, "y": 0.6049664604968409, "universe": 63, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CRight-left-8", "x": 0.2608063891505485, "y": 0.6201863646915069, "universe": 63, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CRight-diag-right-8", "x": 0.2760780661746382, "y": 0.6204217219977911, "universe": 63, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CRight-right-8", "x": 0.2915229230706881, "y": 0.6201863646915067, "universe": 62, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CTop-top-8", "x": 0.24234191143874145, "y": 0.668442966225246, "universe": 64, "ledCount": 25, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CTop-diag-left-8", "x": 0.24232113850402073, "y": 0.6532980378258165, "universe": 64, "ledCount": 18, "orientation": "diag-left", "category": "corner", "halfLen": 0.012}, {"name": "CTop-bot-8", "x": 0.24256329186339007, "y": 0.6380031578359181, "universe": 64, "ledCount": 18, "orientation": "horizontal", "category": "corner", "halfLen": 0.012}, {"name": "CTop-left-8", "x": 0.22695597192558314, "y": 0.6532230620305856, "universe": 64, "ledCount": 25, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "CTop-diag-right-8", "x": 0.24222764894968482, "y": 0.6534584193368617, "universe": 64, "ledCount": 18, "orientation": "diag-right", "category": "corner", "halfLen": 0.012}, {"name": "CTop-right-8", "x": 0.2576725058457212, "y": 0.6532230620305857, "universe": 62, "ledCount": 0, "orientation": "vertical", "category": "corner", "halfLen": 0.012}, {"name": "HTop-Inside-top-8", "x": 0.13903063082035988, "y": 0.6285645768116807, "universe": 62, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Inside-bot-8", "x": 0.13903063082036482, "y": 0.613171216203222, "universe": 62, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Bottom-inside-8", "x": 0.13786820183607862, "y": 0.5982862741664031, "universe": 62, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Bottom-outside-8", "x": 0.1381419578897468, "y": 0.6038207847826433, "universe": 62, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Outside-bot-8", "x": 0.13903063082036482, "y": 0.613171216203222, "universe": 62, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Outside-top-8", "x": 0.13903063082036532, "y": 0.628564576811681, "universe": 62, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Top-outside-8", "x": 0.13903044906548978, "y": 0.644643335088042, "universe": 62, "ledCount": 0, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "HTop-Top-inside-8", "x": 0.13903044906549014, "y": 0.6600403436224263, "universe": 71, "ledCount": 1, "orientation": "horizontal", "category": "beam", "halfLen": 0.06}, {"name": "Left-1", "x": 0.8718875675630485, "y": 0.5069042778424728, "universe": 0, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Right-1", "x": 0.8778875675630485, "y": 0.5069042778424728, "universe": 0, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Left-2", "x": 0.8721432583718446, "y": 0.522572158696304, "universe": 9, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Right-2", "x": 0.8781432583718446, "y": 0.522572158696304, "universe": 10, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Top-2", "x": 0.8751432583718446, "y": 0.522572158696304, "universe": 11, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Left-3", "x": 0.6257618748795762, "y": 0.5069042778424728, "universe": 17, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Right-3", "x": 0.6317618748795762, "y": 0.5069042778424728, "universe": 18, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Left-4", "x": 0.6251804407196551, "y": 0.522572158696304, "universe": 27, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Right-4", "x": 0.6311804407196551, "y": 0.522572158696304, "universe": 28, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Top-4", "x": 0.6281804407196551, "y": 0.522572158696304, "universe": 28, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Left-5", "x": 0.3811733780711272, "y": 0.5069042778424728, "universe": 35, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Right-5", "x": 0.3871733780711272, "y": 0.5069042778424728, "universe": 35, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Left-6", "x": 0.3795881269091069, "y": 0.522572158696304, "universe": 45, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Right-6", "x": 0.38558812690910693, "y": 0.522572158696304, "universe": 45, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Top-6", "x": 0.38258812690910693, "y": 0.522572158696304, "universe": 46, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Left-7", "x": 0.13485833174392928, "y": 0.5069042778424728, "universe": 52, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Right-7", "x": 0.14085833174392928, "y": 0.5069042778424728, "universe": 53, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Left-8", "x": 0.13577419764228252, "y": 0.522572158696304, "universe": 62, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Right-8", "x": 0.14177419764228252, "y": 0.522572158696304, "universe": 63, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}, {"name": "Top-8", "x": 0.13877419764228252, "y": 0.522572158696304, "universe": 64, "ledCount": 18, "orientation": "vertical", "category": "beam_edge", "halfLen": 0.06}];
+const UNIV_COLORS = {"0": "#FF6B6B", "1": "#4ECDC4", "9": "#45B7D1", "10": "#96CEB4", "11": "#FFEAA7", "17": "#DDA0DD", "18": "#98D8C8", "27": "#F7DC6F", "28": "#BB8FCE", "29": "#85C1E9", "35": "#F1948A", "36": "#82E0AA", "45": "#F8C471", "46": "#AED6F1", "47": "#D7BDE2", "52": "#A3E4D7", "53": "#FAD7A0", "54": "#D5F5E3", "62": "#FADBD8", "63": "#D6EAF8", "64": "#E8DAEF", "71": "#D4EFDF"};
 
-const structuralFixtures = [
-  // V1 structural
-  {name:"HorizBot-1",universe:1,startCh:223,type:"structural",section:"horizontal_bar_bottom",leds:119},
-  {name:"HBot-Outside-bottom-1",universe:2,startCh:70,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"HBot-Outside-top-1",universe:2,startCh:427,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"HBot-Inside-outside-1",universe:3,startCh:274,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"Column-1",universe:4,startCh:121,type:"structural",section:"column",leds:119},
-  {name:"C-Inside-right-left-1",universe:4,startCh:478,type:"structural",section:"corner_inside",leds:119},
-  {name:"C-Inside-right-right-1",universe:5,startCh:325,type:"structural",section:"corner_inside",leds:119},
-  {name:"C-Outside-left-left-1",universe:6,startCh:172,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-left-right-1",universe:7,startCh:19,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-right-left-1",universe:7,startCh:376,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-right-right-1",universe:8,startCh:223,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Inside-left-left-1",universe:9,startCh:70,type:"structural",section:"corner_inside",leds:119},
-  // V2 structural
-  {name:"HorizTop-2",universe:11,startCh:505,type:"structural",section:"horizontal_bar_top",leds:119},
-  {name:"HTop-Inside-top-2",universe:12,startCh:352,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Inside-bot-2",universe:13,startCh:199,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Bottom-inside-2",universe:14,startCh:46,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Bottom-outside-2",universe:14,startCh:403,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Outside-bot-2",universe:15,startCh:250,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Outside-top-2",universe:16,startCh:97,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Top-outside-2",universe:16,startCh:454,type:"structural",section:"horizontal_top",leds:119},
-  // V3 structural
-  {name:"HorizBot-3",universe:19,startCh:13,type:"structural",section:"horizontal_bar_bottom",leds:119},
-  {name:"HBot-Outside-bottom-3",universe:19,startCh:370,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"HBot-Outside-top-3",universe:20,startCh:217,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"HBot-Inside-outside-3",universe:21,startCh:64,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"Column-3",universe:21,startCh:421,type:"structural",section:"column",leds:119},
-  {name:"C-Inside-right-left-3",universe:22,startCh:268,type:"structural",section:"corner_inside",leds:119},
-  {name:"C-Inside-right-right-3",universe:23,startCh:115,type:"structural",section:"corner_inside",leds:119},
-  {name:"C-Outside-left-left-3",universe:23,startCh:472,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-left-right-3",universe:24,startCh:319,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-right-left-3",universe:25,startCh:166,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-right-right-3",universe:26,startCh:13,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Inside-left-left-3",universe:26,startCh:370,type:"structural",section:"corner_inside",leds:119},
-  // V4 structural
-  {name:"HorizTop-4",universe:29,startCh:295,type:"structural",section:"horizontal_bar_top",leds:119},
-  {name:"HTop-Inside-top-4",universe:30,startCh:142,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Inside-bot-4",universe:30,startCh:499,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Bottom-inside-4",universe:31,startCh:346,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Bottom-outside-4",universe:32,startCh:193,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Outside-bot-4",universe:33,startCh:40,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Outside-top-4",universe:33,startCh:397,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Top-outside-4",universe:34,startCh:244,type:"structural",section:"horizontal_top",leds:119},
-  // V5 structural
-  {name:"HorizBot-5",universe:36,startCh:313,type:"structural",section:"horizontal_bar_bottom",leds:119},
-  {name:"HBot-Outside-bottom-5",universe:37,startCh:160,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"HBot-Outside-top-5",universe:38,startCh:7,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"HBot-Inside-outside-5",universe:38,startCh:364,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"Column-5",universe:39,startCh:211,type:"structural",section:"column",leds:119},
-  {name:"C-Inside-right-left-5",universe:40,startCh:58,type:"structural",section:"corner_inside",leds:119},
-  {name:"C-Inside-right-right-5",universe:40,startCh:415,type:"structural",section:"corner_inside",leds:119},
-  {name:"C-Outside-left-left-5",universe:41,startCh:262,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-left-right-5",universe:42,startCh:109,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-right-left-5",universe:42,startCh:466,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-right-right-5",universe:43,startCh:313,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Inside-left-left-5",universe:44,startCh:160,type:"structural",section:"corner_inside",leds:119},
-  // V6 structural
-  {name:"HorizTop-6",universe:47,startCh:85,type:"structural",section:"horizontal_bar_top",leds:119},
-  {name:"HTop-Inside-top-6",universe:47,startCh:442,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Inside-bot-6",universe:48,startCh:289,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Bottom-inside-6",universe:49,startCh:136,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Bottom-outside-6",universe:49,startCh:493,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Outside-bot-6",universe:50,startCh:340,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Outside-top-6",universe:51,startCh:187,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Top-outside-6",universe:52,startCh:34,type:"structural",section:"horizontal_top",leds:119},
-  // V7 structural
-  {name:"HorizBot-7",universe:54,startCh:103,type:"structural",section:"horizontal_bar_bottom",leds:119},
-  {name:"HBot-Outside-bottom-7",universe:54,startCh:460,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"HBot-Outside-top-7",universe:55,startCh:307,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"HBot-Inside-outside-7",universe:56,startCh:154,type:"structural",section:"horizontal_bottom",leds:119},
-  {name:"Column-7",universe:57,startCh:1,type:"structural",section:"column",leds:119},
-  {name:"C-Inside-right-left-7",universe:57,startCh:358,type:"structural",section:"corner_inside",leds:119},
-  {name:"C-Inside-right-right-7",universe:58,startCh:205,type:"structural",section:"corner_inside",leds:119},
-  {name:"C-Outside-left-left-7",universe:59,startCh:52,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-left-right-7",universe:59,startCh:409,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-right-left-7",universe:60,startCh:256,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Outside-right-right-7",universe:61,startCh:103,type:"structural",section:"corner_outside",leds:119},
-  {name:"C-Inside-left-left-7",universe:61,startCh:460,type:"structural",section:"corner_inside",leds:119},
-  // V8 structural
-  {name:"HorizTop-8",universe:64,startCh:385,type:"structural",section:"horizontal_bar_top",leds:119},
-  {name:"HTop-Inside-top-8",universe:65,startCh:232,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Inside-bot-8",universe:66,startCh:79,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Bottom-inside-8",universe:66,startCh:436,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Bottom-outside-8",universe:67,startCh:283,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Outside-bot-8",universe:68,startCh:130,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Outside-top-8",universe:68,startCh:487,type:"structural",section:"horizontal_top",leds:119},
-  {name:"HTop-Top-outside-8",universe:69,startCh:334,type:"structural",section:"horizontal_top",leds:119},
-];
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
 
-// ============================================================
-// UNIVERSE COLOR MAPPING
-// ============================================================
-// Each vertex gets a color family; universes within that vertex range get a hue variant
-function universeColor(u) {
-  // V1: u0-u9 reds/oranges
-  if (u <= 9) {
-    const t = u / 9;
-    return `hsl(${0 + t * 30}, ${80 + t*10}%, ${50 + t*8}%)`;
-  }
-  // V2: u9-u16 greens
-  if (u <= 16) {
-    const t = (u - 9) / 7;
-    return `hsl(${100 + t * 40}, ${70 + t*15}%, ${45 + t*12}%)`;
-  }
-  // V3: u17-u26 blues
-  if (u <= 26) {
-    const t = (u - 17) / 9;
-    return `hsl(${210 + t * 30}, ${70 + t*15}%, ${50 + t*10}%)`;
-  }
-  // V4: u27-u34 purples
-  if (u <= 34) {
-    const t = (u - 27) / 7;
-    return `hsl(${270 + t * 20}, ${65 + t*15}%, ${50 + t*10}%)`;
-  }
-  // V5: u35-u44 teals/cyans
-  if (u <= 44) {
-    const t = (u - 35) / 9;
-    return `hsl(${170 + t * 20}, ${60 + t*20}%, ${45 + t*12}%)`;
-  }
-  // V6: u45-u52 yellows/golds
-  if (u <= 52) {
-    const t = (u - 45) / 7;
-    return `hsl(${40 + t * 15}, ${75 + t*15}%, ${50 + t*8}%)`;
-  }
-  // V7: u52-u61 pinks/magentas
-  if (u <= 61) {
-    const t = (u - 52) / 9;
-    return `hsl(${320 + t * 25}, ${65 + t*20}%, ${50 + t*10}%)`;
-  }
-  // V8: u62-u71 light blues/sky
-  if (u <= 71) {
-    const t = (u - 62) / 9;
-    return `hsl(${195 + t * 20}, ${60 + t*25}%, ${55 + t*10}%)`;
-  }
-  return '#888';
+let W, H, dpr;
+let showLabels = true;
+let showLegend = false;
+let highlightUniv = null;
+let filterCat = null; // null = show all
+
+// View transform
+let viewX = 0, viewY = 0, viewScale = 1;
+let dragging = false, lastMX = 0, lastMY = 0;
+let pinching = false, lastPinchDist = 0, pinchCX = 0, pinchCY = 0;
+
+// Data bounds
+const xs = FIXTURES.map(f => f.x);
+const ys = FIXTURES.map(f => f.y);
+const dataMinX = Math.min(...xs), dataMaxX = Math.max(...xs);
+const dataMinY = Math.min(...ys), dataMaxY = Math.max(...ys);
+const padX = (dataMaxX - dataMinX) * 0.08;
+const padY = (dataMaxY - dataMinY) * 0.2;
+const dataW = (dataMaxX - dataMinX) + padX * 2;
+const dataH = (dataMaxY - dataMinY) + padY * 2;
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  resetView();
 }
 
-// Extract vertex number from fixture name
-function getVertex(name) {
-  const m = name.match(/-(\d)$/);
-  return m ? parseInt(m[1]) : 0;
+function resetView() {
+  const sx = (W - 40) / dataW;
+  const sy = (H - 100) / dataH;
+  viewScale = Math.min(sx, sy);
+  viewX = W / 2 - ((dataMinX - padX) + dataW / 2) * viewScale;
+  viewY = 60 + (H - 100) / 2 - ((dataMinY - padY) + dataH / 2) * viewScale;
+  draw();
 }
 
-// ============================================================
-// LAYOUT CONSTANTS
-// ============================================================
-const FACE = 390;
-const CORNER = 46;
-const MARGIN = 90;
-const BEAM_OFFSET = 8; // distance of beam strips from face edge
+function d2s(dx, dy) { return [dx * viewScale + viewX, dy * viewScale + viewY]; }
+function s2d(sx, sy) { return [(sx - viewX) / viewScale, (sy - viewY) / viewScale]; }
 
-// Face positions in the net grid (col, row)
-const faceGrid = {
-  Top:    {col:1, row:0},
-  Left:   {col:0, row:1},
-  Front:  {col:1, row:1},
-  Right:  {col:2, row:1},
-  Back:   {col:3, row:1},
-  Bottom: {col:1, row:2},
-};
-
-// Face vertex mapping [TL, TR, BR, BL]
-const faceVertices = {
-  Front:  [2, 4, 3, 1],
-  Top:    [8, 6, 4, 2],
-  Bottom: [1, 3, 5, 7],
-  Left:   [8, 2, 1, 7],
-  Right:  [4, 6, 5, 3],
-  Back:   [6, 8, 7, 5],
-};
-
-// Compute face pixel positions
-function faceOrigin(faceName) {
-  const g = faceGrid[faceName];
-  return {
-    x: MARGIN + g.col * FACE,
-    y: MARGIN + g.row * FACE,
-  };
-}
-
-// ============================================================
-// SVG BUILDER
-// ============================================================
-const svgNS = "http://www.w3.org/2000/svg";
-const svg = document.getElementById('cube-svg');
-const totalW = MARGIN * 2 + 4 * FACE;
-const totalH = MARGIN * 2 + 3 * FACE;
-svg.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
-svg.setAttribute('width', totalW);
-svg.setAttribute('height', totalH);
-
-function el(tag, attrs, parent) {
-  const e = document.createElementNS(svgNS, tag);
-  for (const [k, v] of Object.entries(attrs || {})) {
-    e.setAttribute(k, v);
-  }
-  if (parent) parent.appendChild(e);
-  return e;
-}
-
-function addTitle(parent, text) {
-  const t = el('title', {}, parent);
-  t.textContent = text;
-}
-
-// Groups for layering
-const gBeams = el('g', {id:'g-beams'}, svg);
-const gFaces = el('g', {id:'g-faces'}, svg);
-const gEdges = el('g', {id:'g-edges'}, svg);
-const gCorners = el('g', {id:'g-corners'}, svg);
-const gStrips = el('g', {id:'g-strips'}, svg);
-const gLabels = el('g', {id:'g-labels'}, svg);
-const gVertexLabels = el('g', {id:'g-vertex-labels'}, svg);
-
-// ============================================================
-// DRAW FACES
-// ============================================================
-const faceNames = ['Front','Top','Bottom','Left','Right','Back'];
-
-// Track which edges are fold lines (shared between adjacent faces)
-const foldEdges = new Set();
-// Adjacent faces share edges:
-// Front-Top: Front top edge
-// Front-Bottom: Front bottom edge
-// Front-Left: Front left edge
-// Front-Right: Front right edge
-// Right-Back: Right right edge (Back left)
-function edgeKey(face, side) { return `${face}-${side}`; }
-const sharedEdges = [
-  ['Front','top','Top','bottom'],
-  ['Front','bottom','Bottom','top'],
-  ['Front','left','Left','right'],
-  ['Front','right','Right','left'],
-  ['Right','right','Back','left'],
-];
-
-for (const faceName of faceNames) {
-  const o = faceOrigin(faceName);
-  // Face background
-  el('rect', {
-    x: o.x, y: o.y, width: FACE, height: FACE,
-    class: 'face-rect',
-    rx: 2,
-  }, gFaces);
-
-  // Face label
-  el('text', {
-    x: o.x + FACE/2, y: o.y + FACE/2,
-    class: 'face-label',
-  }, gFaces).textContent = faceName.toUpperCase();
-
-  // Vertex labels at corners
-  const verts = faceVertices[faceName];
-  const corners = [
-    {dx:0, dy:0, anchor:'start'},   // TL
-    {dx:FACE, dy:0, anchor:'end'},   // TR
-    {dx:FACE, dy:FACE, anchor:'end'},  // BR
-    {dx:0, dy:FACE, anchor:'start'},  // BL
-  ];
-
-  for (let i = 0; i < 4; i++) {
-    const c = corners[i];
-    const vx = o.x + c.dx + (c.dx === 0 ? 8 : -8);
-    const vy = o.y + c.dy + (c.dy === 0 ? 14 : -6);
-    const label = el('text', {
-      x: vx, y: vy,
-      class: 'vertex-label',
-      'text-anchor': c.anchor,
-      'data-vertex-label': 'true',
-    }, gVertexLabels);
-    label.textContent = `V${verts[i]}`;
+function getLine(f) {
+  const hl = f.halfLen || 0.012;
+  const cx = f.x, cy = f.y;
+  switch (f.orientation) {
+    case 'vertical':
+      return [cx, cy - hl, cx, cy + hl];
+    case 'horizontal':
+      return [cx - hl, cy, cx + hl, cy];
+    case 'diag-left':
+      return [cx - hl * 0.7, cy - hl * 0.7, cx + hl * 0.7, cy + hl * 0.7];
+    case 'diag-right':
+      return [cx + hl * 0.7, cy - hl * 0.7, cx - hl * 0.7, cy + hl * 0.7];
+    default:
+      return [cx, cy, cx, cy];
   }
 }
 
-// ============================================================
-// DRAW EDGE LINES (fold vs free)
-// ============================================================
-for (const faceName of faceNames) {
-  const o = faceOrigin(faceName);
-  const sides = {
-    top:    {x1: o.x, y1: o.y, x2: o.x+FACE, y2: o.y},
-    bottom: {x1: o.x, y1: o.y+FACE, x2: o.x+FACE, y2: o.y+FACE},
-    left:   {x1: o.x, y1: o.y, x2: o.x, y2: o.y+FACE},
-    right:  {x1: o.x+FACE, y1: o.y, x2: o.x+FACE, y2: o.y+FACE},
-  };
-
-  for (const side of ['top','bottom','left','right']) {
-    const s = sides[side];
-    const isFold = sharedEdges.some(e =>
-      (e[0] === faceName && e[1] === side) || (e[2] === faceName && e[3] === side)
-    );
-
-    // Don't draw both sides of a fold line; just draw from the "first" face listed
-    if (isFold) {
-      const isFirst = sharedEdges.some(e => e[0] === faceName && e[1] === side);
-      if (isFirst) {
-        el('line', {
-          x1: s.x1, y1: s.y1, x2: s.x2, y2: s.y2,
-          class: 'fold-line',
-        }, gEdges);
-      }
-    } else {
-      // Check if an adjacent face exists in that direction
-      const g = faceGrid[faceName];
-      let adjCol = g.col, adjRow = g.row;
-      if (side === 'top') adjRow--;
-      else if (side === 'bottom') adjRow++;
-      else if (side === 'left') adjCol--;
-      else if (side === 'right') adjCol++;
-
-      const hasAdj = faceNames.some(fn => {
-        const fg = faceGrid[fn];
-        return fg.col === adjCol && fg.row === adjRow;
-      });
-
-      if (!hasAdj) {
-        el('line', {
-          x1: s.x1, y1: s.y1, x2: s.x2, y2: s.y2,
-          class: 'free-edge',
-        }, gEdges);
-      }
+function draw() {
+  ctx.save();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, W, H);
+  
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  const step = 0.05;
+  for (let gx = Math.floor((dataMinX - padX) / step) * step; gx <= dataMaxX + padX; gx += step) {
+    const [sx] = d2s(gx, 0);
+    if (sx > 0 && sx < W) { ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, H); ctx.stroke(); }
+  }
+  for (let gy = Math.floor((dataMinY - padY) / step) * step; gy <= dataMaxY + padY; gy += step) {
+    const [, sy] = d2s(0, gy);
+    if (sy > 0 && sy < H) { ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(W, sy); ctx.stroke(); }
+  }
+  
+  const baseLW = Math.max(1.5, Math.min(4, viewScale * 0.003));
+  const labelZoomThresh = 500;
+  
+  // Sort: draw beams/columns first (behind), then corners on top
+  const order = { 'beam': 0, 'beam_edge': 0, 'column': 1, 'corner': 2, 'unknown': 1 };
+  const sorted = [...FIXTURES].sort((a, b) => (order[a.category] || 0) - (order[b.category] || 0));
+  
+  for (const f of sorted) {
+    if (filterCat && f.category !== filterCat && f.category !== filterCat + '_edge') continue;
+    
+    const color = UNIV_COLORS[f.universe] || '#555';
+    let alpha = 1.0;
+    if (highlightUniv !== null && f.universe !== highlightUniv) alpha = 0.06;
+    
+    const [x1, y1, x2, y2] = getLine(f);
+    const [sx1, sy1] = d2s(x1, y1);
+    const [sx2, sy2] = d2s(x2, y2);
+    
+    // Skip if off screen
+    const margin = 50;
+    if (Math.max(sx1, sx2) < -margin || Math.min(sx1, sx2) > W + margin) continue;
+    if (Math.max(sy1, sy2) < -margin || Math.min(sy1, sy2) > H + margin) continue;
+    
+    const lw = f.category === 'corner' ? baseLW : baseLW * 0.8;
+    
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(sx1, sy1);
+    ctx.lineTo(sx2, sy2);
+    ctx.stroke();
+    
+    // Endpoints
+    ctx.fillStyle = color;
+    const dr = Math.max(1, lw * 0.5);
+    ctx.beginPath(); ctx.arc(sx1, sy1, dr, 0, 6.28); ctx.fill();
+    ctx.beginPath(); ctx.arc(sx2, sy2, dr, 0, 6.28); ctx.fill();
+    
+    // Labels (only when zoomed in enough)
+    if (showLabels && viewScale > labelZoomThresh) {
+      const [scx, scy] = d2s(f.x, f.y);
+      const fs = Math.max(7, Math.min(11, viewScale * 0.006));
+      
+      ctx.globalAlpha = alpha * 0.75;
+      ctx.fillStyle = '#ddd';
+      ctx.font = `${fs}px -apple-system, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(f.name, scx, scy - lw - 4);
+      
+      ctx.fillStyle = color;
+      ctx.font = `${Math.max(6, fs - 1)}px -apple-system, sans-serif`;
+      ctx.fillText('U' + f.universe, scx, scy + lw + fs + 3);
     }
   }
+  
+  ctx.globalAlpha = 1;
+  ctx.restore();
 }
 
-// ============================================================
-// EDGE-TO-FACE MAPPING (which cube edge appears on which face edge)
-// ============================================================
-// Cube edge identified by sorted vertex pair -> beam name and face edge
-const cubeEdgeBeams = {
-  // Bottom horizontal edges (odd vertex source)
-  '1-3': {beamVertex:1, beamType:'HorizBot', faces:[
-    {face:'Front',side:'bottom'},{face:'Bottom',side:'top'}
-  ]},
-  '3-5': {beamVertex:3, beamType:'HorizBot', faces:[
-    {face:'Right',side:'bottom'},{face:'Bottom',side:'right'}
-  ]},
-  '5-7': {beamVertex:5, beamType:'HorizBot', faces:[
-    {face:'Back',side:'bottom'},{face:'Bottom',side:'bottom'}
-  ]},
-  '1-7': {beamVertex:7, beamType:'HorizBot', faces:[
-    {face:'Left',side:'bottom'},{face:'Bottom',side:'left'}
-  ]},
-  // Top horizontal edges (even vertex source)
-  '2-4': {beamVertex:2, beamType:'HorizTop', faces:[
-    {face:'Front',side:'top'},{face:'Top',side:'bottom'}
-  ]},
-  '4-6': {beamVertex:4, beamType:'HorizTop', faces:[
-    {face:'Right',side:'top'},{face:'Top',side:'right'}
-  ]},
-  '6-8': {beamVertex:6, beamType:'HorizTop', faces:[
-    {face:'Back',side:'top'},{face:'Top',side:'top'}
-  ]},
-  '2-8': {beamVertex:8, beamType:'HorizTop', faces:[
-    {face:'Left',side:'top'},{face:'Top',side:'left'}
-  ]},
-  // Vertical edges (odd vertex source)
-  '1-2': {beamVertex:1, beamType:'Column', faces:[
-    {face:'Front',side:'left'},{face:'Left',side:'right'}
-  ]},
-  '3-4': {beamVertex:3, beamType:'Column', faces:[
-    {face:'Front',side:'right'},{face:'Right',side:'left'}
-  ]},
-  '5-6': {beamVertex:5, beamType:'Column', faces:[
-    {face:'Right',side:'right'},{face:'Back',side:'left'}
-  ]},
-  '7-8': {beamVertex:7, beamType:'Column', faces:[
-    {face:'Left',side:'left'},{face:'Back',side:'right'}
-  ]},
-};
-
-// Get beam structural fixtures for a given cube edge
-function getBeamFixtures(beamVertex, beamType) {
-  const result = [];
-  if (beamType === 'HorizBot') {
-    const v = beamVertex;
-    const names = [`HorizBot-${v}`,`HBot-Outside-bottom-${v}`,`HBot-Outside-top-${v}`,`HBot-Inside-outside-${v}`];
-    for (const n of names) {
-      const f = structuralFixtures.find(sf => sf.name === n);
-      if (f) result.push(f);
-    }
-  } else if (beamType === 'HorizTop') {
-    const v = beamVertex;
-    const names = [
-      `HorizTop-${v}`,`HTop-Inside-top-${v}`,`HTop-Inside-bot-${v}`,
-      `HTop-Bottom-inside-${v}`,`HTop-Bottom-outside-${v}`,
-      `HTop-Outside-bot-${v}`,`HTop-Outside-top-${v}`,`HTop-Top-outside-${v}`
-    ];
-    for (const n of names) {
-      const f = structuralFixtures.find(sf => sf.name === n);
-      if (f) result.push(f);
-    }
-  } else if (beamType === 'Column') {
-    const v = beamVertex;
-    const f = structuralFixtures.find(sf => sf.name === `Column-${v}`);
-    if (f) result.push(f);
-  }
-  return result;
+// --- Controls ---
+function toggleLabels() {
+  showLabels = !showLabels;
+  document.getElementById('btn-labels').classList.toggle('active', showLabels);
+  draw();
 }
-
-// Get corner structural fixtures for a vertex
-function getCornerStructural(vertex) {
-  return structuralFixtures.filter(f => {
-    return (f.section === 'corner_inside' || f.section === 'corner_outside') && getVertex(f.name) === vertex;
-  });
+function toggleLegend() {
+  showLegend = !showLegend;
+  document.getElementById('btn-legend').classList.toggle('active', showLegend);
+  document.getElementById('legend').classList.toggle('show', showLegend);
 }
-
-// ============================================================
-// DRAW BEAM STRIPS along edges
-// ============================================================
-function drawBeamStrips() {
-  gBeams.innerHTML = '';
-  for (const [edgeKey, info] of Object.entries(cubeEdgeBeams)) {
-    const beamFixtures = getBeamFixtures(info.beamVertex, info.beamType);
-    if (beamFixtures.length === 0) continue;
-
-    // Determine which face edges to draw on
-    // If two faces share this edge (fold line), draw once on the fold
-    // If a face edge is free, draw on that face's boundary
-    const drawnFaces = [];
-    const isFold = info.faces.length === 2 &&
-      sharedEdges.some(se => {
-        return (se[0] === info.faces[0].face && se[1] === info.faces[0].side) ||
-               (se[0] === info.faces[1].face && se[1] === info.faces[1].side);
-      });
-
-    if (isFold) {
-      // Draw once on the fold line
-      drawnFaces.push(info.faces[0]);
-    } else {
-      // Draw on each face's boundary
-      for (const fe of info.faces) {
-        drawnFaces.push(fe);
-      }
-    }
-
-    for (const fe of drawnFaces) {
-      const o = faceOrigin(fe.face);
-      const numStrips = beamFixtures.length;
-      const spacing = 3.5;
-      const totalSpan = (numStrips - 1) * spacing;
-
-      for (let i = 0; i < numStrips; i++) {
-        const bf = beamFixtures[i];
-        const offset = -totalSpan/2 + i * spacing;
-        let x1, y1, x2, y2;
-
-        // Beams run along edges, offset outward from face
-        if (fe.side === 'top') {
-          x1 = o.x + CORNER; y1 = o.y + offset - BEAM_OFFSET;
-          x2 = o.x + FACE - CORNER; y2 = o.y + offset - BEAM_OFFSET;
-        } else if (fe.side === 'bottom') {
-          x1 = o.x + CORNER; y1 = o.y + FACE - offset + BEAM_OFFSET;
-          x2 = o.x + FACE - CORNER; y2 = o.y + FACE - offset + BEAM_OFFSET;
-        } else if (fe.side === 'left') {
-          x1 = o.x + offset - BEAM_OFFSET; y1 = o.y + CORNER;
-          x2 = o.x + offset - BEAM_OFFSET; y2 = o.y + FACE - CORNER;
-        } else if (fe.side === 'right') {
-          x1 = o.x + FACE - offset + BEAM_OFFSET; y1 = o.y + CORNER;
-          x2 = o.x + FACE - offset + BEAM_OFFSET; y2 = o.y + FACE - CORNER;
-        }
-
-        const color = universeColor(bf.universe);
-        const line = el('line', {
-          x1, y1, x2, y2,
-          stroke: color,
-          'stroke-width': 1.5,
-          class: 'beam-line',
-          'data-vertex': getVertex(bf.name),
-          'data-type': 'beam',
-          'data-universe': bf.universe,
-        }, gBeams);
-        addTitle(line, `${bf.name} | u${bf.universe} ch${bf.startCh} | 119 LEDs | ${bf.section}`);
-      }
-    }
-  }
-}
-
-// ============================================================
-// DRAW CORNER STRUCTURAL STRIPS on Bottom face
-// ============================================================
-function drawCornerStructural() {
-  // Corner structural strips (C-Inside, C-Outside) appear at odd vertices
-  // Draw them as small marks near the corners of the Bottom face
-  const bottomVerts = faceVertices['Bottom']; // [1, 3, 5, 7]
-  const o = faceOrigin('Bottom');
-
-  const cornerPositions = [
-    {dx: 0, dy: 0},         // TL = V1
-    {dx: FACE, dy: 0},      // TR = V3
-    {dx: FACE, dy: FACE},   // BR = V5
-    {dx: 0, dy: FACE},      // BL = V7
-  ];
-
-  for (let ci = 0; ci < 4; ci++) {
-    const v = bottomVerts[ci];
-    const cp = cornerPositions[ci];
-    const cx = o.x + cp.dx;
-    const cy = o.y + cp.dy;
-    const cStructs = getCornerStructural(v);
-
-    const numS = cStructs.length;
-    const spacing = 3;
-
-    for (let si = 0; si < numS; si++) {
-      const sf = cStructs[si];
-      const color = universeColor(sf.universe);
-      const off = si * spacing + 3;
-
-      // Draw as small lines radiating from corner
-      const isLeft = cp.dx === 0;
-      const isTop = cp.dy === 0;
-      const signX = isLeft ? 1 : -1;
-      const signY = isTop ? 1 : -1;
-
-      // Horizontal mark
-      const hLine = el('line', {
-        x1: cx + signX * 2, y1: cy + signY * off,
-        x2: cx + signX * (CORNER - 4), y2: cy + signY * off,
-        stroke: color,
-        'stroke-width': 1.2,
-        class: 'beam-line',
-        'data-vertex': v,
-        'data-type': 'corner-structural',
-        'data-universe': sf.universe,
-      }, gBeams);
-      addTitle(hLine, `${sf.name} | u${sf.universe} ch${sf.startCh} | 119 LEDs | ${sf.section}`);
-    }
-  }
-}
-
-// ============================================================
-// DRAW CORNER LED PANELS
-// ============================================================
-function drawCornerPanels() {
-  for (const faceName of faceNames) {
-    const o = faceOrigin(faceName);
-    const verts = faceVertices[faceName];
-
-    // Corner positions: TL, TR, BR, BL
-    const cornerDefs = [
-      {pos:'TL', dx:0, dy:0, vi:0},
-      {pos:'TR', dx:FACE-CORNER, dy:0, vi:1},
-      {pos:'BR', dx:FACE-CORNER, dy:FACE-CORNER, vi:2},
-      {pos:'BL', dx:0, dy:FACE-CORNER, vi:3},
-    ];
-
-    for (const cd of cornerDefs) {
-      const v = verts[cd.vi];
-      const isEven = v % 2 === 0;
-      const px = o.x + cd.dx;
-      const py = o.y + cd.dy;
-
-      // Corner panel background
-      el('rect', {
-        x: px, y: py, width: CORNER, height: CORNER,
-        class: 'corner-panel',
-      }, gCorners);
-
-      // Determine which panel to show
-      // TL or BL position -> CRight panel
-      // TR or BR position -> CLeft panel
-      // Top face -> CTop panel (even vertices only)
-      // Bottom face -> structural corners handled separately
-
-      let panelType;
-      if (faceName === 'Top' && isEven) {
-        panelType = 'CTop';
-      } else if (faceName === 'Bottom') {
-        // Bottom face: show CLeft/CRight for odd vertices
-        if (cd.pos === 'TL' || cd.pos === 'BL') panelType = 'CRight';
-        else panelType = 'CLeft';
-      } else {
-        if (cd.pos === 'TL' || cd.pos === 'BL') panelType = 'CRight';
-        else panelType = 'CLeft';
-      }
-
-      // Find the panel strips
-      const stripNames = [
-        `${panelType}-top-${v}`,
-        `${panelType}-left-${v}`,
-        `${panelType}-bot-${v}`,
-        `${panelType}-diag-left-${v}`,
-        `${panelType}-diag-right-${v}`,
-      ];
-
-      const panelFixtures = stripNames.map(n => fixtures.find(f => f.name === n)).filter(Boolean);
-
-      // Draw strips within the corner panel
-      const m = 2; // margin inside panel
-      for (const pf of panelFixtures) {
-        const color = universeColor(pf.universe);
-        const stripType = pf.name.replace(`${panelType}-`, '').replace(`-${v}`, '');
-        let x1, y1, x2, y2;
-        const sw = 2;
-
-        switch (stripType) {
-          case 'top':
-            x1 = px + m; y1 = py + m; x2 = px + CORNER - m; y2 = py + m;
-            break;
-          case 'left':
-            x1 = px + m; y1 = py + m; x2 = px + m; y2 = py + CORNER - m;
-            break;
-          case 'bot':
-            x1 = px + m; y1 = py + CORNER - m; x2 = px + CORNER - m; y2 = py + CORNER - m;
-            break;
-          case 'diag-left':
-            x1 = px + m; y1 = py + m; x2 = px + CORNER - m; y2 = py + CORNER - m;
-            break;
-          case 'diag-right':
-            x1 = px + CORNER - m; y1 = py + m; x2 = px + m; y2 = py + CORNER - m;
-            break;
-          default:
-            continue;
-        }
-
-        const line = el('line', {
-          x1, y1, x2, y2,
-          stroke: color,
-          'stroke-width': sw,
-          class: 'strip-line',
-          opacity: 0.85,
-          'data-vertex': v,
-          'data-type': 'corner-led',
-          'data-universe': pf.universe,
-        }, gStrips);
-        addTitle(line, `${pf.name} | u${pf.universe} ch${pf.startCh}-${pf.endCh} | ${pf.leds} LEDs`);
-      }
-
-      // Small label for vertex in corner panel
-      const labelX = px + CORNER / 2;
-      const labelY = py + CORNER / 2;
-      el('text', {
-        x: labelX, y: labelY,
-        'font-size': '7',
-        fill: '#505068',
-        'text-anchor': 'middle',
-        'dominant-baseline': 'central',
-        'pointer-events': 'none',
-      }, gLabels).textContent = panelType;
-    }
-  }
-}
-
-// ============================================================
-// DRAW EDGE LED STRIPS (Left-N, Right-N, Top-N)
-// ============================================================
-function drawEdgeStrips() {
-  // Edge strips run along face edges BETWEEN corner panels
-  // Left-N: horizontal edge going left from vertex N
-  // Right-N: horizontal edge going right from vertex N
-  // Top-N (even only): vertical/top edge from vertex N
-
-  // For each face, map which edge strip goes along which side
-  // We need to figure out: for each face edge, which vertex is at each end,
-  // and which Left-N/Right-N/Top-N strip belongs there
-
-  for (const faceName of faceNames) {
-    const o = faceOrigin(faceName);
-    const verts = faceVertices[faceName]; // [TL, TR, BR, BL]
-
-    // Face edges: top (TL->TR), right (TR->BR), bottom (BL->BR), left (TL->BL)
-    const edges = [
-      {side:'top',    from:verts[0], to:verts[1], x1:o.x+CORNER, y1:o.y+3, x2:o.x+FACE-CORNER, y2:o.y+3, dir:'h'},
-      {side:'right',  from:verts[1], to:verts[2], x1:o.x+FACE-3, y1:o.y+CORNER, x2:o.x+FACE-3, y2:o.y+FACE-CORNER, dir:'v'},
-      {side:'bottom', from:verts[3], to:verts[2], x1:o.x+CORNER, y1:o.y+FACE-3, x2:o.x+FACE-CORNER, y2:o.y+FACE-3, dir:'h'},
-      {side:'left',   from:verts[0], to:verts[3], x1:o.x+3, y1:o.y+CORNER, x2:o.x+3, y2:o.y+FACE-CORNER, dir:'v'},
-    ];
-
-    for (const edge of edges) {
-      // Determine what strip fixture belongs to this edge
-      // The edge connects vertex "from" to vertex "to"
-      // Need to match to Left-N, Right-N, or Top-N
-
-      // Logic: for a horizontal cube edge (from-to pair is both odd or both even):
-      //   If both odd: bottom edge, source is odd vertex
-      //     Left-N goes left from N, Right-N goes right from N
-      //   If both even: top edge, source is even vertex
-      //     Left-N goes left, Right-N goes right, Top-N goes up
-
-      // For a vertical cube edge (one odd, one even = column):
-      //   Left/Right from the odd vertex, Top from even vertex
-
-      const fromV = edge.from;
-      const toV = edge.to;
-      const bothOdd = fromV % 2 === 1 && toV % 2 === 1;
-      const bothEven = fromV % 2 === 0 && toV % 2 === 0;
-      const isVerticalEdge = !bothOdd && !bothEven; // one odd, one even = column
-
-      let stripFixtures = [];
-
-      if (isVerticalEdge) {
-        // Column edge: odd vertex has Left-N and Right-N on this edge
-        // even vertex has Top-N
-        const oddV = fromV % 2 === 1 ? fromV : toV;
-        const evenV = fromV % 2 === 0 ? fromV : toV;
-
-        // Which of Left/Right from odd vertex? Depends on face orientation
-        // On the face, this is a side (left or right) edge
-        if (edge.side === 'left') {
-          // Left side of face: from=TL (vertex), to=BL (vertex)
-          // The strip going toward TL (upward on face) from odd vertex
-          // If odd is at BL (bottom), strip going up = Right-oddV (going toward face interior)
-          // If odd is at TL (top), strip going down = Left-oddV
-          if (fromV === oddV) {
-            // odd is TL, going down
-            stripFixtures.push(fixtures.find(f => f.name === `Left-${oddV}`));
-          } else {
-            // odd is BL, going up
-            stripFixtures.push(fixtures.find(f => f.name === `Right-${oddV}`));
-          }
-          // Even vertex Top strip
-          const topF = fixtures.find(f => f.name === `Top-${evenV}`);
-          if (topF) stripFixtures.push(topF);
-        } else if (edge.side === 'right') {
-          if (fromV === oddV) {
-            stripFixtures.push(fixtures.find(f => f.name === `Right-${oddV}`));
-          } else {
-            stripFixtures.push(fixtures.find(f => f.name === `Left-${oddV}`));
-          }
-          const topF = fixtures.find(f => f.name === `Top-${evenV}`);
-          if (topF) stripFixtures.push(topF);
-        }
-      } else if (bothOdd) {
-        // Bottom horizontal edge
-        // From and To are both odd vertices
-        // Right-from goes toward To, Left-to goes toward From (or vice versa)
-        stripFixtures.push(fixtures.find(f => f.name === `Right-${fromV}`));
-        stripFixtures.push(fixtures.find(f => f.name === `Left-${toV}`));
-      } else if (bothEven) {
-        // Top horizontal edge
-        stripFixtures.push(fixtures.find(f => f.name === `Right-${fromV}`));
-        stripFixtures.push(fixtures.find(f => f.name === `Left-${toV}`));
-        // May also have Top strips on adjacent edges
-      }
-
-      stripFixtures = stripFixtures.filter(Boolean);
-
-      // Draw each strip as a line along this face edge
-      const numStrips = stripFixtures.length;
-      if (numStrips === 0) continue;
-
-      // Split the edge segment between corner panels
-      const segLen = edge.dir === 'h' ? (edge.x2 - edge.x1) : (edge.y2 - edge.y1);
-
-      for (let si = 0; si < numStrips; si++) {
-        const sf = stripFixtures[si];
-        if (!sf) continue;
-        const color = universeColor(sf.universe);
-
-        // Divide edge into segments for each strip
-        const segStart = si / numStrips;
-        const segEnd = (si + 1) / numStrips;
-
-        let x1, y1, x2, y2;
-        if (edge.dir === 'h') {
-          x1 = edge.x1 + segLen * segStart + 1;
-          y1 = edge.y1;
-          x2 = edge.x1 + segLen * segEnd - 1;
-          y2 = edge.y2;
-        } else {
-          x1 = edge.x1;
-          y1 = edge.y1 + segLen * segStart + 1;
-          x2 = edge.x2;
-          y2 = edge.y1 + segLen * segEnd - 1;
-        }
-
-        const line = el('line', {
-          x1, y1, x2, y2,
-          stroke: color,
-          'stroke-width': 2.5,
-          class: 'strip-line',
-          opacity: 0.85,
-          'data-vertex': getVertex(sf.name),
-          'data-type': 'edge-led',
-          'data-universe': sf.universe,
-        }, gStrips);
-        addTitle(line, `${sf.name} | u${sf.universe} ch${sf.startCh}-${sf.endCh} | ${sf.leds} LEDs`);
-
-        // Small label
-        const lx = (x1 + x2) / 2;
-        const ly = (y1 + y2) / 2;
-        let rot = 0;
-        if (edge.dir === 'v') rot = -90;
-
-        const label = el('text', {
-          x: lx, y: ly - 5,
-          class: 'strip-label',
-          'text-anchor': 'middle',
-          transform: rot !== 0 ? `rotate(${rot},${lx},${ly-5})` : undefined,
-          'data-strip-label': 'true',
-        }, gLabels);
-        label.textContent = `${sf.name} u${sf.universe}`;
-      }
-    }
-  }
-}
-
-// ============================================================
-// DRAW SPECIAL: HTop-Top-inside-8 (1 LED fixture)
-// ============================================================
-function drawSpecialFixture() {
-  // This is a single LED at V8, placed on the Top face near V8 corner
-  const topO = faceOrigin('Top');
-  const color = universeColor(71);
-  const cx = topO.x + 5;
-  const cy = topO.y + 5;
-  const dot = el('circle', {
-    cx, cy, r: 3,
-    fill: color,
-    class: 'strip-line',
-    opacity: 0.9,
-    'data-vertex': 8,
-    'data-type': 'special',
-    'data-universe': 71,
-  }, gStrips);
-  addTitle(dot, 'HTop-Top-inside-8 | u71 ch1-3 | 1 LED | horizontal_top');
-}
-
-// ============================================================
-// EDGE LABELS along face edges showing cube edge info
-// ============================================================
-function drawEdgeLabels() {
-  for (const faceName of faceNames) {
-    const o = faceOrigin(faceName);
-    const verts = faceVertices[faceName];
-
-    const edgeInfo = [
-      {side:'top', v1:verts[0], v2:verts[1]},
-      {side:'right', v1:verts[1], v2:verts[2]},
-      {side:'bottom', v1:verts[3], v2:verts[2]},
-      {side:'left', v1:verts[0], v2:verts[3]},
-    ];
-
-    for (const ei of edgeInfo) {
-      const sortedKey = [Math.min(ei.v1,ei.v2), Math.max(ei.v1,ei.v2)].join('-');
-      const beamInfo = cubeEdgeBeams[sortedKey];
-      if (!beamInfo) continue;
-
-      let lx, ly, rot = 0;
-      if (ei.side === 'top') {
-        lx = o.x + FACE/2; ly = o.y - 22;
-      } else if (ei.side === 'bottom') {
-        lx = o.x + FACE/2; ly = o.y + FACE + 22;
-      } else if (ei.side === 'left') {
-        lx = o.x - 22; ly = o.y + FACE/2; rot = -90;
-      } else {
-        lx = o.x + FACE + 22; ly = o.y + FACE/2; rot = 90;
-      }
-
-      const label = el('text', {
-        x: lx, y: ly,
-        class: 'edge-label',
-        transform: rot ? `rotate(${rot},${lx},${ly})` : undefined,
-        'data-edge-label': 'true',
-      }, gLabels);
-      label.textContent = `V${ei.v1}-V${ei.v2}`;
-    }
-  }
-}
-
-// ============================================================
-// RENDER ALL
-// ============================================================
-drawBeamStrips();
-drawCornerStructural();
-drawCornerPanels();
-drawEdgeStrips();
-drawSpecialFixture();
-drawEdgeLabels();
-
-// ============================================================
-// LEGEND
-// ============================================================
-const legendDiv = document.getElementById('legend');
-const usedUniverses = new Set();
-fixtures.forEach(f => usedUniverses.add(f.universe));
-structuralFixtures.forEach(f => usedUniverses.add(f.universe));
-const sortedUniverses = [...usedUniverses].sort((a,b) => a-b);
-
-const vertexRanges = [
-  {label:'V1',from:0,to:9},
-  {label:'V2',from:9,to:16},
-  {label:'V3',from:17,to:26},
-  {label:'V4',from:27,to:34},
-  {label:'V5',from:35,to:44},
-  {label:'V6',from:45,to:52},
-  {label:'V7',from:52,to:61},
-  {label:'V8',from:62,to:71},
-];
-
-for (const vr of vertexRanges) {
-  const header = document.createElement('div');
-  header.style.cssText = 'font-size:10px;font-weight:600;color:#707090;width:100%;margin-top:4px;border-bottom:1px solid #252540;padding-bottom:2px;';
-  header.textContent = `${vr.label} (u${vr.from}-u${vr.to})`;
-  legendDiv.appendChild(header);
-
-  const uRange = sortedUniverses.filter(u => u >= vr.from && u <= vr.to);
-  for (const u of uRange) {
-    const item = document.createElement('div');
-    item.className = 'legend-item';
-    item.dataset.universe = u;
-
-    const swatch = document.createElement('div');
-    swatch.className = 'legend-swatch';
-    swatch.style.background = universeColor(u);
-    item.appendChild(swatch);
-
-    const text = document.createElement('span');
-    // Find fixtures on this universe
-    const fOnU = fixtures.filter(f => f.universe === u).map(f => f.name);
-    const sOnU = structuralFixtures.filter(f => f.universe === u).map(f => f.name);
-    const allNames = [...fOnU, ...sOnU];
-    text.textContent = `u${u}: ${allNames.join(', ')}`;
-    text.style.maxWidth = '400px';
-    text.style.overflow = 'hidden';
-    text.style.textOverflow = 'ellipsis';
-    text.style.whiteSpace = 'nowrap';
-    item.appendChild(text);
-
-    item.addEventListener('mouseenter', () => highlightUniverse(u));
-    item.addEventListener('mouseleave', () => clearHighlight());
-
-    legendDiv.appendChild(item);
-  }
-}
-
-// ============================================================
-// INTERACTIVITY
-// ============================================================
-function highlightUniverse(u) {
-  svg.querySelectorAll('.strip-line, .beam-line').forEach(el => {
-    if (parseInt(el.dataset.universe) === u) {
-      el.style.opacity = '1';
-      el.style.filter = 'brightness(1.5) drop-shadow(0 0 6px currentColor)';
-    } else {
-      el.style.opacity = '0.15';
-      el.style.filter = '';
-    }
-  });
-}
-
-function highlightVertex(v) {
-  svg.querySelectorAll('.strip-line, .beam-line').forEach(el => {
-    if (parseInt(el.dataset.vertex) === v) {
-      el.style.opacity = '1';
-      el.style.filter = 'brightness(1.3)';
-    } else {
-      el.style.opacity = '0.12';
-      el.style.filter = '';
-    }
-  });
-}
-
-function clearHighlight() {
-  svg.querySelectorAll('.strip-line, .beam-line').forEach(el => {
-    el.style.opacity = '';
-    el.style.filter = '';
-  });
-  // Re-apply vertex filter if active
-  const vSel = document.getElementById('highlightVertex').value;
-  if (vSel) highlightVertex(parseInt(vSel));
-}
-
-// Info panel on hover
-svg.addEventListener('mouseover', e => {
-  const target = e.target.closest('.strip-line, .beam-line');
-  if (target) {
-    const titleEl = target.querySelector('title');
-    if (titleEl) {
-      const panel = document.getElementById('info-panel');
-      panel.textContent = titleEl.textContent;
-      panel.style.display = 'block';
-    }
-  }
-});
-svg.addEventListener('mouseout', e => {
-  const target = e.target.closest('.strip-line, .beam-line');
-  if (target) {
-    document.getElementById('info-panel').style.display = 'none';
-  }
-});
-
-// Controls
-document.getElementById('showLabels').addEventListener('change', e => {
-  document.querySelectorAll('[data-strip-label], [data-edge-label]').forEach(el => {
-    el.style.display = e.target.checked ? '' : 'none';
-  });
-});
-
-document.getElementById('showBeams').addEventListener('change', e => {
-  gBeams.querySelectorAll('[data-type="beam"]').forEach(el => {
-    el.style.display = e.target.checked ? '' : 'none';
-  });
-});
-
-document.getElementById('showCornerStructural').addEventListener('change', e => {
-  gBeams.querySelectorAll('[data-type="corner-structural"]').forEach(el => {
-    el.style.display = e.target.checked ? '' : 'none';
-  });
-});
-
-document.getElementById('showVertexLabels').addEventListener('change', e => {
-  document.querySelectorAll('[data-vertex-label]').forEach(el => {
-    el.style.display = e.target.checked ? '' : 'none';
-  });
-});
-
-document.getElementById('highlightVertex').addEventListener('change', e => {
-  const v = e.target.value;
-  if (v) {
-    highlightVertex(parseInt(v));
+function toggleFilter(cat) {
+  if (filterCat === cat) {
+    filterCat = null;
+    document.querySelectorAll('.btn').forEach(b => {
+      if (['btn-corners','btn-beams','btn-columns'].includes(b.id)) b.classList.remove('active');
+    });
   } else {
-    clearHighlight();
+    filterCat = cat;
+    document.querySelectorAll('.btn').forEach(b => {
+      if (['btn-corners','btn-beams','btn-columns'].includes(b.id)) b.classList.remove('active');
+    });
+    document.getElementById('btn-' + cat + 's').classList.add('active');
   }
+  draw();
+}
+
+function buildLegend() {
+  const leg = document.getElementById('legend');
+  let html = '<h3>Universes</h3>';
+  const univs = Object.keys(UNIV_COLORS).map(Number).sort((a, b) => a - b);
+  const counts = {};
+  FIXTURES.forEach(f => { counts[f.universe] = (counts[f.universe] || 0) + 1; });
+  for (const u of univs) {
+    html += '<div class="legend-item" data-u="' + u + '" onclick="clickLegend(' + u + ')">' +
+      '<span class="legend-swatch" style="background:' + UNIV_COLORS[u] + '"></span>' +
+      '<span>U' + u + ' (' + (counts[u]||0) + ')</span></div>';
+  }
+  leg.innerHTML = html;
+}
+function clickLegend(u) {
+  highlightUniv = (highlightUniv === u) ? null : u;
+  document.querySelectorAll('.legend-item').forEach(el => {
+    el.classList.toggle('dimmed', highlightUniv !== null && parseInt(el.dataset.u) !== highlightUniv);
+  });
+  draw();
+}
+
+// --- Mouse ---
+canvas.addEventListener('mousedown', e => { dragging = true; lastMX = e.clientX; lastMY = e.clientY; });
+window.addEventListener('mousemove', e => {
+  if (dragging) {
+    viewX += e.clientX - lastMX; viewY += e.clientY - lastMY;
+    lastMX = e.clientX; lastMY = e.clientY; draw();
+  } else { handleHover(e.clientX, e.clientY); }
 });
+window.addEventListener('mouseup', () => { dragging = false; });
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const f = e.deltaY < 0 ? 1.12 : 1/1.12;
+  viewX = e.clientX - (e.clientX - viewX) * f;
+  viewY = e.clientY - (e.clientY - viewY) * f;
+  viewScale *= f;
+  draw();
+}, { passive: false });
+
+// --- Touch ---
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (e.touches.length === 1) {
+    dragging = true; lastMX = e.touches[0].clientX; lastMY = e.touches[0].clientY;
+  } else if (e.touches.length === 2) {
+    pinching = true; dragging = false;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    lastPinchDist = Math.sqrt(dx*dx + dy*dy);
+    pinchCX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    pinchCY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+  }
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (pinching && e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    const f = dist / lastPinchDist;
+    viewX = cx - (pinchCX - viewX) * f + (cx - pinchCX);
+    viewY = cy - (pinchCY - viewY) * f + (cy - pinchCY);
+    viewScale *= f;
+    lastPinchDist = dist; pinchCX = cx; pinchCY = cy;
+    draw();
+  } else if (dragging && e.touches.length === 1) {
+    const tx = e.touches[0].clientX, ty = e.touches[0].clientY;
+    viewX += tx - lastMX; viewY += ty - lastMY;
+    lastMX = tx; lastMY = ty; draw();
+  }
+}, { passive: false });
+canvas.addEventListener('touchend', e => {
+  if (e.touches.length < 2) pinching = false;
+  if (e.touches.length < 1) dragging = false;
+});
+
+// --- Hover ---
+function handleHover(mx, my) {
+  let closest = null, minDist = Infinity;
+  for (const f of FIXTURES) {
+    if (filterCat && f.category !== filterCat && f.category !== filterCat + '_edge') continue;
+    const [sx, sy] = d2s(f.x, f.y);
+    const d = Math.hypot(mx - sx, my - sy);
+    if (d < minDist) { minDist = d; closest = f; }
+  }
+  if (closest && minDist < 40) {
+    tooltip.style.display = 'block';
+    let tx = mx + 15, ty = my - 10;
+    tooltip.style.left = tx + 'px'; tooltip.style.top = ty + 'px';
+    requestAnimationFrame(() => {
+      const r = tooltip.getBoundingClientRect();
+      if (r.right > W) tooltip.style.left = (mx - r.width - 10) + 'px';
+      if (r.bottom > H) tooltip.style.top = (my - r.height - 10) + 'px';
+    });
+    document.getElementById('tt-name').textContent = closest.name;
+    document.getElementById('tt-name').style.color = UNIV_COLORS[closest.universe] || '#fff';
+    document.getElementById('tt-detail').innerHTML =
+      'Universe ' + closest.universe + ' · ' + (closest.ledCount || '?') + ' LEDs<br>' +
+      'Type: ' + closest.category + ' (' + closest.orientation + ')<br>' +
+      'UV: (' + closest.x.toFixed(4) + ', ' + closest.y.toFixed(4) + ')';
+  } else {
+    tooltip.style.display = 'none';
+  }
+}
+
+// Init
+window.addEventListener('resize', resize);
+buildLegend();
+resize();
 </script>
 </body>
 </html>
