@@ -77,7 +77,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--artnet-test", default=None, metavar="HOST",
         help="Send a moving rainbow over ArtNet to HOST (controller IP or broadcast) for a few seconds, then exit.",
     )
-    p.add_argument("--artnet-seconds", type=float, default=5.0, help="Duration of --artnet-test (default 5).")
+    p.add_argument(
+        "--sacn-test", default=None, metavar="HOST",
+        help="Send a moving rainbow over sACN/E1.31 to HOST (the cube's preferred protocol) for a few seconds, then exit.",
+    )
+    p.add_argument(
+        "--sacn-universe-offset", type=int, default=0,
+        help="Add this to every sACN universe number (E1.31 reserves universe 0; try 1 if the controller expects it).",
+    )
+    p.add_argument("--artnet-seconds", dest="out_seconds", type=float, default=5.0,
+                   help="Duration of --artnet-test / --sacn-test (default 5).")
     return p
 
 
@@ -144,16 +153,24 @@ def main(argv: list[str] | None = None) -> int:
         print(format_report(mapping, issues))
         return 1 if any(i.severity == "error" for i in issues) else 0
 
-    if ns.artnet_test:
-        from .hardware.artnet import make_sink
+    if ns.artnet_test or ns.sacn_test:
+        if ns.sacn_test:
+            from .hardware.sacn import make_sacn_sink
 
-        sink = make_sink(ns.artnet_test, config_path=ns.map_config)
-        print(f"ArtNet → {ns.artnet_test}:6454 — {sink.n_leds} LEDs across "
-              f"{len(sink.layout.universes)} universes; rainbow for {ns.artnet_seconds:g}s…")
+            host, proto, port = ns.sacn_test, "sACN", 5568
+            sink = make_sacn_sink(host, config_path=ns.map_config,
+                                  universe_offset=ns.sacn_universe_offset)
+        else:
+            from .hardware.artnet import make_sink
+
+            host, proto, port = ns.artnet_test, "ArtNet", 6454
+            sink = make_sink(host, config_path=ns.map_config)
+        print(f"{proto} → {host}:{port} — {sink.n_leds} LEDs across "
+              f"{len(sink.layout.universes)} universes; rainbow for {ns.out_seconds:g}s…")
         if sink.layout.straddling:
             print(f"  note: {len(sink.layout.straddling)} pixel(s) straddle a universe "
                   f"boundary (e.g. {sink.layout.straddling[0].fixture}); verify against the controller.")
-        frames = sink.run_test_pattern(duration=ns.artnet_seconds)
+        frames = sink.run_test_pattern(duration=ns.out_seconds)
         sink.close()
         print(f"sent {frames} frames, then blackout.")
         return 0

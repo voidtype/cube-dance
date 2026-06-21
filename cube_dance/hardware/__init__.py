@@ -13,6 +13,8 @@ ArtNet output sink. None of that is wired into the live app yet.
 from __future__ import annotations
 
 from .artnet import ArtNetSink, ArtnetLayout, build_artdmx, make_sink
+from .dmx import DmxLayout, DmxSink
+from .sacn import sACNSink, build_e131, make_sacn_sink
 from .mapping import (
     Association,
     FixtureMapConfig,
@@ -29,16 +31,21 @@ __all__ = [
     "Association",
     "ArtNetSink",
     "ArtnetLayout",
+    "DmxLayout",
+    "DmxSink",
     "FixtureMapConfig",
     "HardwareCubeModel",
     "MappedFixture",
     "Mapping",
     "Placement",
     "RawFixture",
+    "sACNSink",
     "build_artdmx",
+    "build_e131",
     "build_hardware_model",
     "build_mapping",
     "load_madmapper",
+    "make_sacn_sink",
     "make_sink",
     "place_fixture",
 ]
