@@ -71,8 +71,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--map-config", default=None, metavar="PATH",
-        help="Override the fixture_map.toml used by --map-validate (default: packaged config).",
+        help="Override the fixture_map.toml used by --map-validate / --artnet-test (default: packaged config).",
     )
+    p.add_argument(
+        "--artnet-test", default=None, metavar="HOST",
+        help="Send a moving rainbow over ArtNet to HOST (controller IP or broadcast) for a few seconds, then exit.",
+    )
+    p.add_argument("--artnet-seconds", type=float, default=5.0, help="Duration of --artnet-test (default 5).")
     return p
 
 
@@ -138,6 +143,20 @@ def main(argv: list[str] | None = None) -> int:
         issues = validate(mapping)
         print(format_report(mapping, issues))
         return 1 if any(i.severity == "error" for i in issues) else 0
+
+    if ns.artnet_test:
+        from .hardware.artnet import make_sink
+
+        sink = make_sink(ns.artnet_test, config_path=ns.map_config)
+        print(f"ArtNet → {ns.artnet_test}:6454 — {sink.n_leds} LEDs across "
+              f"{len(sink.layout.universes)} universes; rainbow for {ns.artnet_seconds:g}s…")
+        if sink.layout.straddling:
+            print(f"  note: {len(sink.layout.straddling)} pixel(s) straddle a universe "
+                  f"boundary (e.g. {sink.layout.straddling[0].fixture}); verify against the controller.")
+        frames = sink.run_test_pattern(duration=ns.artnet_seconds)
+        sink.close()
+        print(f"sent {frames} frames, then blackout.")
+        return 0
 
     if ns.list_audio_inputs:
         from .audio import list_input_devices
