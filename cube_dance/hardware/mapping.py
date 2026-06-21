@@ -188,6 +188,19 @@ class Mapping:
     def total_leds(self) -> int:
         return sum(f.raw.led_count for f in self.addressable)
 
+    def output_order(self) -> tuple[MappedFixture, ...]:
+        """Addressable fixtures in the canonical output order.
+
+        The single source of truth for pixel ordering: both the ArtNet layout and
+        the HardwareCubeModel iterate this so colour-buffer row ``i`` always maps
+        to the same physical LED. Sorted by (universe, start channel); pixels
+        within a fixture follow its ``channel_offsets`` order.
+        """
+        return tuple(sorted(
+            self.addressable,
+            key=lambda f: (f.raw.artnet.universe, f.raw.artnet.start_channel),
+        ))
+
 
 # --- Loading -----------------------------------------------------------------
 def _parse_vertex(name: str) -> int | None:

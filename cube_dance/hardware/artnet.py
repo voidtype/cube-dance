@@ -72,10 +72,7 @@ class ArtnetLayout:
     """
 
     def __init__(self, mapping: Mapping) -> None:
-        fixtures = sorted(
-            mapping.addressable,
-            key=lambda f: (f.raw.artnet.universe, f.raw.artnet.start_channel),
-        )
+        fixtures = mapping.output_order()  # canonical pixel order (shared with the model)
         rows: dict[int, list[int]] = {}
         comps: dict[int, list[int]] = {}
         chans: dict[int, list[int]] = {}

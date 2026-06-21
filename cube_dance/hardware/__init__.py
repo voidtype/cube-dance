@@ -22,17 +22,23 @@ from .mapping import (
     build_mapping,
     load_madmapper,
 )
+from .model import HardwareCubeModel, build_hardware_model
+from .placement import Placement, place_fixture
 
 __all__ = [
     "Association",
     "ArtNetSink",
     "ArtnetLayout",
     "FixtureMapConfig",
+    "HardwareCubeModel",
     "MappedFixture",
     "Mapping",
+    "Placement",
     "RawFixture",
     "build_artdmx",
+    "build_hardware_model",
     "build_mapping",
     "load_madmapper",
     "make_sink",
+    "place_fixture",
 ]
