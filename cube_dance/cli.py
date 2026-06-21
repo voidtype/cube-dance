@@ -65,6 +65,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--record", action="store_true", help="Start recording an MP4 at launch (V toggles; stops on quit).")
     p.add_argument("--record-fps", type=int, default=30, help="Recording framerate (default 30).")
     p.add_argument("--record-dir", type=str, default="recordings", help="Output folder for recordings.")
+    p.add_argument(
+        "--map-validate", action="store_true",
+        help="Load the real-hardware fixture map + association config, print a validation report, and exit.",
+    )
+    p.add_argument(
+        "--map-config", default=None, metavar="PATH",
+        help="Override the fixture_map.toml used by --map-validate (default: packaged config).",
+    )
     return p
 
 
@@ -122,6 +130,14 @@ def main(argv: list[str] | None = None) -> int:
         overrides["show_bushes"] = False
     if ns.no_truss:
         overrides["show_truss"] = False
+
+    if ns.map_validate:
+        from .hardware.mapping import build_mapping, format_report, validate
+
+        mapping = build_mapping(config_path=ns.map_config)
+        issues = validate(mapping)
+        print(format_report(mapping, issues))
+        return 1 if any(i.severity == "error" for i in issues) else 0
 
     if ns.list_audio_inputs:
         from .audio import list_input_devices

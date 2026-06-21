@@ -1,0 +1,221 @@
+# Fixture -> cube-geometry association  (the remappable hardware layer)
+# ============================================================================
+# This file is the seam between Luke's MadMapper file and our cube model. Edit it
+# freely -- it is pure data, loaded at runtime, so swapping mistakes, disabling
+# fixtures Luke left unused, or wiring in new components needs NO code change.
+#
+# Two working assumptions (see the migration plan):
+#   1. The simulated cube geometry in the repo is close to correct -- keep stable.
+#   2. The MadMapper file contains extra fixtures that aren't on the physical cube
+#      (spares Luke left in). Disable those here; re-enable if reality says so.
+#
+# The cube model (cube_dance/geometry.py) has 12 EDGES (id 0-11) and 8 CORNERS
+# (id 0-7). Every fixture is associated to one of those, or to "none".
+#
+# Resolution order, lowest to highest priority:
+#   [[rule]] by cubeSection   ->   [[fixture]] by exact name (override)
+#
+# WHAT'S ENABLED TODAY: only the fixtures that actually carry addressable LEDs in
+# this MadMapper extraction -- the corner X-panels (18/25 LED) and the vertical/
+# top edge-accent strips (18 LED): 2,443 LEDs total. The big beam + column runs
+# are present in the file only as STRUCTURAL fixtures with no LED addressing, so
+# they start disabled. When their ArtNet data is mapped (or a fuller extraction
+# lands), flip `enabled = true` and add the addressing -- no rebuild required.
+# ============================================================================
+
+[meta]
+source = "reference/led_cube_mapping.json"
+
+# --- Vertex table -----------------------------------------------------------
+# MadMapper names end in "-N" (the cube vertex). This maps that N to a cube-model
+# corner id (0-7). ASSUMPTION: verify the exact correspondence on the real cube;
+# it is data here precisely so a wrong guess is a one-line fix, not a rebuild.
+# (Vertices 2,4,6,8 are the four TOP corners -- only they carry Top-/CTop- gear.)
+[vertices]
+"1" = 0
+"2" = 1
+"3" = 2
+"4" = 3
+"5" = 4
+"6" = 5
+"7" = 6
+"8" = 7
+
+# ============================================================================
+# Section rules
+# ============================================================================
+# kind    : "edge" | "corner" | "none"
+# panel   : free-form label for the Phase-3 geometry binder (which sub-strip)
+# enabled : include this section in the live mapping / output
+
+# --- Edge-accent strips (18 LEDs each, near each vertex) --------------------
+[[rule]]
+section = "vertical_left"
+kind = "edge"
+panel = "accent-vert-left"
+enabled = true
+
+[[rule]]
+section = "vertical_right"
+kind = "edge"
+panel = "accent-vert-right"
+enabled = true
+
+[[rule]]
+section = "vertical_top"
+kind = "edge"
+panel = "accent-top"
+enabled = true
+
+# --- Corner X-panels (the dense, eye-catching 18/25-LED strips) -------------
+# Each corner is an assembly of strips; `panel` names which one so the binder can
+# place it on the corner's X pattern. "diag" sections hold the two X diagonals.
+[[rule]]
+section = "corner_left_top"
+kind = "corner"
+panel = "left-top"
+enabled = true
+
+[[rule]]
+section = "corner_left_left"
+kind = "corner"
+panel = "left-left"
+enabled = true
+
+[[rule]]
+section = "corner_left_bot"
+kind = "corner"
+panel = "left-bot"
+enabled = true
+
+[[rule]]
+section = "corner_left_diag"
+kind = "corner"
+panel = "left-diag"
+enabled = true
+
+[[rule]]
+section = "corner_right_top"
+kind = "corner"
+panel = "right-top"
+enabled = true
+
+[[rule]]
+section = "corner_right_left"
+kind = "corner"
+panel = "right-left"
+enabled = true
+
+[[rule]]
+section = "corner_right_bot"
+kind = "corner"
+panel = "right-bot"
+enabled = true
+
+[[rule]]
+section = "corner_right_diag"
+kind = "corner"
+panel = "right-diag"
+enabled = true
+
+[[rule]]
+section = "corner_top_top"
+kind = "corner"
+panel = "top-top"
+enabled = true
+
+[[rule]]
+section = "corner_top_left"
+kind = "corner"
+panel = "top-left"
+enabled = true
+
+[[rule]]
+section = "corner_top_bot"
+kind = "corner"
+panel = "top-bot"
+enabled = true
+
+[[rule]]
+section = "corner_top_diag"
+kind = "corner"
+panel = "top-diag"
+enabled = true
+
+# --- Structural runs: present in the file, but NO addressable LEDs here ------
+# These are the main beams, columns and corner struts. They start disabled
+# because this extraction carries no per-pixel ArtNet data for them. Keep the
+# `kind` so intent is recorded; enable once the addressing is supplied.
+[[rule]]
+section = "horizontal_top"
+kind = "edge"
+panel = "beam-top"
+enabled = false
+note = "top horizontal beams; no addressable LEDs in this extraction"
+
+[[rule]]
+section = "horizontal_bottom"
+kind = "edge"
+panel = "beam-bottom"
+enabled = false
+note = "bottom horizontal beams; no addressable LEDs in this extraction"
+
+[[rule]]
+section = "horizontal_bar_top"
+kind = "edge"
+panel = "beam-bar-top"
+enabled = false
+note = "top beam control points; no addressable LEDs"
+
+[[rule]]
+section = "horizontal_bar_bottom"
+kind = "edge"
+panel = "beam-bar-bottom"
+enabled = false
+note = "bottom beam control points; no addressable LEDs"
+
+[[rule]]
+section = "column"
+kind = "edge"
+panel = "column"
+enabled = false
+note = "vertical column beams; no addressable LEDs in this extraction"
+
+[[rule]]
+section = "corner_inside"
+kind = "corner"
+panel = "inside"
+enabled = false
+note = "structural corner strut (C-Inside); likely unused / not addressed"
+
+[[rule]]
+section = "corner_outside"
+kind = "corner"
+panel = "outside"
+enabled = false
+note = "structural corner strut (C-Outside); likely unused / not addressed"
+
+# --- MadMapper control points (not physical LEDs) ---------------------------
+[[rule]]
+section = "channel"
+kind = "none"
+enabled = false
+note = "MadMapper 'Channel 6' control points (1 LED each); not physical"
+
+# ============================================================================
+# Per-fixture overrides  (win over the section rule above)
+# ============================================================================
+# Use these to fix individual mistakes without touching the section rule.
+# Fields are all optional; anything omitted falls back to the rule.
+#
+#   [[fixture]]
+#   name = "CLeft-top-3"
+#   enabled = false        # this one strip isn't physically there
+#   element_id = 5         # force a specific edge/corner id
+#   reverse = true         # LED order runs opposite the model's direction
+#   note = "Luke confirmed this panel is a spare"
+
+[[fixture]]
+name = "HTop-Top-inside-8"
+enabled = false
+note = "lone 1-LED stray tagged horizontal_top; not a real strip"
