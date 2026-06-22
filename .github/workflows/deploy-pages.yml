@@ -45,7 +45,10 @@ jobs:
           # files) is preserved; sync the freshly built site over it.
           git clone --depth 1 --branch gh-pages \
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages-out
-          rsync -a --delete --exclude='.git' dist/ gh-pages-out/
+          # Overlay the freshly built app files. No --delete: the large media
+          # (anchorite.mp3, the showcase mp4/mp3s) are gitignored and absent here,
+          # so they're preserved from the existing gh-pages content.
+          rsync -a --exclude='.git' dist/ gh-pages-out/
           cd gh-pages-out
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

@@ -29,7 +29,12 @@ ROOT = Path(REPO_ROOT)
 SHOWCASE_ASSETS = ROOT / "showcase" / "assets"
 
 # Files copied verbatim from web/ to the site root (and into play/).
-APP_FILES = ("index.html", "main.js", "bridge.py", "anchorite.mp3")
+APP_FILES = ("index.html", "main.js", "bridge.py")
+
+# Large media are gitignored (kept out of the repo on purpose), so they may be
+# absent in a clean CI checkout. When missing we skip them; the deploy preserves
+# whatever is already on gh-pages (the workflow syncs without --delete).
+OPTIONAL_MEDIA = ("anchorite.mp3",)
 
 # dest name under assets/  ->  source file in showcase/assets/ (the small _web
 # video variants are renamed to drop the suffix, matching the live site).
@@ -57,7 +62,7 @@ def build(out_dir: Path) -> Path:
     (out_dir / "cube_dance.zip").write_bytes(zip_bytes)
     (play_dir / "cube_dance.zip").write_bytes(zip_bytes)
 
-    # The app files at the root and duplicated into play/.
+    # The required app files at the root and duplicated into play/.
     for name in APP_FILES:
         src = HERE / name
         if not src.is_file():
@@ -65,12 +70,22 @@ def build(out_dir: Path) -> Path:
         shutil.copy2(src, out_dir / name)
         shutil.copy2(src, play_dir / name)
 
-    # Showcase media.
+    # Optional gitignored media (root + play/); preserved on gh-pages if absent.
+    for name in OPTIONAL_MEDIA:
+        src = HERE / name
+        if src.is_file():
+            shutil.copy2(src, out_dir / name)
+            shutil.copy2(src, play_dir / name)
+        else:
+            print(f"  (skip, not in checkout) {name}")
+
+    # Showcase media (mp4/mp3 are gitignored; jpgs are tracked). Skip if missing.
     for dest, src_name in ASSETS.items():
         src = SHOWCASE_ASSETS / src_name
-        if not src.is_file():
-            raise SystemExit(f"missing showcase asset: {src}")
-        shutil.copy2(src, out_dir / "assets" / dest)
+        if src.is_file():
+            shutil.copy2(src, out_dir / "assets" / dest)
+        else:
+            print(f"  (skip, not in checkout) assets/{dest}")
 
     # Static helpers.
     (out_dir / ".nojekyll").write_text("")  # serve files/dirs starting with _
