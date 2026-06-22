@@ -24,8 +24,7 @@ if np.intp(0).itemsize < 8:  # pragma: no cover - only true under Pyodide/WASM
 
     np.choose = _safe_choose
 
-from cube_dance.config import CubeConfig
-from cube_dance.led_topology import build_model
+from cube_dance.hardware.model import build_hardware_model
 from cube_dance.visuals.base import Features
 from cube_dance.visuals.engine import VisualEngine
 from cube_dance import presets
@@ -48,7 +47,10 @@ class _Ev:  # the minimal onset event the engine reads (.kind / .strength)
 
 class Bridge:
     def __init__(self, preset: str = "atlas") -> None:
-        self.model = build_model(CubeConfig())
+        # The REAL hardware layout (2,440 addressable LEDs across the cube's
+        # corner panels + edge accents), derived from Luke's MadMapper mapping —
+        # same interface as the old abstract model, so the engine is untouched.
+        self.model = build_hardware_model()
         self.n = int(self.model.n)
         self.eng = VisualEngine(self.model, n_buckets=8)
         self.out = np.zeros((self.n, 3), np.float32)   # JS reads this -> LED colours
