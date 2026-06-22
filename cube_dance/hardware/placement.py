@@ -28,8 +28,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ..config import CubeConfig
-from ..geometry import Corner, build_corners, build_edges
+from ..config import AXIS_Y, CubeConfig
+from ..geometry import Corner, Edge, _other_axes, build_corners, build_edges
 from .mapping import MappedFixture
 
 GROUP_EDGE = np.uint8(0)
@@ -40,6 +40,16 @@ _FACE_AXIS = {"left": 0, "right": 2, "top": 1}
 
 # (axis, fixed signs) -> edge index, for resolving an accent's cube edge.
 _EDGE_INDEX = {(e.axis, e.fixed): e.index for e in build_edges()}
+
+# Structural sections grouped by which of the cube's 12 edges they ride. The
+# beams/columns get best-guess placement: each fixture becomes a strip running
+# the full 2 m between corners, with siblings as parallel lines across the beam
+# face. Section -> edge group ("top"/"bottom"/"vertical"). Speculative.
+_BEAM_GROUP = {
+    "horizontal_top": "top", "horizontal_bar_top": "top",
+    "horizontal_bottom": "bottom", "horizontal_bar_bottom": "bottom",
+    "column": "vertical", "corner_inside": "vertical", "corner_outside": "vertical",
+}
 
 
 @dataclass(frozen=True)
@@ -146,9 +156,102 @@ def _place_accent(mf: MappedFixture, corner: Corner, cfg: CubeConfig) -> Placeme
     return Placement(pts, nrm, GROUP_EDGE, int(edge_id))
 
 
-def place_fixture(mf: MappedFixture, cfg: CubeConfig, corners: list[Corner] | None = None) -> Placement:
-    """Resolve one addressable fixture to per-pixel positions + normals + identity."""
+# --- Beam / column strips (best-guess full-cube structure) ------------------
+def _classify_edges(cfg: CubeConfig) -> dict[str, list[Edge]]:
+    """The 12 cube edges split into top / bottom horizontals and verticals."""
+    edges = build_edges()
+    top, bottom, vertical = [], [], []
+    for e in edges:
+        if e.axis == 1:  # Y axis -> vertical
+            vertical.append(e)
+            continue
+        # a horizontal edge's Y-sign lives in whichever fixed dim is the Y axis.
+        d0, d1 = _other_axes(e.axis)
+        sy = e.fixed[0] if d0 == AXIS_Y else e.fixed[1]
+        (top if sy > 0 else bottom).append(e)
+    key = lambda e: e.index
+    return {"top": sorted(top, key=key), "bottom": sorted(bottom, key=key),
+            "vertical": sorted(vertical, key=key)}
+
+
+def _beam_strip_segments(edge: Edge, cfg: CubeConfig, count: int) -> list[tuple]:
+    """``count`` parallel lines along the 2 m beam, spread across its outward
+    faces — so a beam reads as a filled run, not a single wire. Best-guess."""
+    axis = edge.axis
+    d0, d1 = _other_axes(axis)
+    s0, s1 = edge.fixed
+    eh, h = cfg.edge_half, cfg.half
+    # Outward faces of the beam's square section; drop a downward (-Y) face.
+    faces = []  # (fixed_dim, fixed_val, vary_dim, vary_lo, vary_hi)
+    if not (d0 == AXIS_Y and s0 < 0):
+        faces.append((d0, s0 * h, d1, s1 * eh, s1 * h))
+    if not (d1 == AXIS_Y and s1 < 0):
+        faces.append((d1, s1 * h, d0, s0 * eh, s0 * h))
+    if not faces:  # fully-down base edge: fall back to the inner-up face
+        faces.append((d0, s0 * h, d1, s1 * eh, s1 * h))
+
+    per_face = [count // len(faces) + (1 if k < count % len(faces) else 0)
+                for k in range(len(faces))]
+    segs: list[tuple] = []
+    for (fix_dim, fix_val, var_dim, vlo, vhi), c in zip(faces, per_face):
+        for j in range(c):
+            u = (j + 0.5) / c if c else 0.5
+            p0, p1 = np.zeros(3), np.zeros(3)
+            p0[axis], p1[axis] = -eh, eh
+            p0[fix_dim] = p1[fix_dim] = fix_val
+            p0[var_dim] = p1[var_dim] = vlo + u * (vhi - vlo)
+            normal = np.zeros(3)
+            normal[fix_dim] = float(np.sign(fix_val) or 1.0)
+            segs.append((p0, p1, normal))
+    return segs
+
+
+def assign_beam_strips(fixtures, cfg: CubeConfig) -> dict[str, tuple]:
+    """Map each structural fixture -> (edge, strip_index, strip_count).
+
+    Best-guess: within each group, fixtures sharing a vertex become the parallel
+    strips of one beam, and the group's vertices are zipped onto its edges in
+    index order. Deterministic (sorted by name). Confirmed at the integration test.
+    """
+    edge_groups = _classify_edges(cfg)
+    by_group: dict[str, list] = {}
+    for f in fixtures:
+        g = _BEAM_GROUP.get(f.raw.section)
+        if g is not None:
+            by_group.setdefault(g, []).append(f)
+
+    result: dict[str, tuple] = {}
+    for gname, members in by_group.items():
+        edges = edge_groups[gname]
+        by_vertex: dict[int | None, list] = {}
+        for f in members:
+            by_vertex.setdefault(f.raw.vertex, []).append(f)
+        for i, vtx in enumerate(sorted(by_vertex, key=lambda v: (v is None, v))):
+            edge = edges[i % len(edges)]
+            strips = sorted(by_vertex[vtx], key=lambda f: f.raw.name)
+            for idx, f in enumerate(strips):
+                result[f.raw.name] = (edge, idx, len(strips))
+    return result
+
+
+def place_fixture(
+    mf: MappedFixture, cfg: CubeConfig, corners: list[Corner] | None = None, beam: tuple | None = None
+) -> Placement:
+    """Resolve one addressable fixture to per-pixel positions + normals + identity.
+
+    ``beam`` (edge, strip_index, strip_count) places a structural beam/column
+    strip; pass it from :func:`assign_beam_strips` for those fixtures.
+    """
     corners = corners or build_corners()
+
+    if beam is not None:
+        edge, idx, count = beam
+        segs = _beam_strip_segments(edge, cfg, count)
+        p0, p1, normal = segs[min(idx, len(segs) - 1)]
+        k = mf.raw.led_count
+        pts, _ = _sample(p0, p1, k, mf.assoc.reverse)
+        nrm = np.tile(normal.astype(np.float32), (k, 1))
+        return Placement(pts, nrm, GROUP_EDGE, int(edge.index))
     vtx = mf.raw.vertex
     # Vertex -> corner: prefer the association's resolved corner id; else the
     # vertex table fallback (vertex 1..8 -> corner 0..7).

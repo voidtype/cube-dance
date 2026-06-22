@@ -160,8 +160,9 @@ def test_send_frame_over_udp_loopback(tmp_path):
 
 # --- The shipped mapping yields a sane, sendable layout ----------------------
 def test_shipped_mapping_builds_sink():
-    sink = ArtNetSink(build_mapping(), host="127.0.0.1")
-    assert sink.n_leds == 2440  # corners + edge accents in the default config
+    mapping = build_mapping()
+    sink = ArtNetSink(mapping, host="127.0.0.1")
+    assert sink.n_leds == mapping.total_leds() > 9000  # full cube (real + synthesised)
     assert len(sink.layout.universes) > 1
     # A full frame packs without error and every universe fits in a DMX frame.
     packets = sink.pack(np.full((sink.n_leds, 3), 0.3, dtype=np.float32))

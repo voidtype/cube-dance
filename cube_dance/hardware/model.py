@@ -28,7 +28,7 @@ from ..config import CubeConfig
 from ..geometry import build_corners, build_edges
 from ..led_topology import GROUP_CORNER, GROUP_EDGE
 from .mapping import Mapping, build_mapping
-from .placement import place_fixture
+from .placement import assign_beam_strips, place_fixture
 
 
 class HardwareCubeModel:
@@ -40,6 +40,8 @@ class HardwareCubeModel:
         corners = build_corners()
 
         fixtures = mapping.output_order()
+        # Best-guess beam/column strip assignment (structural fixtures -> cube edges).
+        beam_ctx = assign_beam_strips(fixtures, self.cfg)
         positions: list[np.ndarray] = []
         normals: list[np.ndarray] = []
         group: list[np.ndarray] = []
@@ -50,7 +52,7 @@ class HardwareCubeModel:
 
         total = 0
         for mf in fixtures:
-            pl = place_fixture(mf, self.cfg, corners)
+            pl = place_fixture(mf, self.cfg, corners, beam=beam_ctx.get(mf.raw.name))
             k = pl.positions.shape[0]
             positions.append(pl.positions)
             normals.append(pl.normals)

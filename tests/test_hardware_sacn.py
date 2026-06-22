@@ -166,7 +166,7 @@ def test_send_frame_over_udp_loopback(tmp_path):
 
 def test_shipped_mapping_builds_sacn_sink():
     sink = make_sacn_sink("127.0.0.1", universe_offset=1)  # +1 to keep all universes >=1
-    assert sink.n_leds == 2440
+    assert sink.n_leds > 9000  # full cube (real corners/accents + synthesised beams)
     assert SACN_PORT == 5568
     packets = sink.pack(np.full((sink.n_leds, 3), 0.3, dtype=np.float32))
     assert all(len(p) <= 638 for p in packets.values())

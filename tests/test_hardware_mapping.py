@@ -188,8 +188,11 @@ def test_shipped_config_has_no_errors():
     issues = validate(m)
     errors = [i for i in issues if i.severity == "error"]
     assert errors == [], f"unexpected validation errors: {errors}"
-    assert m.total_leds() > 0
-    # Sanity: only corner + edge-accent sections are driven today.
+    # Corners + edge accents (real) + beams/columns (synthesised) = the full cube.
+    assert m.total_leds() > 9000
     driven_sections = {f.raw.section for f in m.addressable}
-    assert driven_sections, "expected some addressable fixtures"
-    assert all(s.startswith(("corner_", "vertical_")) for s in driven_sections)
+    assert {"corner_left_top", "vertical_left"} <= driven_sections  # real fixtures
+    assert {"horizontal_top", "horizontal_bottom", "column"} <= driven_sections  # synthesised beams
+    # The synthesised structural fixtures are flagged, not silent.
+    assert any(i.code == "synthetic-addressing" for i in issues)
+    assert all(f.assoc.synthetic for f in m.addressable if f.raw.section.startswith("horizontal"))

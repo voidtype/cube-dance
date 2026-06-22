@@ -31,7 +31,7 @@ from __future__ import annotations
 import json
 import re
 import tomllib
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 # --- Paths -------------------------------------------------------------------
@@ -70,6 +70,10 @@ class RawFixture:
     channel_offsets: tuple[int, ...]  # 1-based R offset of each pixel within the strip
     structural: bool  # came from ``structuralFixtures`` (expected to carry no LEDs)
     vertex: int | None  # the trailing ``-N`` index, if any (which cube vertex)
+    # The universe/start the MadMapper file records even when it reserves zero
+    # channels (structural fixtures) -- a base for synthesising best-guess addressing.
+    raw_universe: int | None = None
+    raw_start: int | None = None
 
     @property
     def has_leds(self) -> bool:
@@ -86,6 +90,12 @@ class RuleSpec:
     panel: str | None = None
     enabled: bool = False
     note: str = ""
+    # Best-guess addressing for fixtures the .mad reserves with zero LED data
+    # (the structural beams/columns). When >0 and the fixture has no real
+    # channel_offsets, the loader synthesises ``led_count`` pixels at ``channel_step``
+    # (3 = RGB) so they render in the preview. Speculative until verified on the rig.
+    led_count: int = 0
+    channel_step: int = 3
 
 
 @dataclass(frozen=True)
@@ -125,6 +135,8 @@ class FixtureMapConfig:
                 panel=r.get("panel"),
                 enabled=bool(r.get("enabled", False)),
                 note=r.get("note", ""),
+                led_count=int(r.get("led_count", 0)),
+                channel_step=int(r.get("channel_step", 3)),
             )
             rules[spec.section] = spec
         overrides = {}
@@ -158,6 +170,7 @@ class Association:
     panel: str | None
     reverse: bool
     source: str  # where the decision came from: rule:<section> / override:<name> / unmatched
+    synthetic: bool = False  # addressing was best-guessed (no real LED data in the .mad)
 
 
 @dataclass(frozen=True)
@@ -224,6 +237,7 @@ def _parse_artnet(block: dict | None) -> ArtnetAddress | None:
 
 def _raw_from_entry(entry: dict, *, structural: bool) -> RawFixture:
     offsets = tuple(int(o) for o in entry.get("pixelMapping", {}).get("channelOffsets", []))
+    block = entry.get("artnet") or {}
     return RawFixture(
         name=entry["name"],
         led_count=int(entry.get("ledCount", 0)),
@@ -232,6 +246,8 @@ def _raw_from_entry(entry: dict, *, structural: bool) -> RawFixture:
         channel_offsets=offsets,
         structural=structural,
         vertex=_parse_vertex(entry["name"]),
+        raw_universe=int(block["universe"]) if "universe" in block else None,
+        raw_start=int(block["startChannel"]) if "startChannel" in block else None,
     )
 
 
@@ -275,7 +291,28 @@ def resolve(raw: RawFixture, config: FixtureMapConfig) -> MappedFixture:
     if ov is not None and ov.element_id is not None:
         element_id = ov.element_id
 
-    return MappedFixture(raw, enabled, Association(kind, element_id, panel, reverse, source))
+    # Best-guess addressing for an enabled structural fixture the .mad left with
+    # no LED data: synthesise led_count pixels at channel_step, anchored at the
+    # universe/start the file recorded. Speculative -- confirmed at integration.
+    synthetic = False
+    if rule is not None and rule.led_count > 0 and enabled and kind != "none" and not raw.channel_offsets:
+        count, step = rule.led_count, rule.channel_step
+        offsets = tuple(1 + step * i for i in range(count))
+        start = raw.raw_start if raw.raw_start else 1
+        raw = replace(
+            raw,
+            led_count=count,
+            channel_offsets=offsets,
+            artnet=ArtnetAddress(
+                universe=raw.raw_universe if raw.raw_universe is not None else 0,
+                start_channel=start,
+                end_channel=start + step * count - 1,
+                channel_count=step * count,
+            ),
+        )
+        synthetic = True
+
+    return MappedFixture(raw, enabled, Association(kind, element_id, panel, reverse, source, synthetic))
 
 
 def build_mapping(
@@ -342,20 +379,32 @@ def validate(mapping: Mapping) -> list[Issue]:
         spans = sorted(fixtures, key=lambda f: f.raw.artnet.start_channel)
         for prev, cur in zip(spans, spans[1:]):
             if cur.raw.artnet.start_channel <= prev.raw.artnet.end_channel:
-                add(Issue("error", "channel-overlap",
+                # Overlaps among best-guess (synthetic) addressing are expected
+                # until the real wiring is confirmed -- a warning, not an error.
+                synth = cur.assoc.synthetic or prev.assoc.synthetic
+                add(Issue("warn" if synth else "error", "channel-overlap",
                           f"universe {uni}: {cur.raw.name} "
                           f"(ch {cur.raw.artnet.start_channel}-{cur.raw.artnet.end_channel}) "
                           f"overlaps {prev.raw.name} "
-                          f"(ch {prev.raw.artnet.start_channel}-{prev.raw.artnet.end_channel})"))
+                          f"(ch {prev.raw.artnet.start_channel}-{prev.raw.artnet.end_channel})"
+                          + (" [synthetic]" if synth else "")))
 
-    # Reconcile our addressable total against the file's own summary.
+    # Reconcile the REAL addressable total against the file's own summary
+    # (synthesised structural pixels don't count -- they aren't in the file).
     declared = mapping.source_summary.get("totalAddressableLEDs")
     if declared is not None:
-        got = sum(f.raw.led_count for f in mapping.fixtures if f.raw.has_leds)
+        got = sum(f.raw.led_count for f in mapping.fixtures
+                  if f.raw.has_leds and not f.assoc.synthetic)
         if got != declared:
             add(Issue("info", "led-total",
                       f"file declares {declared} addressable LEDs; parsed {got} "
                       f"(differs only if fixtures changed)"))
+    n_synth = sum(1 for f in mapping.addressable if f.assoc.synthetic)
+    if n_synth:
+        add(Issue("info", "synthetic-addressing",
+                  f"{n_synth} structural fixtures use best-guess addressing "
+                  f"(no LED data in the .mad) -- positions are speculative until the "
+                  f"integration test"))
     return issues
 
 

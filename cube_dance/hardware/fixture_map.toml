@@ -142,58 +142,73 @@ kind = "corner"
 panel = "top-diag"
 enabled = true
 
-# --- Structural runs: present in the file, but NO addressable LEDs here ------
-# These are the main beams, columns and corner struts. They start disabled
-# because this extraction carries no per-pixel ArtNet data for them. Keep the
-# `kind` so intent is recorded; enable once the addressing is supplied.
+# --- Structural runs: beams, columns, corner struts --------------------------
+# SPECULATIVE / BEST-GUESS. The .mad reserves these fixtures with ZERO LED data
+# (no pixel addressing), so we SYNTHESISE it: `led_count = 119` (~2 m at 60/m)
+# pixels per strip at `channel_step = 3` (RGB), anchored at the universe/start
+# the file records. This fills out the full cube in the preview (beams between
+# corners, columns up the verticals) instead of floating corners.
+#
+# These positions + DMX addresses are NOT verified — Luke is re-doing the panels
+# and we confirm the real wiring at the integration test (~Oct). Synthetic
+# addressing WILL overlap channels (flagged as warnings, not errors); it is fine
+# for the visual preview but must be corrected before driving the real rig.
+# To revert any of these to "structure recorded but dark", set enabled = false.
 [[rule]]
 section = "horizontal_top"
 kind = "edge"
 panel = "beam-top"
-enabled = false
-note = "top horizontal beams; no addressable LEDs in this extraction"
+enabled = true
+led_count = 119
+note = "top horizontal beams (~7-8 strips/beam); SPECULATIVE addressing + placement"
 
 [[rule]]
 section = "horizontal_bottom"
 kind = "edge"
 panel = "beam-bottom"
-enabled = false
-note = "bottom horizontal beams; no addressable LEDs in this extraction"
+enabled = true
+led_count = 119
+note = "bottom horizontal beams (~3 strips/beam); SPECULATIVE addressing + placement"
 
 [[rule]]
 section = "horizontal_bar_top"
 kind = "edge"
 panel = "beam-bar-top"
-enabled = false
-note = "top beam control points; no addressable LEDs"
+enabled = true
+led_count = 119
+note = "top beam centreline strip (4th/8th strip); SPECULATIVE"
 
 [[rule]]
 section = "horizontal_bar_bottom"
 kind = "edge"
 panel = "beam-bar-bottom"
-enabled = false
-note = "bottom beam control points; no addressable LEDs"
+enabled = true
+led_count = 119
+note = "bottom beam centreline strip (4th strip); SPECULATIVE"
 
 [[rule]]
 section = "column"
 kind = "edge"
 panel = "column"
-enabled = false
-note = "vertical column beams; no addressable LEDs in this extraction"
+enabled = true
+led_count = 119
+note = "vertical column beams (1 strip/vertical edge); SPECULATIVE"
 
 [[rule]]
 section = "corner_inside"
-kind = "corner"
-panel = "inside"
-enabled = false
-note = "structural corner strut (C-Inside); likely unused / not addressed"
+kind = "edge"
+panel = "corner-inside"
+enabled = true
+led_count = 119
+note = "C-Inside struts; placed as inner strips on the vertical edges; SPECULATIVE"
 
 [[rule]]
 section = "corner_outside"
-kind = "corner"
-panel = "outside"
-enabled = false
-note = "structural corner strut (C-Outside); likely unused / not addressed"
+kind = "edge"
+panel = "corner-outside"
+enabled = true
+led_count = 119
+note = "C-Outside struts; placed as outer strips on the vertical edges; SPECULATIVE"
 
 # --- MadMapper control points (not physical LEDs) ---------------------------
 [[rule]]

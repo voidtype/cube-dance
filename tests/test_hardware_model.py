@@ -33,7 +33,8 @@ def test_pixel_count_and_order_match_artnet_sink():
     sink = ArtNetSink(mapping, host="127.0.0.1")
     # Same canonical order => the colour buffer the model writes is exactly what
     # the sink packs, row for row.
-    assert model.n == sink.n_leds == 2440
+    assert model.n == sink.n_leds == mapping.total_leds()
+    assert model.n > 9000  # corners + accents + the synthesised beams/columns
     assert model.fixture_slices == sink.layout.fixture_slices
 
 
