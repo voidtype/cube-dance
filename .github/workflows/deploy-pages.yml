@@ -1,0 +1,58 @@
+name: Deploy Pages
+
+# Rebuild the browser preview and publish it to the gh-pages branch (the same
+# branch GitHub Pages already serves) whenever the site, the engine, the mapping,
+# or the showcase media change on main. Replaces the previously-manual deploy.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'cube_dance/**'
+      - 'reference/led_cube_mapping.json'
+      - 'showcase/assets/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write  # to push the built site to the gh-pages branch
+
+concurrency:
+  group: deploy-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build the static site
+        run: python web/build_pages.py --out dist  # stdlib only — just zips + copies
+
+      - name: Publish to gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Clone the existing gh-pages branch so history (and any unmanaged
+          # files) is preserved; sync the freshly built site over it.
+          git clone --depth 1 --branch gh-pages \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages-out
+          rsync -a --delete --exclude='.git' dist/ gh-pages-out/
+          cd gh-pages-out
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to deploy."
+          else
+            git commit -m "Deploy: ${GITHUB_SHA::7} (auto)"
+            git push origin gh-pages
+          fi
