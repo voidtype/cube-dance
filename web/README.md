@@ -17,7 +17,7 @@ turn the knobs, hit the pads.
 | layer | tech | notes |
 |---|---|---|
 | effects engine | **Pyodide** (CPython + numpy, WASM) | the real `cube_dance` engine + all 57 presets, imported from a live zip of the package (`/cube_dance.zip`). ~5 ms/frame. |
-| render | **Three.js** (r184) | the 9,744 LEDs as an additive point cloud + UnrealBloom; OrbitControls. |
+| render | **Three.js** (r184) | the **real hardware layout** — 2,440 addressable LEDs (corner panels + edge accents, from Luke's MadMapper mapping via `HardwareCubeModel`) as an additive point cloud + UnrealBloom; OrbitControls. |
 | audio | **Web Audio** | stereo FFT → bass/mid/treble/8 buckets/beat/kick, in the same shape as the engine's `Features`. |
 | controller | HTML | preset picker, the preset's knobs + trigger pads. |
 | glue | `web/bridge.py` | the only new Python — imports the engine, owns the colour + feature buffers, exposes `step(t)`. Includes one WASM compat shim (`np.choose` int dtype). |

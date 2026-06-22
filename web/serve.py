@@ -27,6 +27,14 @@ PKG_DIR = os.path.join(REPO_ROOT, "cube_dance")
 ZIP_ROUTE = "/cube_dance.zip"
 ZIP_ARCNAME = "cube_dance"
 
+# Files outside the package that the engine reads at runtime, bundled into the
+# zip as siblings of cube_dance/ so they land where the loaders look. The
+# hardware model resolves reference/led_cube_mapping.json relative to the repo
+# root (cube_dance's parent), and Pyodide unpacks the zip at that root.
+REFERENCE_FILES = (
+    ("reference/led_cube_mapping.json", os.path.join(REPO_ROOT, "reference", "led_cube_mapping.json")),
+)
+
 EXCLUDE_DIRS = {"__pycache__", ".git", ".venv", "venv", ".mypy_cache",
                 ".pytest_cache", ".ruff_cache", ".idea", ".vscode", "node_modules"}
 EXCLUDE_SUFFIXES = (".pyc", ".pyo")
@@ -42,7 +50,7 @@ MIME = {
 }
 
 
-def build_zip_bytes(pkg_dir: str, arcname_root: str) -> bytes:
+def build_zip_bytes(pkg_dir: str, arcname_root: str, extra_files=()) -> bytes:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for dirpath, dirnames, filenames in os.walk(pkg_dir):
@@ -55,7 +63,16 @@ def build_zip_bytes(pkg_dir: str, arcname_root: str) -> bytes:
                     continue
                 arcname = os.path.join(arcname_root, os.path.relpath(abs_path, pkg_dir))
                 zf.write(abs_path, arcname)
+        for arcname, abs_path in extra_files:
+            if os.path.isfile(abs_path):
+                zf.write(abs_path, arcname)
     return buf.getvalue()
+
+
+def engine_zip_bytes() -> bytes:
+    """The engine zip Pyodide imports: the cube_dance package + the reference
+    mapping JSON (as a sibling of the package, where the loaders look)."""
+    return build_zip_bytes(PKG_DIR, ZIP_ARCNAME, extra_files=REFERENCE_FILES)
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -83,7 +100,7 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _zip(self, head_only: bool) -> None:
         try:
-            data = build_zip_bytes(PKG_DIR, ZIP_ARCNAME)
+            data = engine_zip_bytes()
         except OSError as exc:
             return self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, str(exc))
         self.send_response(HTTPStatus.OK)
