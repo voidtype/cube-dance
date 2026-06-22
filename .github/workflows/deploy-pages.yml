@@ -34,7 +34,7 @@ jobs:
           python-version: '3.12'
 
       - name: Build the static site
-        run: python web/build_pages.py --out dist  # stdlib only — just zips + copies
+        run: python web/build_pages.py  # stdlib only — outputs to repo-root dist/
 
       - name: Publish to gh-pages
         env:

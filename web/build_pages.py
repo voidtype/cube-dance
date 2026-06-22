@@ -18,7 +18,6 @@ this automatically on push to main; see .github/workflows/deploy-pages.yml).
 from __future__ import annotations
 
 import argparse
-import os
 import shutil
 from pathlib import Path
 
@@ -115,5 +114,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    os.chdir(HERE)  # so `from serve import ...` resolves regardless of CWD
+    # `from serve import ...` resolves via the script dir (auto-added to sys.path);
+    # no chdir, so a relative --out stays relative to the caller's CWD.
     raise SystemExit(main())
