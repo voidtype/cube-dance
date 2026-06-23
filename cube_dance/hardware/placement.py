@@ -183,12 +183,15 @@ BEAM_INSET_M = 0.025  # ~1 inch
 def _beam_face_strips(edge: Edge, cfg: CubeConfig) -> list[tuple]:
     """The LED strips on a beam/column: 2 per CLAD face, inset from the edges.
 
-    From the reference photos: every clad face has two parallel strips inset
-    ~2.5 cm from each edge. Horizontal beams leave their outer Y face bare (the
-    bottom beam's ground face, the top beam's sky face) -> 3 faces, 6 strips.
-    Vertical columns are visible all round -> 4 faces, 8 strips. Returns the
-    strips (p0, p1, normal) ordered slot-major, so a beam with fewer fixtures than
-    strips still spreads across its faces rather than filling one face first.
+    From Luke's reference photos, every clad face has two parallel strips inset
+    ~2.5 cm from each edge, and the clad faces differ by beam type:
+      * Bottom beams: top (up, into the cube) + outward faces only -> 4 strips.
+        The ground face and the INWARD face are bare.
+      * Top beams: bottom (down, into the cube) + outward + inward faces -> 6.
+        Only the skyward top face is bare.
+      * Columns: all 4 faces visible -> 8 strips.
+    Returns the strips (p0, p1, normal) ordered slot-major, so a beam with fewer
+    fixtures than strips still spreads across its faces rather than filling one.
     """
     axis = edge.axis
     d0, d1 = _other_axes(axis)
@@ -196,12 +199,22 @@ def _beam_face_strips(edge: Edge, cfg: CubeConfig) -> list[tuple]:
     eh, h = cfg.edge_half, cfg.half
     inset = BEAM_INSET_M
 
-    # Clad faces: fix one perpendicular dim, vary the other. Skip the OUTER Y face
-    # of a horizontal beam (the unclad ground/sky face).
+    # For a horizontal beam one perpendicular dim is Y (vertical), the other is
+    # the horizontal "H" dim. A column's axis IS Y, so it has no Y-perp face.
+    y_dim = y_sign = h_dim = None
+    if d0 == AXIS_Y:
+        y_dim, y_sign, h_dim = d0, s0, d1
+    elif d1 == AXIS_Y:
+        y_dim, y_sign, h_dim = d1, s1, d0
+
     faces = []  # (fixed_dim, fixed_val, outward_sign, vary_dim, vary_sign)
     for (fd, fs), (vd, vs) in (((d0, s0), (d1, s1)), ((d1, s1), (d0, s0))):
         for fixed_val, outward in ((fs * h, fs), (fs * eh, -fs)):  # outer, then inner
-            if fd == AXIS_Y and outward == fs:  # outer Y face -> ground/sky, unclad
+            is_outer = outward == fs
+            if fd == y_dim and is_outer:  # outer Y face -> ground/sky, unclad
+                continue
+            # A bottom beam also leaves its INWARD (inner horizontal) face bare.
+            if y_sign is not None and y_sign < 0 and fd == h_dim and not is_outer:
                 continue
             faces.append((fd, fixed_val, outward, vd, vs))
 

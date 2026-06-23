@@ -19,8 +19,8 @@
 # extraction -- the corner X-panels (18/25 LED) + the vertical/top edge-accent
 # strips (18 LED), 2,440 LEDs -- PLUS the structural beams/columns, whose LED data
 # is SYNTHESISED (best-guess; see the "Structural runs" block below) so the whole
-# cube renders in the preview. Total ~11,960 LEDs. Set enabled=false on any
-# section to leave it dark; it's pure data, no rebuild required.
+# cube renders in the preview. Total ~11,008 LEDs (2,440 real + 72 structural
+# strips x119). Set enabled=false on any section to leave it dark; pure data.
 # ============================================================================
 
 [meta]
@@ -147,14 +147,18 @@ enabled = true
 # we SYNTHESISE it: `led_count = 119` (~2 m at 60/m) pixels per strip at
 # `channel_step = 3` (RGB), anchored at the universe/start the file records.
 #
-# Strip layout is from the reference PHOTOS (placement.py `_beam_face_strips`):
-# every clad face carries 2 parallel strips inset ~1 inch (2.5 cm) from its edges.
-#   * Bottom beams: 3 clad faces (inner/up + front + back); the ground face is
-#     bare  -> 6 strips/beam.
-#   * Top beams:    3 clad faces (inner/down + front + back); the sky face is
-#     bare  -> 6 strips/beam.
-#   * Columns:      all 4 faces clad             -> 8 strips/column.
-# 4*6 + 4*6 + 4*8 = 80 physical strips == the 80 structural fixtures here.
+# Strip layout is from Luke's reference PHOTOS (placement.py `_beam_face_strips`):
+# every clad face carries 2 parallel strips inset ~1 inch (2.5 cm) from its edges,
+# and the clad faces differ by beam type:
+#   * Bottom beams: 2 clad faces -- TOP (up, into cube) + OUTWARD; the ground face
+#     AND the inward face are bare        -> 4 strips/beam.
+#   * Top beams:    3 clad faces -- DOWN (into cube) + OUTWARD + INWARD; only the
+#     skyward top face is bare            -> 6 strips/beam.
+#   * Columns:      all 4 faces clad      -> 8 strips/column.
+# 4*4 + 4*6 + 4*8 = 72 physical strips. The .mad has 80 structural fixtures, so the
+# 8 that aren't clad strips are disabled: the top sky-face strips (HTop-Top-outside-*,
+# overrides below) and the top centreline bars (horizontal_bar_top). The remaining
+# 72 map 1:1 to the strips. (Bottom keeps its centreline bar as one of its 4 strips.)
 #
 # STILL SPECULATIVE: the DMX addressing and the fixture->face assignment are NOT
 # verified — Luke is re-doing the panels, so we confirm the real wiring at the
@@ -167,7 +171,7 @@ kind = "edge"
 panel = "beam-top"
 enabled = true
 led_count = 119
-note = "top horizontal beams -> top edges; 6 strips/beam (3 clad faces x2); SPECULATIVE"
+note = "top horizontal beams -> top edges; 6 strips/beam (down+outward+inward x2); SPECULATIVE. The 4 sky-face strips are disabled per-fixture below."
 
 [[rule]]
 section = "horizontal_bottom"
@@ -175,15 +179,15 @@ kind = "edge"
 panel = "beam-bottom"
 enabled = true
 led_count = 119
-note = "bottom horizontal beams -> bottom edges; 6 strips/beam (3 clad faces x2); SPECULATIVE"
+note = "bottom horizontal beams -> bottom edges; 4 strips/beam (up+outward x2); SPECULATIVE"
 
 [[rule]]
 section = "horizontal_bar_top"
 kind = "edge"
 panel = "beam-bar-top"
-enabled = true
+enabled = false
 led_count = 119
-note = "extra top-beam strips (cycle onto the 6 clad-face slots); SPECULATIVE"
+note = "top beam centreline bar -- NOT a clad strip per the photos (top has 6); disabled"
 
 [[rule]]
 section = "horizontal_bar_bottom"
@@ -191,7 +195,7 @@ kind = "edge"
 panel = "beam-bar-bottom"
 enabled = true
 led_count = 119
-note = "extra bottom-beam strips (cycle onto the 6 clad-face slots); SPECULATIVE"
+note = "bottom beam strip -- one of the 4 bottom strips (kept); SPECULATIVE"
 
 [[rule]]
 section = "column"
@@ -241,3 +245,25 @@ note = "MadMapper 'Channel 6' control points (1 LED each); not physical"
 name = "HTop-Top-inside-8"
 enabled = false
 note = "lone 1-LED stray tagged horizontal_top; not a real strip"
+
+# Top beams' skyward face is unclad (Luke) -> disable the 4 sky-face strips so
+# each top beam is 6 strips (down + outward + inward), not 8.
+[[fixture]]
+name = "HTop-Top-outside-2"
+enabled = false
+note = "top beam sky face -- unclad per Luke's photos"
+
+[[fixture]]
+name = "HTop-Top-outside-4"
+enabled = false
+note = "top beam sky face -- unclad per Luke's photos"
+
+[[fixture]]
+name = "HTop-Top-outside-6"
+enabled = false
+note = "top beam sky face -- unclad per Luke's photos"
+
+[[fixture]]
+name = "HTop-Top-outside-8"
+enabled = false
+note = "top beam sky face -- unclad per Luke's photos"
