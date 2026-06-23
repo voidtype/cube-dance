@@ -15,12 +15,12 @@
 # Resolution order, lowest to highest priority:
 #   [[rule]] by cubeSection   ->   [[fixture]] by exact name (override)
 #
-# WHAT'S ENABLED TODAY: only the fixtures that actually carry addressable LEDs in
-# this MadMapper extraction -- the corner X-panels (18/25 LED) and the vertical/
-# top edge-accent strips (18 LED): 2,443 LEDs total. The big beam + column runs
-# are present in the file only as STRUCTURAL fixtures with no LED addressing, so
-# they start disabled. When their ArtNet data is mapped (or a fuller extraction
-# lands), flip `enabled = true` and add the addressing -- no rebuild required.
+# WHAT'S ENABLED: the fixtures that carry real addressable LEDs in this MadMapper
+# extraction -- the corner X-panels (18/25 LED) + the vertical/top edge-accent
+# strips (18 LED), 2,440 LEDs -- PLUS the structural beams/columns, whose LED data
+# is SYNTHESISED (best-guess; see the "Structural runs" block below) so the whole
+# cube renders in the preview. Total ~11,960 LEDs. Set enabled=false on any
+# section to leave it dark; it's pure data, no rebuild required.
 # ============================================================================
 
 [meta]
@@ -143,24 +143,31 @@ panel = "top-diag"
 enabled = true
 
 # --- Structural runs: beams, columns, corner struts --------------------------
-# SPECULATIVE / BEST-GUESS. The .mad reserves these fixtures with ZERO LED data
-# (no pixel addressing), so we SYNTHESISE it: `led_count = 119` (~2 m at 60/m)
-# pixels per strip at `channel_step = 3` (RGB), anchored at the universe/start
-# the file records. This fills out the full cube in the preview (beams between
-# corners, columns up the verticals) instead of floating corners.
+# The .mad reserves these fixtures with ZERO LED data (no pixel addressing), so
+# we SYNTHESISE it: `led_count = 119` (~2 m at 60/m) pixels per strip at
+# `channel_step = 3` (RGB), anchored at the universe/start the file records.
 #
-# These positions + DMX addresses are NOT verified — Luke is re-doing the panels
-# and we confirm the real wiring at the integration test (~Oct). Synthetic
-# addressing WILL overlap channels (flagged as warnings, not errors); it is fine
-# for the visual preview but must be corrected before driving the real rig.
-# To revert any of these to "structure recorded but dark", set enabled = false.
+# Strip layout is from the reference PHOTOS (placement.py `_beam_face_strips`):
+# every clad face carries 2 parallel strips inset ~1 inch (2.5 cm) from its edges.
+#   * Bottom beams: 3 clad faces (inner/up + front + back); the ground face is
+#     bare  -> 6 strips/beam.
+#   * Top beams:    3 clad faces (inner/down + front + back); the sky face is
+#     bare  -> 6 strips/beam.
+#   * Columns:      all 4 faces clad             -> 8 strips/column.
+# 4*6 + 4*6 + 4*8 = 80 physical strips == the 80 structural fixtures here.
+#
+# STILL SPECULATIVE: the DMX addressing and the fixture->face assignment are NOT
+# verified — Luke is re-doing the panels, so we confirm the real wiring at the
+# integration test (~Oct). Synthetic addressing may overlap channels (warnings,
+# not errors): fine for the visual preview, must be corrected before driving the
+# real rig. To record a section's structure but leave it dark, set enabled=false.
 [[rule]]
 section = "horizontal_top"
 kind = "edge"
 panel = "beam-top"
 enabled = true
 led_count = 119
-note = "top horizontal beams (~7-8 strips/beam); SPECULATIVE addressing + placement"
+note = "top horizontal beams -> top edges; 6 strips/beam (3 clad faces x2); SPECULATIVE"
 
 [[rule]]
 section = "horizontal_bottom"
@@ -168,7 +175,7 @@ kind = "edge"
 panel = "beam-bottom"
 enabled = true
 led_count = 119
-note = "bottom horizontal beams (~3 strips/beam); SPECULATIVE addressing + placement"
+note = "bottom horizontal beams -> bottom edges; 6 strips/beam (3 clad faces x2); SPECULATIVE"
 
 [[rule]]
 section = "horizontal_bar_top"
@@ -176,7 +183,7 @@ kind = "edge"
 panel = "beam-bar-top"
 enabled = true
 led_count = 119
-note = "top beam centreline strip (4th/8th strip); SPECULATIVE"
+note = "extra top-beam strips (cycle onto the 6 clad-face slots); SPECULATIVE"
 
 [[rule]]
 section = "horizontal_bar_bottom"
@@ -184,7 +191,7 @@ kind = "edge"
 panel = "beam-bar-bottom"
 enabled = true
 led_count = 119
-note = "bottom beam centreline strip (4th strip); SPECULATIVE"
+note = "extra bottom-beam strips (cycle onto the 6 clad-face slots); SPECULATIVE"
 
 [[rule]]
 section = "column"
@@ -192,7 +199,7 @@ kind = "edge"
 panel = "column"
 enabled = true
 led_count = 119
-note = "vertical column beams (1 strip/vertical edge); SPECULATIVE"
+note = "vertical columns -> vertical edges; 8 strips/column (4 faces x2); SPECULATIVE"
 
 [[rule]]
 section = "corner_inside"
@@ -200,7 +207,7 @@ kind = "edge"
 panel = "corner-inside"
 enabled = true
 led_count = 119
-note = "C-Inside struts; placed as inner strips on the vertical edges; SPECULATIVE"
+note = "C-Inside struts; placed as column-face strips (vertical edges); SPECULATIVE"
 
 [[rule]]
 section = "corner_outside"
@@ -208,7 +215,7 @@ kind = "edge"
 panel = "corner-outside"
 enabled = true
 led_count = 119
-note = "C-Outside struts; placed as outer strips on the vertical edges; SPECULATIVE"
+note = "C-Outside struts; placed as column-face strips (vertical edges); SPECULATIVE"
 
 # --- MadMapper control points (not physical LEDs) ---------------------------
 [[rule]]

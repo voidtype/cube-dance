@@ -174,36 +174,48 @@ def _classify_edges(cfg: CubeConfig) -> dict[str, list[Edge]]:
             "vertical": sorted(vertical, key=key)}
 
 
-def _beam_strip_segments(edge: Edge, cfg: CubeConfig, count: int) -> list[tuple]:
-    """``count`` parallel lines along the 2 m beam, spread across its outward
-    faces — so a beam reads as a filled run, not a single wire. Best-guess."""
+# Each beam/column FACE carries 2 LED strips, inset ~1 inch from the face edges
+# (confirmed from reference photos). The beam's square section spans edge_half..
+# half (0.30 m) on each perpendicular axis.
+BEAM_INSET_M = 0.025  # ~1 inch
+
+
+def _beam_face_strips(edge: Edge, cfg: CubeConfig) -> list[tuple]:
+    """The LED strips on a beam/column: 2 per CLAD face, inset from the edges.
+
+    From the reference photos: every clad face has two parallel strips inset
+    ~2.5 cm from each edge. Horizontal beams leave their outer Y face bare (the
+    bottom beam's ground face, the top beam's sky face) -> 3 faces, 6 strips.
+    Vertical columns are visible all round -> 4 faces, 8 strips. Returns the
+    strips (p0, p1, normal) ordered slot-major, so a beam with fewer fixtures than
+    strips still spreads across its faces rather than filling one face first.
+    """
     axis = edge.axis
     d0, d1 = _other_axes(axis)
     s0, s1 = edge.fixed
     eh, h = cfg.edge_half, cfg.half
-    # Outward faces of the beam's square section; drop a downward (-Y) face.
-    faces = []  # (fixed_dim, fixed_val, vary_dim, vary_lo, vary_hi)
-    if not (d0 == AXIS_Y and s0 < 0):
-        faces.append((d0, s0 * h, d1, s1 * eh, s1 * h))
-    if not (d1 == AXIS_Y and s1 < 0):
-        faces.append((d1, s1 * h, d0, s0 * eh, s0 * h))
-    if not faces:  # fully-down base edge: fall back to the inner-up face
-        faces.append((d0, s0 * h, d1, s1 * eh, s1 * h))
+    inset = BEAM_INSET_M
 
-    per_face = [count // len(faces) + (1 if k < count % len(faces) else 0)
-                for k in range(len(faces))]
-    segs: list[tuple] = []
-    for (fix_dim, fix_val, var_dim, vlo, vhi), c in zip(faces, per_face):
-        for j in range(c):
-            u = (j + 0.5) / c if c else 0.5
+    # Clad faces: fix one perpendicular dim, vary the other. Skip the OUTER Y face
+    # of a horizontal beam (the unclad ground/sky face).
+    faces = []  # (fixed_dim, fixed_val, outward_sign, vary_dim, vary_sign)
+    for (fd, fs), (vd, vs) in (((d0, s0), (d1, s1)), ((d1, s1), (d0, s0))):
+        for fixed_val, outward in ((fs * h, fs), (fs * eh, -fs)):  # outer, then inner
+            if fd == AXIS_Y and outward == fs:  # outer Y face -> ground/sky, unclad
+                continue
+            faces.append((fd, fixed_val, outward, vd, vs))
+
+    by_slot: list[list[tuple]] = [[], []]
+    for fd, fixed_val, outward, vd, vs in faces:
+        for slot, var_val in enumerate((vs * (eh + inset), vs * (h - inset))):
             p0, p1 = np.zeros(3), np.zeros(3)
             p0[axis], p1[axis] = -eh, eh
-            p0[fix_dim] = p1[fix_dim] = fix_val
-            p0[var_dim] = p1[var_dim] = vlo + u * (vhi - vlo)
+            p0[fd] = p1[fd] = fixed_val
+            p0[vd] = p1[vd] = var_val
             normal = np.zeros(3)
-            normal[fix_dim] = float(np.sign(fix_val) or 1.0)
-            segs.append((p0, p1, normal))
-    return segs
+            normal[fd] = float(outward)
+            by_slot[slot].append((p0, p1, normal))
+    return by_slot[0] + by_slot[1]
 
 
 def assign_beam_strips(fixtures, cfg: CubeConfig) -> dict[str, tuple]:
@@ -228,9 +240,10 @@ def assign_beam_strips(fixtures, cfg: CubeConfig) -> dict[str, tuple]:
             by_vertex.setdefault(f.raw.vertex, []).append(f)
         for i, vtx in enumerate(sorted(by_vertex, key=lambda v: (v is None, v))):
             edge = edges[i % len(edges)]
+            n_strips = len(_beam_face_strips(edge, cfg))  # 6 (beam) or 8 (column)
             strips = sorted(by_vertex[vtx], key=lambda f: f.raw.name)
             for idx, f in enumerate(strips):
-                result[f.raw.name] = (edge, idx, len(strips))
+                result[f.raw.name] = (edge, idx % n_strips)
     return result
 
 
@@ -239,14 +252,14 @@ def place_fixture(
 ) -> Placement:
     """Resolve one addressable fixture to per-pixel positions + normals + identity.
 
-    ``beam`` (edge, strip_index, strip_count) places a structural beam/column
-    strip; pass it from :func:`assign_beam_strips` for those fixtures.
+    ``beam`` (edge, strip_index) places a structural beam/column strip on one of
+    its per-face strips; pass it from :func:`assign_beam_strips`.
     """
     corners = corners or build_corners()
 
     if beam is not None:
-        edge, idx, count = beam
-        segs = _beam_strip_segments(edge, cfg, count)
+        edge, idx = beam
+        segs = _beam_face_strips(edge, cfg)
         p0, p1, normal = segs[min(idx, len(segs) - 1)]
         k = mf.raw.led_count
         pts, _ = _sample(p0, p1, k, mf.assoc.reverse)
