@@ -56,6 +56,11 @@ class Bridge:
         self.out = np.zeros((self.n, 3), np.float32)   # JS reads this -> LED colours
         self.feat = np.zeros(_F, np.float32)            # JS writes audio features here
         self.preset = ""
+        # Keep the cube's structure (the synthesised beams/columns) always legible
+        # in the preview: a constant dim glow floor on those pixels, so the full
+        # frame stays visible even when an audio-reactive effect leaves them dark.
+        self._structural = getattr(self.model, "structural_mask", np.zeros(self.n, bool))
+        self._base_glow = np.array([0.10, 0.13, 0.18], np.float32)  # dim cool-white outline
         self.load(preset)
 
     # --- one-time geometry for the renderer -------------------------------
@@ -166,6 +171,11 @@ class Bridge:
         )
         self.out[:] = 0.0
         self.eng.render(self.model, float(t), feats, self.out)
+        # Floor the structural beams/columns to a dim glow so the cube outline is
+        # always visible (max, so a brighter effect still shows through).
+        if self._structural.any():
+            sm = self._structural
+            self.out[sm] = np.maximum(self.out[sm], self._base_glow)
         np.clip(self.out, 0.0, 1.0, self.out)
 
 

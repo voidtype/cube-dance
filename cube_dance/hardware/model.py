@@ -48,6 +48,7 @@ class HardwareCubeModel:
         element_id: list[np.ndarray] = []
         param: list[np.ndarray] = []
         spans: list[tuple[int, int]] = []
+        structural: list[np.ndarray] = []  # True for synthesised beam/column pixels
         self.fixture_slices: dict[str, tuple[int, int]] = {}
 
         total = 0
@@ -59,6 +60,7 @@ class HardwareCubeModel:
             group.append(np.full(k, pl.group, dtype=np.uint8))
             element_id.append(np.full(k, pl.element_id, dtype=np.int32))
             param.append(np.linspace(0.0, 1.0, k, dtype=np.float32))
+            structural.append(np.full(k, mf.assoc.synthetic, dtype=bool))
             spans.append((total, k))
             self.fixture_slices[mf.raw.name] = (total, k)
             total += k
@@ -69,12 +71,17 @@ class HardwareCubeModel:
             self.group = np.concatenate(group).astype(np.uint8)
             self.element_id = np.concatenate(element_id).astype(np.int32)
             self.param = np.concatenate(param).astype(np.float32)
+            # The beams/columns (synthesised structural strips); the real corner
+            # panels + accents are False. Used to keep the cube outline always
+            # visible (a base glow) even under a dark audio-reactive effect.
+            self.structural_mask = np.concatenate(structural)
         else:  # empty mapping (no addressable fixtures)
             self.positions = np.zeros((0, 3), np.float32)
             self.normal = np.zeros((0, 3), np.float32)
             self.group = np.zeros((0,), np.uint8)
             self.element_id = np.zeros((0,), np.int32)
             self.param = np.zeros((0,), np.float32)
+            self.structural_mask = np.zeros((0,), bool)
 
         self.run_spans = spans
         self.colors = np.zeros_like(self.positions)

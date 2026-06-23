@@ -107,6 +107,17 @@ def test_a_few_geometry_presets_build_and_render():
         assert np.all(np.isfinite(model.colors)), f"{name} produced non-finite output"
 
 
+def test_structural_mask_marks_beams_only():
+    m = build_hardware_model()
+    assert m.structural_mask.shape == (m.n,)
+    # The synthesised beams/columns: 72 strips x 119 LEDs.
+    assert int(m.structural_mask.sum()) == 72 * 119
+    # Real corner panels + edge accents are not structural.
+    assert not m.structural_mask.all() and m.structural_mask.any()
+    # Structural pixels are all on edges (beams/columns), never corner panels.
+    assert not m.corner_mask[m.structural_mask].any()
+
+
 def test_shares_cubeconfig_with_sim():
     # The hardware model uses the same physical config the sim does, so geometry
     # helpers (half, side_m) line up.
